@@ -1,0 +1,1173 @@
+        function displaySubtitles() {
+            const container = document.getElementById('subtitleList');
+            
+            container.innerHTML = '';
+            
+            subtitleData.forEach((subtitle, index) => {
+                const item = document.createElement('div');
+                item.className = 'subtitle-item';
+                item.dataset.index = index;
+                
+                item.innerHTML = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube字幕校正工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* 主要內容區域 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            transition: all 0.3s ease;
+        }
+        
+        /* YouTube影片區域 */
+        .video-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .youtube-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .youtube-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .youtube-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .youtube-input button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .youtube-input button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 0;
+            padding-bottom: 45%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .video-controls button {
+            padding: 12px 18px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+        
+        .video-controls button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .video-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .current-time {
+            background: #e9ecef;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+            border: 2px solid #dee2e6;
+        }
+        
+        .toggle-video-btn {
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .toggle-video-btn:hover {
+            background: #5a6268;
+        }
+        
+        .video-controls.collapsed {
+            display: none !important;
+        }
+        
+        .status-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1976d2;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+            font-size: 13px;
+        }
+        
+        .progress-container {
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 6px;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .messages {
+            margin-top: 10px;
+        }
+        
+        /* 字幕處理區域 */
+        .subtitle-section {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .subtitle-section.processed {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .subtitle-section.side-by-side {
+            grid-template-columns: 1fr;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .subtitle-section.side-by-side .subtitle-input-panel {
+            flex: 0 0 400px;
+        }
+        
+        .subtitle-section.side-by-side .subtitle-display-panel {
+            flex: 1;
+        }
+        
+        .subtitle-input-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .subtitle-input-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .subtitle-input-panel textarea {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        
+        .subtitle-input-panel textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .process-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .process-btn.secondary {
+            background: #e9ecef;
+            color: #6c757d;
+            font-weight: 400;
+        }
+        
+        .process-btn.secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
+        }
+        
+        .copy-btn {
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+        
+        .view-mode-btn {
+            padding: 8px 16px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .view-mode-btn:hover {
+            background: #138496;
+        }
+        
+        .subtitle-display-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+        }
+        
+        .subtitle-display-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .subtitle-list {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+        }
+        
+        .subtitle-section.side-by-side .subtitle-list {
+            max-height: 500px;
+        }
+        
+        .subtitle-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .subtitle-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+        
+        .subtitle-item.deleting {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .timestamp {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-right: 12px;
+            min-width: 80px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .timestamp:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            transform: scale(1.05);
+        }
+        
+        .subtitle-content {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .subtitle-wrong {
+            color: #e74c3c;
+            margin-bottom: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .subtitle-wrong:hover {
+            background: #ffe6e6;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .subtitle-correct {
+            color: #27ae60;
+            font-size: 13px;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: text;
+            transition: all 0.2s ease;
+        }
+        
+        .subtitle-correct:focus {
+            outline: 2px solid #667eea;
+            background: #f0f8ff;
+        }
+        
+        .subtitle-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #c33;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #363;
+            font-size: 14px;
+        }
+        
+        /* 刪除確認提示 */
+        .delete-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .delete-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .video-section.collapsed {
+            padding: 10px 20px;
+        }
+        
+        .video-section.collapsed .video-container,
+        .video-section.collapsed .video-controls,
+        .video-section.collapsed .youtube-input {
+            display: none;
+        }
+        
+        /* 並排佈局 */
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr;
+            transition: all 0.3s ease;
+        }
+        
+        .content-wrapper.side-by-side {
+            grid-template-columns: 1.2fr 1fr;
+        }
+        
+        .content-wrapper.side-by-side .video-section {
+            border-right: 2px solid #e9ecef;
+            border-bottom: none;
+        }
+        
+        .content-wrapper.side-by-side .video-container {
+            max-width: none;
+            padding-bottom: 56.25%; /* 16:9 for side by side */
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper.side-by-side {
+                grid-template-columns: 1fr;
+            }
+            
+            .video-controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .video-controls button {
+                min-width: 200px;
+            }
+            
+            .subtitle-section.processed {
+                grid-template-columns: 1fr;
+            }
+            
+            .subtitle-section.side-by-side {
+                flex-direction: column;
+            }
+            
+            .subtitle-section.side-by-side .subtitle-input-panel {
+                flex: none;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+            <div class="container">
+        <div class="header">
+            <h1>🎬 YouTube字幕校正工具</h1>
+            <p>上方載入影片，下方處理字幕，點擊時間戳記跳轉影片，眼睛不用移動太多</p>
+        </div>
+        
+        <div class="content-wrapper" id="contentWrapper">
+            <!-- YouTube影片區域 -->
+            <div class="video-section" id="videoSection">
+                <div class="youtube-input">
+                    <input type="text" id="youtubeUrl" placeholder="請輸入YouTube影片網址 (如: https://www.youtube.com/watch?v=VIDEO_ID)">
+                    <button id="loadVideoBtn" onclick="loadVideo()">載入影片</button>
+                </div>
+                
+                <div id="statusInfo" class="status-info"></div>
+                
+                <div id="progressContainer" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text"></div>
+                </div>
+                
+                <div id="videoContainer" class="video-container" style="display: none;">
+                    <iframe id="youtubeIframe" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                </div>
+                
+                <div class="video-controls" id="videoControls" style="display: none;">
+                    <button id="playBtn" onclick="controlVideo('play')" title="播放">▶️ 播放</button>
+                    <button id="pauseBtn" onclick="controlVideo('pause')" title="暫停">⏸️ 暫停</button>
+                    <button onclick="controlVideo('back')" title="後退5秒">⏪ -5s</button>
+                    <button onclick="controlVideo('forward')" title="前進5秒">⏩ +5s</button>
+                    <div class="current-time" id="currentTime">00:00:00</div>
+                    <button class="toggle-video-btn" id="toggleControlsBtn" onclick="toggleVideoControls()">隱藏控制</button>
+                </div>
+                
+                <div id="messages" class="messages"></div>
+            </div>
+            
+            <!-- 校正後的字幕顯示 - 只在並排模式顯示 -->
+            <div class="subtitle-display-panel" id="sideSubtitlePanel" style="display: none;">
+                <h3>✅ 校正後的字幕</h3>
+                <div class="subtitle-list" id="sideSubtitleList"></div>
+            </div>
+        </div>
+        
+        <!-- 字幕處理區域 -->
+        <div class="subtitle-section" id="subtitleSection">
+            <!-- 字幕校正檔案輸入 -->
+            <div class="subtitle-input-panel">
+                <h3>📝 字幕校正檔案</h3>
+                <textarea id="subtitleInput" placeholder="請貼上字幕校正檔案內容，格式範例：
+[00:00:00] 1:錯誤文字:正確文字
+[00:01:30] 2:另一個錯誤:另一個正確文字
+
+處理後校正結果會顯示在右側面板"></textarea>
+                <div class="button-group" id="buttonGroup">
+                    <button class="process-btn" id="processBtn" onclick="processSubtitles()">📋 處理字幕</button>
+                </div>
+                <button class="view-mode-btn" id="viewModeBtn" onclick="toggleViewMode()" style="display: none;">📱 左右並排檢視</button>
+            </div>
+            
+            <!-- 校正後的字幕顯示 - 正常模式 -->
+            <div class="subtitle-display-panel" id="subtitleDisplayPanel">
+                <h3>✅ 校正後的字幕</h3>
+                <div class="subtitle-list" id="subtitleList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 刪除通知 -->
+    <div class="delete-notification" id="deleteNotification"></div>
+
+    <script>
+        let currentVideoId = null;
+        let isVideoLoaded = false;
+        let currentTime = 0;
+        let isPlaying = false;
+        let timeInterval = null;
+        let subtitleData = [];
+        let player = null;
+        let isControlsCollapsed = false;
+        let isSideBySide = false;
+        let isProcessed = false;
+        
+        function updateProgress(progress, text) {
+            const container = document.getElementById('progressContainer');
+            const fill = document.getElementById('progressFill');
+            const textEl = document.getElementById('progressText');
+            
+            container.style.display = 'block';
+            fill.style.width = progress + '%';
+            textEl.textContent = text;
+            
+            if (progress >= 100) {
+                setTimeout(() => {
+                    container.style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusInfo');
+            statusEl.textContent = message;
+            statusEl.style.display = 'block';
+            statusEl.className = 'status-info';
+            
+            if (type === 'error') {
+                statusEl.style.background = '#ffebee';
+                statusEl.style.borderColor = '#f44336';
+                statusEl.style.color = '#c62828';
+            } else if (type === 'success') {
+                statusEl.style.background = '#e8f5e8';
+                statusEl.style.borderColor = '#4caf50';
+                statusEl.style.color = '#2e7d32';
+            }
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 4000);
+        }
+        
+        function toggleVideoControls() {
+            const videoControls = document.getElementById('videoControls');
+            const toggleBtn = document.getElementById('toggleControlsBtn');
+            
+            isControlsCollapsed = !isControlsCollapsed;
+            
+            if (isControlsCollapsed) {
+                videoControls.classList.add('collapsed');
+                toggleBtn.textContent = '展開控制';
+                toggleBtn.style.display = 'block';
+            } else {
+                videoControls.classList.remove('collapsed');
+                toggleBtn.textContent = '隱藏控制';
+            }
+        }
+        
+        function toggleViewMode() {
+            const contentWrapper = document.getElementById('contentWrapper');
+            const subtitleSection = document.getElementById('subtitleSection');
+            const viewModeBtn = document.getElementById('viewModeBtn');
+            const sidePanel = document.getElementById('sideSubtitlePanel');
+            const mainPanel = document.getElementById('subtitleDisplayPanel');
+            
+            isSideBySide = !isSideBySide;
+            
+            if (isSideBySide) {
+                // 切換到並排模式
+                contentWrapper.classList.add('side-by-side');
+                subtitleSection.classList.add('side-by-side');
+                sidePanel.style.display = 'block';
+                mainPanel.style.display = 'none';
+                viewModeBtn.textContent = '📱 垂直檢視';
+                
+                // 複製字幕到並排面板
+                document.getElementById('sideSubtitleList').innerHTML = document.getElementById('subtitleList').innerHTML;
+            } else {
+                // 切換到垂直模式
+                contentWrapper.classList.remove('side-by-side');
+                subtitleSection.classList.remove('side-by-side');
+                sidePanel.style.display = 'none';
+                mainPanel.style.display = 'block';
+                viewModeBtn.textContent = '📱 左右並排檢視';
+            }
+        }
+        
+        function loadVideo() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const videoId = extractVideoId(url);
+            const loadBtn = document.getElementById('loadVideoBtn');
+            
+            if (!videoId) {
+                showMessage('請輸入有效的YouTube網址', 'error');
+                return;
+            }
+            
+            loadBtn.textContent = '載入中...';
+            loadBtn.disabled = true;
+            
+            updateProgress(25, '正在載入影片...');
+            
+            try {
+                const iframe = document.getElementById('youtubeIframe');
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                
+                iframe.src = embedUrl;
+                updateProgress(50, '設定影片參數...');
+                
+                iframe.onload = function() {
+                    updateProgress(75, '影片載入中...');
+                    
+                    setTimeout(() => {
+                        updateProgress(100, '影片載入完成！');
+                        
+                        currentVideoId = videoId;
+                        isVideoLoaded = true;
+                        currentTime = 0;
+                        isPlaying = false;
+                        
+                        document.getElementById('videoContainer').style.display = 'block';
+                        document.getElementById('videoControls').style.display = 'flex';
+                        
+                        loadBtn.textContent = '重新載入';
+                        loadBtn.disabled = false;
+                        
+                        showStatus('影片載入成功！現在可以點擊字幕時間戳記跳轉影片。', 'success');
+                        
+                        if (timeInterval) {
+                            clearInterval(timeInterval);
+                            timeInterval = null;
+                        }
+                        
+                        updateTimeDisplay();
+                        
+                    }, 1000);
+                };
+                
+                iframe.onerror = function() {
+                    loadBtn.textContent = '載入影片';
+                    loadBtn.disabled = false;
+                    showMessage('影片載入失敗，請檢查網址是否正確', 'error');
+                    document.getElementById('progressContainer').style.display = 'none';
+                };
+                
+            } catch (error) {
+                console.error('載入影片錯誤:', error);
+                loadBtn.textContent = '載入影片';
+                loadBtn.disabled = false;
+                showMessage('載入影片時發生錯誤', 'error');
+                document.getElementById('progressContainer').style.display = 'none';
+            }
+        }
+        
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+        
+        function controlVideo(action) {
+            if (!isVideoLoaded) {
+                showDeleteNotification('請先載入影片');
+                return;
+            }
+            
+            const iframe = document.getElementById('youtubeIframe');
+            if (!iframe) {
+                showDeleteNotification('影片載入錯誤');
+                return;
+            }
+            
+            if (action === 'play') {
+                if (!isPlaying) {
+                    isPlaying = true;
+                    startTimeTracking();
+                    
+                    // 從當前時間開始播放
+                    const startTime = Math.floor(currentTime);
+                    const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${startTime}&autoplay=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                    iframe.src = newUrl;
+                    showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+                }
+            } else if (action === 'pause') {
+                if (isPlaying) {
+                    isPlaying = false;
+                    stopTimeTracking();
+                    
+                    // 暫停在當前時間
+                    const pauseTime = Math.floor(currentTime);
+                    const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${pauseTime}&autoplay=0&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                    iframe.src = newUrl;
+                    showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
+                }
+            } else if (action === 'back') {
+                // 後退5秒
+                currentTime = Math.max(0, currentTime - 5);
+                const newTime = Math.floor(currentTime);
+                const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${newTime}&autoplay=${isPlaying ? 1 : 0}&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                iframe.src = newUrl;
+                updateTimeDisplay();
+                showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
+            } else if (action === 'forward') {
+                // 前進5秒
+                currentTime += 5;
+                const newTime = Math.floor(currentTime);
+                const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${newTime}&autoplay=${isPlaying ? 1 : 0}&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                iframe.src = newUrl;
+                updateTimeDisplay();
+                showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
+            }
+        }
+        
+        function startTimeTracking() {
+            if (timeInterval) {
+                clearInterval(timeInterval);
+            }
+            timeInterval = setInterval(() => {
+                if (isPlaying) {
+                    currentTime += 1;
+                    updateTimeDisplay();
+                }
+            }, 1000);
+        }
+        
+        function stopTimeTracking() {
+            if (timeInterval) {
+                clearInterval(timeInterval);
+                timeInterval = null;
+            }
+        }
+        
+        function updateTimeDisplay() {
+            const timeEl = document.getElementById('currentTime');
+            if (timeEl) {
+                timeEl.textContent = formatTime(currentTime);
+            }
+        }
+        
+        function seekToTime(seconds) {
+            if (!isVideoLoaded) {
+                showMessage('請先載入YouTube影片', 'error');
+                return;
+            }
+            
+            const iframe = document.getElementById('youtubeIframe');
+            if (!iframe) {
+                showMessage('影片載入錯誤', 'error');
+                return;
+            }
+            
+            try {
+                currentTime = seconds;
+                updateTimeDisplay();
+                
+                const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${Math.floor(seconds)}&autoplay=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                iframe.src = newUrl;
+                
+                isPlaying = true;
+                startTimeTracking();
+                
+                showDeleteNotification(`🎯 已跳轉到 ${formatTime(seconds)}`);
+            } catch (error) {
+                console.error('跳轉失敗:', error);
+                showMessage('跳轉失敗', 'error');
+            }
+        }
+        
+        function processSubtitles() {
+            const input = document.getElementById('subtitleInput').value.trim();
+            
+            if (!input) {
+                showMessage('請先輸入字幕校正檔案內容', 'error');
+                return;
+            }
+            
+            const lines = input.split('\n').filter(line => line.trim());
+            subtitleData = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const match = line.match(/\[(\d{2}):(\d{2}):(\d{2})\]\s*(\d+):(.*?):(.*)/);
+                if (match) {
+                    const [, hours, minutes, seconds, lineNum, wrong, correct] = match;
+                    const timeInSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+                    const timestamp = `${hours}:${minutes}:${seconds}`;
+                    
+                    subtitleData.push({
+                        originalIndex: i,
+                        lineNumber: lineNum,
+                        timeInSeconds,
+                        timestamp,
+                        wrongText: wrong.trim(),
+                        correctText: correct.trim(),
+                        originalLine: line
+                    });
+                }
+            }
+            
+            if (subtitleData.length === 0) {
+                showMessage('未找到有效的字幕格式，請檢查格式是否正確', 'error');
+                return;
+            }
+            
+            // 顯示處理後的佈局
+            document.getElementById('subtitleSection').classList.add('processed');
+            document.getElementById('subtitleDisplayPanel').style.display = 'block';
+            document.getElementById('viewModeBtn').style.display = 'block';
+            
+            // 更新按鈕組
+            updateButtonGroup();
+            
+            displaySubtitles();
+            showMessage(`✅ 成功處理 ${subtitleData.length} 條字幕校正`, 'success');
+            
+            isProcessed = true;
+        }
+        
+        function updateButtonGroup() {
+            const buttonGroup = document.getElementById('buttonGroup');
+            const processBtn = document.getElementById('processBtn');
+            
+            if (isProcessed) {
+                processBtn.classList.add('secondary');
+                
+                // 檢查是否已經有複製按鈕
+                if (!document.getElementById('copyBtn')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.id = 'copyBtn';
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = '📋 複製文字';
+                    copyBtn.onclick = copySubtitleText;
+                    buttonGroup.appendChild(copyBtn);
+                }
+            }
+        }
+        
+        function copySubtitleText() {
+            const textarea = document.getElementById('subtitleInput');
+            
+            try {
+                textarea.select();
+                textarea.setSelectionRange(0, 99999); // For mobile devices
+                
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textarea.value).then(() => {
+                        showDeleteNotification('📋 文字已複製到剪貼簿');
+                    }).catch(() => {
+                        document.execCommand('copy');
+                        showDeleteNotification('📋 文字已複製到剪貼簿');
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showDeleteNotification('📋 文字已複製到剪貼簿');
+                }
+            } catch (error) {
+                console.error('複製失敗:', error);
+                showDeleteNotification('❌ 複製失敗');
+            }
+        }
+        
+        function displaySubtitles() {
+            const container = document.getElementById('subtitleList');
+            
+            container.innerHTML = '';
+            
+            subtitleData.forEach((subtitle, index) => {
+                const item = document.createElement('div');
+                item.className = 'subtitle-item';
+                item.dataset.index = index;
+                
+                item.innerHTML = `
+                    <div class="timestamp" onclick="seekToTime(${subtitle.timeInSeconds})" title="點擊跳轉到 ${subtitle.timestamp}">
+                        ${subtitle.timestamp}
+                    </div>
+                    <div class="subtitle-content">
+                        <div class="subtitle-wrong" onclick="seekToTime(${subtitle.timeInSeconds})" title="點擊跳轉到 ${subtitle.timestamp}">
+                            <strong>錯誤：</strong>${subtitle.wrongText}
+                        </div>
+                        <div class="subtitle-correct" contenteditable="true" onblur="updateSubtitle(${index}, this.textContent)" onkeypress="handleEnterKey(event, ${index}, this)" title="點擊此處可編輯">
+                            ${subtitle.correctText}
+                        </div>
+                    </div>
+                    <div class="subtitle-actions">
+                        <button class="delete-btn" onclick="deleteSubtitle(${index})" title="點擊刪除">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+            
+            // 如果是並排模式，也更新並排面板
+            if (isSideBySide) {
+                document.getElementById('sideSubtitleList').innerHTML = container.innerHTML;
+            }
+        }
+        
+        function handleEnterKey(event, index, element) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                element.blur();
+                updateSubtitle(index, element.textContent);
+            }
+        }
+        
+        function updateSubtitle(index, newText) {
+            if (index >= 0 && index < subtitleData.length) {
+                subtitleData[index].correctText = newText.trim();
+                updateTextarea();
+                showDeleteNotification('✏️ 字幕已更新');
+            }
+        }
+        
+        function deleteSubtitle(index) {
+            if (index >= 0 && index < subtitleData.length) {
+                const item = document.querySelector(`[data-index="${index}"]`);
+                if (item) {
+                    item.classList.add('deleting');
+                    setTimeout(() => {
+                        subtitleData.splice(index, 1);
+                        updateTextarea();
+                        displaySubtitles();
+                        showDeleteNotification('🗑️ 字幕已刪除');
+                    }, 200);
+                }
+            }
+        }
+        
+        function updateTextarea() {
+            const textarea = document.getElementById('subtitleInput');
+            const newContent = subtitleData.map(item => {
+                const hours = Math.floor(item.timeInSeconds / 3600).toString().padStart(2, '0');
+                const minutes = Math.floor((item.timeInSeconds % 3600) / 60).toString().padStart(2, '0');
+                const seconds = Math.floor(item.timeInSeconds % 60).toString().padStart(2, '0');
+                return `[${hours}:${minutes}:${seconds}] ${item.lineNumber}:${item.wrongText}:${item.correctText}`;
+            }).join('\n');
+            
+            textarea.value = newContent;
+        }
+        
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function showMessage(text, type) {
+            const container = document.getElementById('messages');
+            const message = document.createElement('div');
+            message.className = type === 'error' ? 'error-message' : 'success-message';
+            message.textContent = text;
+            
+            container.innerHTML = '';
+            container.appendChild(message);
+            
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.remove();
+                }
+            }, 3000);
+        }
+        
+        function showDeleteNotification(text) {
+            const notification = document.getElementById('deleteNotification');
+            notification.textContent = text;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 頁面載入時初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const exampleData = `[00:00:00] 1:f a C d可以:Figjam可以
+[00:00:00] 2:可是數字的f a C d真的不行:可是數字的FACD真的不行
+[00:00:09] 9:GE GE lab可以:Gitlab可以
+[00:00:11] 10:f a C d不行:Figjam不行
+[00:00:12] 11:哦那你f a C d開多久啊:哦那你Figjam開多久啊
+[00:01:05] 27:那個鍵盤辦公功能組:那個一鍵排班功能組
+[00:01:28] 36:呃因為一鍵工一鍵排班的功能模組:呃因為一鍵排班的功能模組`;
+            
+            document.getElementById('subtitleInput').value = exampleData;
+        });
+    </script>
+</body>
+</html>
