@@ -435,6 +435,9 @@
             line-height: 1.4;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
         .youtube-subtitle-item:hover {
@@ -442,6 +445,11 @@
             border-color: #667eea;
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        .youtube-subtitle-content {
+            flex: 1;
+            cursor: pointer;
         }
         
         .youtube-subtitle-time {
@@ -453,6 +461,28 @@
         
         .youtube-subtitle-text {
             color: #2c3e50;
+        }
+        
+        .youtube-subtitle-add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 8px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        
+        .youtube-subtitle-add-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        
+        .youtube-subtitle-add-btn:active {
+            transform: scale(0.95);
         }
         
         .button-group {
@@ -831,15 +861,18 @@
             
             panel.innerHTML = `
                 <div style="margin-bottom: 10px; color: #666; font-size: 12px;">
-                    共 ${youtubeSubtitles.length} 條字幕 - 點擊任意字幕可跳轉到對應時間
+                    共 ${youtubeSubtitles.length} 條字幕 - 點擊字幕可跳轉，點擊「➕」可添加到校正檔
                 </div>
                 ${youtubeSubtitles.map((subtitle, index) => {
                     const time = formatTime(subtitle.start);
                     console.log('處理時間:', { original: subtitle.start, formatted: time });
                     return `
-                        <div class="youtube-subtitle-item" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${time}">
-                            <span class="youtube-subtitle-time">${time}</span>
-                            <span class="youtube-subtitle-text">${subtitle.text}</span>
+                        <div class="youtube-subtitle-item">
+                            <div class="youtube-subtitle-content" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${time}">
+                                <span class="youtube-subtitle-time">${time}</span>
+                                <span class="youtube-subtitle-text">${subtitle.text}</span>
+                            </div>
+                            <button class="youtube-subtitle-add-btn" onclick="addYouTubeSubtitle(${index})" title="添加到校正檔">➕</button>
                         </div>
                     `;
                 }).join('')}
@@ -1353,6 +1386,69 @@
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 2000);
+        }
+        
+        function addYouTubeSubtitle(index) {
+            if (!youtubeSubtitles || index < 0 || index >= youtubeSubtitles.length) {
+                showDeleteNotification('無效的字幕索引', 'error');
+                return;
+            }
+            
+            const subtitle = youtubeSubtitles[index];
+            const timeInSeconds = subtitle.start;
+            
+            // 將時間轉換為 HH:MM:SS 格式
+            const hours = Math.floor(timeInSeconds / 3600);
+            const minutes = Math.floor((timeInSeconds % 3600) / 60);
+            const seconds = Math.floor(timeInSeconds % 60);
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // 生成編號（使用索引 + 1）
+            const lineNumber = index + 1;
+            
+            // 創建新的校正檔案行
+            const newLine = `[${timeString}] ${lineNumber}:${subtitle.text}:`;
+            
+            // 獲取當前的校正檔案內容
+            const textarea = document.getElementById('subtitleInput');
+            const currentContent = textarea.value.trim();
+            
+            // 將新行添加到適當位置（按時間排序）
+            let lines = currentContent ? currentContent.split('\n') : [];
+            let insertIndex = lines.length;
+            
+            // 找到合適的插入位置（按時間排序）
+            for (let i = 0; i < lines.length; i++) {
+                const match = lines[i].match(/\[(\d{2}):(\d{2}):(\d{2})\]/);
+                if (match) {
+                    const lineTimeInSeconds = parseInt(match[1]) * 3600 + parseInt(match[2]) * 60 + parseInt(match[3]);
+                    if (timeInSeconds < lineTimeInSeconds) {
+                        insertIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            // 插入新行
+            lines.splice(insertIndex, 0, newLine);
+            
+            // 更新 textarea 內容
+            const newContent = lines.join('\n');
+            textarea.value = newContent;
+            
+            // 重新處理字幕
+            processSubtitlesRealtime();
+            
+            // 顯示成功通知
+            showDeleteNotification(`✅ 已添加字幕到校正檔: "${subtitle.text}"`, 'success');
+            
+            console.log('添加字幕到校正檔:', {
+                index,
+                time: timeString,
+                lineNumber,
+                text: subtitle.text,
+                newLine
+            });
         }
         
         // 頁面載入時初始化
