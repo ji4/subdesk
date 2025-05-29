@@ -312,6 +312,34 @@
             position: relative;
         }
         
+        .subtitle-number {
+            background: #495057;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 11px;
+            white-space: nowrap;
+            margin-right: 12px;
+            min-width: 30px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .youtube-subtitle-number {
+            background: #667eea;
+            color: white;
+            padding: 3px 7px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 10px;
+            white-space: nowrap;
+            margin-right: 8px;
+            min-width: 25px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
         .subtitle-item:hover {
             background: #e9ecef;
             transform: translateY(-1px);
@@ -895,6 +923,7 @@
                     console.log('處理時間:', { original: subtitle.start, formatted: time });
                     return `
                         <div class="youtube-subtitle-item">
+                            <div class="youtube-subtitle-number">${index + 1}</div>
                             <div class="youtube-subtitle-content" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${time}">
                                 <span class="youtube-subtitle-time">${time}</span>
                                 <span class="youtube-subtitle-text">${subtitle.text}</span>
@@ -1292,6 +1321,7 @@
                 item.dataset.index = index;
                 
                 item.innerHTML = `
+                    <div class="subtitle-number">${index + 1}</div>
                     <div class="timestamp" onclick="seekToTime(${subtitle.timeInSeconds})" title="點擊跳轉到 ${subtitle.timestamp}">
                         ${subtitle.timestamp}
                     </div>
