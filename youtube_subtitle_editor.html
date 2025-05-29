@@ -326,6 +326,12 @@
             flex-shrink: 0;
         }
         
+        /* 無法匹配的字幕編號樣式 */
+        .subtitle-number[data-unmatched="true"] {
+            background: #dc3545;
+            color: white;
+        }
+        
         .youtube-subtitle-number {
             background: #667eea;
             color: white;
@@ -1031,7 +1037,7 @@
                     score 
                 });
                 
-                if (score > bestScore && score > 0.3) {
+                if (score > bestScore && score > 0.2) {
                     bestScore = score;
                     bestMatch = subtitle;
                 }
@@ -1339,8 +1345,12 @@
                 item.className = 'subtitle-item';
                 item.dataset.index = index;
                 
+                // 根據錯誤文字找到對應的YouTube字幕編號
+                const correspondingNumber = getCorrespondingYouTubeNumber(subtitle.wrongText);
+                const isUnmatched = correspondingNumber === '?';
+                
                 item.innerHTML = `
-                    <div class="subtitle-number">${index + 1}</div>
+                    <div class="subtitle-number"${isUnmatched ? ' data-unmatched="true"' : ''}>${correspondingNumber}</div>
                     <div class="timestamp" onclick="seekToTime(${subtitle.timeInSeconds})" title="點擊跳轉到 ${subtitle.timestamp}">
                         ${subtitle.timestamp}
                     </div>
@@ -1675,6 +1685,32 @@
             
             currentHighlightedYouTube = -1;
             currentHighlightedCorrected = -1;
+        }
+        
+        function getCorrespondingYouTubeNumber(wrongText) {
+            if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
+                return '?';
+            }
+
+            let bestMatch = -1;
+            let bestScore = 0;
+            
+            // 清理文字以進行比對
+            const cleanWrongText = wrongText.toLowerCase().trim();
+            
+            for (let i = 0; i < youtubeSubtitles.length; i++) {
+                const subtitle = youtubeSubtitles[i];
+                const cleanSubtitleText = subtitle.text.toLowerCase().trim();
+                const score = calculateSimilarity(cleanWrongText, cleanSubtitleText);
+                
+                if (score > bestScore && score > 0.2) { // 降低相似度閾值到0.2
+                    bestScore = score;
+                    bestMatch = i;
+                }
+            }
+            
+            // 如果找到匹配，返回對應的編號（索引+1），否則返回問號
+            return bestMatch !== -1 ? bestMatch + 1 : '?';
         }
         
         // 頁面載入時初始化
