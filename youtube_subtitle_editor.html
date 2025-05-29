@@ -350,6 +350,14 @@
             transform: scale(0.95);
         }
         
+        /* 當前播放字幕的高亮樣式 */
+        .subtitle-item.current-playing {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
+            border: 2px solid #f39c12 !important;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3) !important;
+            transform: scale(1.02);
+        }
+        
         .timestamp {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -457,6 +465,13 @@
             border-color: #667eea;
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        .youtube-subtitle-item.current-playing {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+            border: 2px solid #2196f3 !important;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3) !important;
+            transform: scale(1.02);
         }
         
         .youtube-subtitle-content {
@@ -728,6 +743,8 @@
         let isVerticalMode = false;
         let player = null;
         let isPlayerReady = false;
+        let currentHighlightedYouTube = -1; // 當前高亮的YouTube字幕索引
+        let currentHighlightedCorrected = -1; // 當前高亮的校正字幕索引
         
         // 初始化 YouTube Player
         function onYouTubeIframeAPIReady() {
@@ -831,9 +848,11 @@
             if (event.data === YT.PlayerState.PLAYING) {
                 isPlaying = true;
                 startTimeTracking();
+                startSubtitleSync(); // 開始字幕同步
             } else if (event.data === YT.PlayerState.PAUSED) {
                 isPlaying = false;
                 stopTimeTracking();
+                stopSubtitleSync(); // 停止字幕同步
             }
         }
         
@@ -1506,6 +1525,156 @@
                 text: subtitle.text,
                 newLine
             });
+        }
+        
+        let subtitleSyncInterval = null;
+        
+        function startSubtitleSync() {
+            if (subtitleSyncInterval) {
+                clearInterval(subtitleSyncInterval);
+            }
+            
+            subtitleSyncInterval = setInterval(() => {
+                if (isPlaying && player && isPlayerReady) {
+                    try {
+                        const currentPlayerTime = player.getCurrentTime();
+                        updateCurrentTime(currentPlayerTime);
+                        highlightCurrentSubtitles(currentPlayerTime);
+                    } catch (error) {
+                        console.warn('獲取播放時間失敗:', error);
+                    }
+                }
+            }, 500); // 每500毫秒檢查一次
+        }
+        
+        function stopSubtitleSync() {
+            if (subtitleSyncInterval) {
+                clearInterval(subtitleSyncInterval);
+                subtitleSyncInterval = null;
+            }
+            // 清除所有高亮
+            clearAllHighlights();
+        }
+        
+        function updateCurrentTime(playerTime) {
+            currentTime = playerTime;
+            updateTimeDisplay();
+        }
+        
+        function highlightCurrentSubtitles(currentPlayerTime) {
+            highlightYouTubeSubtitle(currentPlayerTime);
+            highlightCorrectedSubtitle(currentPlayerTime);
+        }
+        
+        function highlightYouTubeSubtitle(currentPlayerTime) {
+            if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
+            
+            let targetIndex = -1;
+            
+            // 找到當前時間對應的字幕
+            for (let i = 0; i < youtubeSubtitles.length; i++) {
+                const subtitle = youtubeSubtitles[i];
+                const startTime = subtitle.start;
+                const endTime = i < youtubeSubtitles.length - 1 ? youtubeSubtitles[i + 1].start : startTime + 5;
+                
+                if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
+                    targetIndex = i;
+                    break;
+                }
+            }
+            
+            // 如果高亮的字幕改變了
+            if (targetIndex !== currentHighlightedYouTube) {
+                // 清除舊的高亮
+                if (currentHighlightedYouTube >= 0) {
+                    const oldItems = document.querySelectorAll('.youtube-subtitle-item.current-playing');
+                    oldItems.forEach(item => item.classList.remove('current-playing'));
+                }
+                
+                // 設置新的高亮
+                currentHighlightedYouTube = targetIndex;
+                if (targetIndex >= 0) {
+                    const items = document.querySelectorAll('.youtube-subtitle-item');
+                    if (items[targetIndex]) {
+                        items[targetIndex].classList.add('current-playing');
+                        // 滾動到該位置
+                        scrollToElement(items[targetIndex], 'youtubeSubtitlesPanel');
+                    }
+                }
+            }
+        }
+        
+        function highlightCorrectedSubtitle(currentPlayerTime) {
+            if (!subtitleData || subtitleData.length === 0) return;
+            
+            let targetIndex = -1;
+            
+            // 找到當前時間對應的校正字幕
+            for (let i = 0; i < subtitleData.length; i++) {
+                const subtitle = subtitleData[i];
+                const startTime = subtitle.timeInSeconds;
+                const endTime = i < subtitleData.length - 1 ? subtitleData[i + 1].timeInSeconds : startTime + 5;
+                
+                if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
+                    targetIndex = i;
+                    break;
+                }
+            }
+            
+            // 如果高亮的字幕改變了
+            if (targetIndex !== currentHighlightedCorrected) {
+                // 清除舊的高亮
+                if (currentHighlightedCorrected >= 0) {
+                    const oldItems = document.querySelectorAll('.subtitle-item.current-playing');
+                    oldItems.forEach(item => item.classList.remove('current-playing'));
+                }
+                
+                // 設置新的高亮
+                currentHighlightedCorrected = targetIndex;
+                if (targetIndex >= 0) {
+                    const items = document.querySelectorAll('.subtitle-item');
+                    if (items[targetIndex]) {
+                        items[targetIndex].classList.add('current-playing');
+                        // 滾動到該位置
+                        scrollToElement(items[targetIndex], 'subtitleList');
+                    }
+                }
+            }
+        }
+        
+        function scrollToElement(element, containerId) {
+            const container = document.getElementById(containerId);
+            if (container && element) {
+                const containerRect = container.getBoundingClientRect();
+                const elementRect = element.getBoundingClientRect();
+                
+                // 計算是否需要滾動
+                const isVisible = elementRect.top >= containerRect.top && 
+                                elementRect.bottom <= containerRect.bottom;
+                
+                if (!isVisible) {
+                    const scrollTop = element.offsetTop - container.offsetTop - 
+                                    (container.clientHeight / 2) + (element.clientHeight / 2);
+                    
+                    container.scrollTo({
+                        top: Math.max(0, scrollTop),
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+        
+        function clearAllHighlights() {
+            // 清除YouTube字幕高亮
+            document.querySelectorAll('.youtube-subtitle-item.current-playing')
+                .forEach(item => item.classList.remove('current-playing'));
+            
+            // 清除校正字幕高亮
+            document.querySelectorAll('.subtitle-item.current-playing')
+                .forEach(item => item.classList.remove('current-playing'));
+            
+            currentHighlightedYouTube = -1;
+            currentHighlightedCorrected = -1;
         }
         
         // 頁面載入時初始化
