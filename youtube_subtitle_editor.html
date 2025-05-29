@@ -433,6 +433,15 @@
             border: 1px solid #e9ecef;
             font-size: 13px;
             line-height: 1.4;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .youtube-subtitle-item:hover {
+            background: #f0f8ff;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
         }
         
         .youtube-subtitle-time {
@@ -822,13 +831,13 @@
             
             panel.innerHTML = `
                 <div style="margin-bottom: 10px; color: #666; font-size: 12px;">
-                    共 ${youtubeSubtitles.length} 條字幕
+                    共 ${youtubeSubtitles.length} 條字幕 - 點擊任意字幕可跳轉到對應時間
                 </div>
-                ${youtubeSubtitles.map(subtitle => {
+                ${youtubeSubtitles.map((subtitle, index) => {
                     const time = formatTime(subtitle.start);
                     console.log('處理時間:', { original: subtitle.start, formatted: time });
                     return `
-                        <div class="youtube-subtitle-item">
+                        <div class="youtube-subtitle-item" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${time}">
                             <span class="youtube-subtitle-time">${time}</span>
                             <span class="youtube-subtitle-text">${subtitle.text}</span>
                         </div>
