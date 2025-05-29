@@ -247,15 +247,17 @@
         
         .subtitle-display-container {
             display: flex;
-            gap: 20px;
+            gap: 15px;
         }
         
         .corrected-subtitles-section {
             flex: 1;
+            max-width: 50%;
         }
         
         .youtube-subtitles-section {
             flex: 1;
+            max-width: 50%;
         }
         
         .subtitle-display-panel h3 {
@@ -301,10 +303,8 @@
         }
         
         .subtitle-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
             background: #f8f9fa;
             border-radius: 8px;
             border: 1px solid #e9ecef;
@@ -312,16 +312,39 @@
             position: relative;
         }
         
+        /* 上半部：編號、時間戳記、刪除按鈕 */
+        .subtitle-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+        
+        .subtitle-header-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        /* 下半部：錯誤文字和編輯欄位 */
+        .subtitle-content {
+            width: 100%;
+        }
+        
         .subtitle-number {
             background: #495057;
             color: white;
-            padding: 4px 8px;
+            padding: 4px 6px;
             border-radius: 12px;
             font-weight: 600;
             font-size: 11px;
             white-space: nowrap;
-            margin-right: 12px;
-            min-width: 30px;
+            margin-right: 0;
+            min-width: 24px;
+            max-width: 36px;
             text-align: center;
             flex-shrink: 0;
         }
@@ -395,55 +418,69 @@
             margin-left: 0;
         }
         
-        .subtitle-content {
-            flex: 1;
-        }
-        
         .subtitle-wrong {
             color: #e74c3c;
-            margin-bottom: 6px;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
+            padding: 6px 10px;
+            background: #fff5f5;
+            border-radius: 6px;
+            border: 1px solid #fed7d7;
+            flex: 1;
+            min-width: 0;
+            margin-right: 6px;
+            word-wrap: break-word;
+            line-height: 1.3;
         }
         
         .subtitle-wrong:hover {
-            background: #ffe6e6;
-            padding: 2px 4px;
-            border-radius: 3px;
+            background: #ffeaea;
+            border-color: #e74c3c;
+            transform: translateY(-1px);
         }
         
         .subtitle-correct {
             color: #27ae60;
-            font-size: 13px;
-            padding: 6px 10px;
+            font-size: 14px;
+            padding: 12px 15px;
             background: white;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
             cursor: text;
             transition: all 0.2s ease;
+            width: 100%;
+            min-height: 45px;
+            line-height: 1.4;
+            margin-top: 10px;
         }
         
         .subtitle-correct:focus {
-            outline: 2px solid #667eea;
-            background: #f0f8ff;
+            outline: none;
+            border-color: #667eea;
+            background: #f8f9ff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        .subtitle-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .subtitle-correct:hover {
+            border-color: #ced4da;
         }
         
         .delete-btn {
             background: #e74c3c;
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 14px;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
         }
         
         .delete-btn:hover {
@@ -646,6 +683,11 @@
             
             .subtitle-display-container {
                 flex-direction: column;
+            }
+            
+            .corrected-subtitles-section,
+            .youtube-subtitles-section {
+                max-width: 100%;
             }
         }
     </style>
@@ -1350,22 +1392,21 @@
                 const isUnmatched = correspondingNumber === '?';
                 
                 item.innerHTML = `
-                    <div class="subtitle-number"${isUnmatched ? ' data-unmatched="true"' : ''}>${correspondingNumber}</div>
-                    <div class="timestamp" onclick="seekToTime(${subtitle.timeInSeconds})" title="點擊跳轉到 ${subtitle.timestamp}">
-                        ${subtitle.timestamp}
+                    <div class="subtitle-header">
+                        <div class="subtitle-header-left">
+                            <div class="subtitle-number"${isUnmatched ? ' data-unmatched="true"' : ''}>${correspondingNumber}</div>
+                            <div class="subtitle-wrong" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds})" title="點擊智能跳轉 (會嘗試匹配YouTube字幕)">
+                                ${subtitle.wrongText}
+                            </div>
+                        </div>
+                        <span class="delete-btn" onclick="deleteSubtitle(${index})" title="點擊刪除">
+                            ×
+                        </span>
                     </div>
                     <div class="subtitle-content">
-                        <div class="subtitle-wrong" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds})" title="點擊智能跳轉 (會嘗試匹配YouTube字幕)">
-                            <strong>錯誤：</strong>${subtitle.wrongText}
-                        </div>
                         <div class="subtitle-correct" contenteditable="true" onblur="updateSubtitle(${index}, this.textContent)" onkeypress="handleEnterKey(event, ${index}, this)" title="點擊此處可編輯">
                             ${subtitle.correctText}
                         </div>
-                    </div>
-                    <div class="subtitle-actions">
-                        <button class="delete-btn" onclick="deleteSubtitle(${index})" title="點擊刪除">
-                            🗑️
-                        </button>
                     </div>
                 `;
                 
