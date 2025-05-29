@@ -754,14 +754,35 @@
                 }
                 
                 const data = await response.json();
+                console.log('從後端接收到的原始資料:', data);
+                
                 if (!data || !data.subtitles || data.subtitles.length === 0) {
                     throw new Error('沒有可用的字幕');
                 }
                 
-                // 解析字幕內容
-                youtubeSubtitles = data.subtitles;
+                // 確保時間是數字 - 檢查每個字幕項目
+                youtubeSubtitles = data.subtitles.map((subtitle, index) => {
+                    console.log(`處理第 ${index} 個字幕:`, subtitle);
+                    
+                    let start = 0;
+                    if (typeof subtitle.start === 'number' && !isNaN(subtitle.start)) {
+                        start = subtitle.start;
+                    } else if (typeof subtitle.start === 'string') {
+                        start = parseFloat(subtitle.start);
+                    } else {
+                        console.warn('無效的時間格式:', subtitle.start);
+                        start = 0;
+                    }
+                    
+                    const result = {
+                        start: start,
+                        text: subtitle.text
+                    };
+                    console.log(`處理結果:`, result);
+                    return result;
+                });
                 
-                console.log('解析後的字幕:', youtubeSubtitles);
+                console.log('解析後的字幕:', youtubeSubtitles.slice(0, 3));
                 showDeleteNotification(`YouTube字幕載入完成 (共 ${youtubeSubtitles.length} 條)`, 'success');
                 
                 // 更新字幕顯示
@@ -796,17 +817,37 @@
                 return;
             }
             
+            // 添加除錯資訊
+            console.log('字幕資料範例:', youtubeSubtitles.slice(0, 3));
+            
             panel.innerHTML = `
                 <div style="margin-bottom: 10px; color: #666; font-size: 12px;">
                     共 ${youtubeSubtitles.length} 條字幕
                 </div>
-                ${youtubeSubtitles.map(subtitle => `
-                    <div class="youtube-subtitle-item">
-                        <span class="youtube-subtitle-time">${formatTime(subtitle.start)}</span>
-                        <span class="youtube-subtitle-text">${subtitle.text}</span>
-                    </div>
-                `).join('')}
+                ${youtubeSubtitles.map(subtitle => {
+                    const time = formatTime(subtitle.start);
+                    console.log('處理時間:', { original: subtitle.start, formatted: time });
+                    return `
+                        <div class="youtube-subtitle-item">
+                            <span class="youtube-subtitle-time">${time}</span>
+                            <span class="youtube-subtitle-text">${subtitle.text}</span>
+                        </div>
+                    `;
+                }).join('')}
             `;
+        }
+        
+        function formatTime(seconds) {
+            if (typeof seconds !== 'number' || isNaN(seconds)) {
+                console.warn('無效的時間值:', seconds);
+                return '00:00:00';
+            }
+            
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
         
         function parseSubtitleContent(content) {
@@ -861,9 +902,17 @@
             let bestMatch = null;
             let bestScore = 0;
             
+            // 清理文字以進行比對
+            const cleanWrongText = wrongText.toLowerCase().trim();
+            
             for (let subtitle of youtubeSubtitles) {
-                const score = calculateSimilarity(wrongText, subtitle.text);
-                console.log('比對:', { text: subtitle.text, score });
+                const cleanSubtitleText = subtitle.text.toLowerCase().trim();
+                const score = calculateSimilarity(cleanWrongText, cleanSubtitleText);
+                console.log('比對:', { 
+                    wrongText: cleanWrongText,
+                    subtitleText: cleanSubtitleText, 
+                    score 
+                });
                 
                 if (score > bestScore && score > 0.3) {
                     bestScore = score;
@@ -871,15 +920,19 @@
                 }
             }
             
-            console.log('最佳匹配:', bestMatch);
+            console.log('最佳匹配:', bestMatch, '分數:', bestScore);
             return bestMatch;
         }
         
         function calculateSimilarity(str1, str2) {
             if (!str1 || !str2) return 0;
             
-            const longer = str1.length > str2.length ? str1 : str2;
-            const shorter = str1.length > str2.length ? str2 : str1;
+            // 移除標點符號和特殊字符
+            const cleanStr1 = str1.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+            const cleanStr2 = str2.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+            
+            const longer = cleanStr1.length > cleanStr2.length ? cleanStr1 : cleanStr2;
+            const shorter = cleanStr1.length > cleanStr2.length ? cleanStr2 : cleanStr1;
             
             if (longer.length === 0) return 1.0;
             
@@ -1259,14 +1312,6 @@
                 console.error('複製失敗:', error);
                 showDeleteNotification('❌ 複製失敗', 'error');
             }
-        }
-        
-        function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-            
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
         
         function showMessage(text, type) {
