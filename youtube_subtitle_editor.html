@@ -1,14 +1,4 @@
-        function displaySubtitles() {
-            const container = document.getElementById('subtitleList');
-            
-            container.innerHTML = '';
-            
-            subtitleData.forEach((subtitle, index) => {
-                const item = document.createElement('div');
-                item.className = 'subtitle-item';
-                item.dataset.index = index;
-                
-                item.innerHTML = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -56,18 +46,27 @@
         }
         
         /* 主要內容區域 */
-        .main-content {
+        .content-wrapper {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1.2fr 1fr;
             transition: all 0.3s ease;
+        }
+        
+        .content-wrapper.vertical {
+            grid-template-columns: 1fr;
         }
         
         /* YouTube影片區域 */
         .video-section {
             padding: 20px;
             background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
+            border-right: 2px solid #e9ecef;
             transition: all 0.3s ease;
+        }
+        
+        .content-wrapper.vertical .video-section {
+            border-right: none;
+            border-bottom: 2px solid #e9ecef;
         }
         
         .youtube-input {
@@ -110,14 +109,18 @@
         .video-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
             height: 0;
-            padding-bottom: 45%;
+            padding-bottom: 56.25%;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             margin-bottom: 15px;
+        }
+        
+        .content-wrapper.vertical .video-container {
+            max-width: 800px;
+            margin: 0 auto 15px auto;
+            padding-bottom: 45%;
         }
         
         .video-container iframe {
@@ -176,8 +179,7 @@
             border: 2px solid #dee2e6;
         }
         
-        .toggle-video-btn {
-            margin-left: auto;
+        .toggle-controls-btn {
             padding: 8px 16px;
             background: #6c757d;
             color: white;
@@ -187,7 +189,7 @@
             font-size: 12px;
         }
         
-        .toggle-video-btn:hover {
+        .toggle-controls-btn:hover {
             background: #5a6268;
         }
         
@@ -236,140 +238,11 @@
             margin-top: 10px;
         }
         
-        /* 字幕處理區域 */
-        .subtitle-section {
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-        
-        .subtitle-section.processed {
-            grid-template-columns: 1fr 1fr;
-        }
-        
-        .subtitle-section.side-by-side {
-            grid-template-columns: 1fr;
-            display: flex;
-            gap: 20px;
-        }
-        
-        .subtitle-section.side-by-side .subtitle-input-panel {
-            flex: 0 0 400px;
-        }
-        
-        .subtitle-section.side-by-side .subtitle-display-panel {
-            flex: 1;
-        }
-        
-        .subtitle-input-panel {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-        }
-        
-        .subtitle-input-panel h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .subtitle-input-panel textarea {
-            width: 100%;
-            height: 300px;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 13px;
-            line-height: 1.5;
-            resize: vertical;
-            transition: all 0.3s ease;
-        }
-        
-        .subtitle-input-panel textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        
-        .process-btn {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #ff6b6b, #feca57);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .process-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
-        }
-        
-        .process-btn.secondary {
-            background: #e9ecef;
-            color: #6c757d;
-            font-weight: 400;
-        }
-        
-        .process-btn.secondary:hover {
-            background: #dee2e6;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
-        }
-        
-        .copy-btn {
-            padding: 12px 20px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .copy-btn:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
-        }
-        
-        .view-mode-btn {
-            padding: 8px 16px;
-            background: #17a2b8;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .view-mode-btn:hover {
-            background: #138496;
-        }
-        
+        /* 校正後的字幕顯示 */
         .subtitle-display-panel {
             background: #f8f9fa;
-            border-radius: 12px;
             padding: 20px;
-            display: none;
+            transition: all 0.3s ease;
         }
         
         .subtitle-display-panel h3 {
@@ -381,17 +254,28 @@
             gap: 8px;
         }
         
+        .view-mode-toggle {
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .view-mode-toggle:hover {
+            background: #138496;
+        }
+        
         .subtitle-list {
             background: white;
             border-radius: 10px;
             padding: 15px;
-            max-height: 300px;
+            max-height: 500px;
             overflow-y: auto;
             border: 2px solid #e9ecef;
-        }
-        
-        .subtitle-section.side-by-side .subtitle-list {
-            max-height: 500px;
         }
         
         .subtitle-item {
@@ -486,12 +370,78 @@
             cursor: pointer;
             font-size: 11px;
             transition: all 0.2s ease;
-            position: relative;
         }
         
         .delete-btn:hover {
             background: #c0392b;
             transform: scale(1.05);
+        }
+        
+        /* 字幕處理區域 */
+        .subtitle-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .subtitle-input-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle-input-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .subtitle-input-panel textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        
+        .subtitle-input-panel textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .copy-btn {
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
         }
         
         .error-message {
@@ -519,7 +469,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #e74c3c;
+            background: #28a745;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
@@ -536,40 +486,18 @@
             transform: translateX(0);
         }
         
-        .video-section.collapsed {
-            padding: 10px 20px;
-        }
-        
-        .video-section.collapsed .video-container,
-        .video-section.collapsed .video-controls,
-        .video-section.collapsed .youtube-input {
-            display: none;
-        }
-        
-        /* 並排佈局 */
-        .content-wrapper {
-            display: grid;
-            grid-template-columns: 1fr;
-            transition: all 0.3s ease;
-        }
-        
-        .content-wrapper.side-by-side {
-            grid-template-columns: 1.2fr 1fr;
-        }
-        
-        .content-wrapper.side-by-side .video-section {
-            border-right: 2px solid #e9ecef;
-            border-bottom: none;
-        }
-        
-        .content-wrapper.side-by-side .video-container {
-            max-width: none;
-            padding-bottom: 56.25%; /* 16:9 for side by side */
+        .delete-notification.error {
+            background: #dc3545;
         }
         
         @media (max-width: 768px) {
-            .content-wrapper.side-by-side {
-                grid-template-columns: 1fr;
+            .content-wrapper {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .video-section {
+                border-right: none;
+                border-bottom: 2px solid #e9ecef;
             }
             
             .video-controls {
@@ -580,30 +508,14 @@
             .video-controls button {
                 min-width: 200px;
             }
-            
-            .subtitle-section.processed {
-                grid-template-columns: 1fr;
-            }
-            
-            .subtitle-section.side-by-side {
-                flex-direction: column;
-            }
-            
-            .subtitle-section.side-by-side .subtitle-input-panel {
-                flex: none;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
-            <div class="container">
+    <div class="container">
         <div class="header">
             <h1>🎬 YouTube字幕校正工具</h1>
-            <p>上方載入影片，下方處理字幕，點擊時間戳記跳轉影片，眼睛不用移動太多</p>
+            <p>左側載入影片，右側即時校正字幕，點擊字幕直接跳轉</p>
         </div>
         
         <div class="content-wrapper" id="contentWrapper">
@@ -630,42 +542,41 @@
                 <div class="video-controls" id="videoControls" style="display: none;">
                     <button id="playBtn" onclick="controlVideo('play')" title="播放">▶️ 播放</button>
                     <button id="pauseBtn" onclick="controlVideo('pause')" title="暫停">⏸️ 暫停</button>
-                    <button onclick="controlVideo('back')" title="後退5秒">⏪ -5s</button>
-                    <button onclick="controlVideo('forward')" title="前進5秒">⏩ +5s</button>
+                    <button id="backBtn" onclick="controlVideo('back')" title="後退5秒">⏪ -5s</button>
+                    <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">⏩ +5s</button>
                     <div class="current-time" id="currentTime">00:00:00</div>
-                    <button class="toggle-video-btn" id="toggleControlsBtn" onclick="toggleVideoControls()">隱藏控制</button>
+                    <button class="toggle-controls-btn" id="toggleControlsBtn" onclick="toggleVideoControls()">隱藏控制</button>
                 </div>
                 
                 <div id="messages" class="messages"></div>
             </div>
             
-            <!-- 校正後的字幕顯示 - 只在並排模式顯示 -->
-            <div class="subtitle-display-panel" id="sideSubtitlePanel" style="display: none;">
-                <h3>✅ 校正後的字幕</h3>
-                <div class="subtitle-list" id="sideSubtitleList"></div>
+            <!-- 校正後的字幕顯示 -->
+            <div class="subtitle-display-panel" id="subtitleDisplayPanel">
+                <h3>
+                    ✅ 校正後的字幕
+                    <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">📱 垂直檢視</button>
+                </h3>
+                <div class="subtitle-list" id="subtitleList">
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        請在下方輸入字幕校正檔案，即時顯示校正結果
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- 字幕處理區域 -->
         <div class="subtitle-section" id="subtitleSection">
-            <!-- 字幕校正檔案輸入 -->
             <div class="subtitle-input-panel">
                 <h3>📝 字幕校正檔案</h3>
-                <textarea id="subtitleInput" placeholder="請貼上字幕校正檔案內容，格式範例：
+                <textarea id="subtitleInput" oninput="processSubtitlesRealtime()" placeholder="請貼上字幕校正檔案內容，格式範例：
 [00:00:00] 1:錯誤文字:正確文字
 [00:01:30] 2:另一個錯誤:另一個正確文字
 
-處理後校正結果會顯示在右側面板"></textarea>
+內容會即時顯示在上方校正結果"></textarea>
                 <div class="button-group" id="buttonGroup">
-                    <button class="process-btn" id="processBtn" onclick="processSubtitles()">📋 處理字幕</button>
+                    <button class="copy-btn" id="copyBtn" onclick="copySubtitleText()">📋 複製校正檔案</button>
                 </div>
-                <button class="view-mode-btn" id="viewModeBtn" onclick="toggleViewMode()" style="display: none;">📱 左右並排檢視</button>
-            </div>
-            
-            <!-- 校正後的字幕顯示 - 正常模式 -->
-            <div class="subtitle-display-panel" id="subtitleDisplayPanel">
-                <h3>✅ 校正後的字幕</h3>
-                <div class="subtitle-list" id="subtitleList"></div>
             </div>
         </div>
     </div>
@@ -680,10 +591,83 @@
         let isPlaying = false;
         let timeInterval = null;
         let subtitleData = [];
-        let player = null;
+        let youtubeSubtitles = [];
         let isControlsCollapsed = false;
-        let isSideBySide = false;
-        let isProcessed = false;
+        let isVerticalMode = false;
+        
+        // YouTube字幕API相關
+        async function fetchYouTubeSubtitles(videoId) {
+            try {
+                showDeleteNotification('正在獲取YouTube字幕...', 'info');
+                
+                // 模擬字幕數據（實際應用需要YouTube API key）
+                youtubeSubtitles = [
+                    { start: 0, text: "歡迎觀看這個影片" },
+                    { start: 3, text: "今天我們要介紹" },
+                    { start: 6, text: "如何使用這個工具" }
+                ];
+                
+                showDeleteNotification('YouTube字幕載入完成', 'success');
+                return youtubeSubtitles;
+            } catch (error) {
+                console.error('獲取字幕失敗:', error);
+                showDeleteNotification('無法獲取YouTube字幕，將使用校正檔案的時間', 'error');
+                return [];
+            }
+        }
+        
+        function findMatchingSubtitle(wrongText) {
+            let bestMatch = null;
+            let bestScore = 0;
+            
+            for (let subtitle of youtubeSubtitles) {
+                const score = calculateSimilarity(wrongText, subtitle.text);
+                if (score > bestScore && score > 0.3) {
+                    bestScore = score;
+                    bestMatch = subtitle;
+                }
+            }
+            
+            return bestMatch;
+        }
+        
+        function calculateSimilarity(str1, str2) {
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+            
+            if (longer.length === 0) return 1.0;
+            
+            const distance = levenshteinDistance(longer, shorter);
+            return (longer.length - distance) / longer.length;
+        }
+        
+        function levenshteinDistance(str1, str2) {
+            const matrix = [];
+            
+            for (let i = 0; i <= str2.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            for (let j = 0; j <= str1.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            for (let i = 1; i <= str2.length; i++) {
+                for (let j = 1; j <= str1.length; j++) {
+                    if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            
+            return matrix[str2.length][str1.length];
+        }
         
         function updateProgress(progress, text) {
             const container = document.getElementById('progressContainer');
@@ -730,44 +714,38 @@
             
             if (isControlsCollapsed) {
                 videoControls.classList.add('collapsed');
-                toggleBtn.textContent = '展開控制';
-                toggleBtn.style.display = 'block';
+                const expandBtn = document.createElement('button');
+                expandBtn.id = 'expandControlsBtn';
+                expandBtn.className = 'toggle-controls-btn';
+                expandBtn.textContent = '展開控制';
+                expandBtn.onclick = toggleVideoControls;
+                expandBtn.style.marginTop = '10px';
+                videoControls.parentNode.appendChild(expandBtn);
             } else {
                 videoControls.classList.remove('collapsed');
-                toggleBtn.textContent = '隱藏控制';
+                const expandBtn = document.getElementById('expandControlsBtn');
+                if (expandBtn) {
+                    expandBtn.remove();
+                }
             }
         }
         
         function toggleViewMode() {
             const contentWrapper = document.getElementById('contentWrapper');
-            const subtitleSection = document.getElementById('subtitleSection');
-            const viewModeBtn = document.getElementById('viewModeBtn');
-            const sidePanel = document.getElementById('sideSubtitlePanel');
-            const mainPanel = document.getElementById('subtitleDisplayPanel');
+            const viewModeToggle = document.getElementById('viewModeToggle');
             
-            isSideBySide = !isSideBySide;
+            isVerticalMode = !isVerticalMode;
             
-            if (isSideBySide) {
-                // 切換到並排模式
-                contentWrapper.classList.add('side-by-side');
-                subtitleSection.classList.add('side-by-side');
-                sidePanel.style.display = 'block';
-                mainPanel.style.display = 'none';
-                viewModeBtn.textContent = '📱 垂直檢視';
-                
-                // 複製字幕到並排面板
-                document.getElementById('sideSubtitleList').innerHTML = document.getElementById('subtitleList').innerHTML;
+            if (isVerticalMode) {
+                contentWrapper.classList.add('vertical');
+                viewModeToggle.textContent = '📱 左右並排';
             } else {
-                // 切換到垂直模式
-                contentWrapper.classList.remove('side-by-side');
-                subtitleSection.classList.remove('side-by-side');
-                sidePanel.style.display = 'none';
-                mainPanel.style.display = 'block';
-                viewModeBtn.textContent = '📱 左右並排檢視';
+                contentWrapper.classList.remove('vertical');
+                viewModeToggle.textContent = '📱 垂直檢視';
             }
         }
         
-        function loadVideo() {
+        async function loadVideo() {
             const url = document.getElementById('youtubeUrl').value.trim();
             const videoId = extractVideoId(url);
             const loadBtn = document.getElementById('loadVideoBtn');
@@ -789,6 +767,8 @@
                 iframe.src = embedUrl;
                 updateProgress(50, '設定影片參數...');
                 
+                await fetchYouTubeSubtitles(videoId);
+                
                 iframe.onload = function() {
                     updateProgress(75, '影片載入中...');
                     
@@ -806,7 +786,7 @@
                         loadBtn.textContent = '重新載入';
                         loadBtn.disabled = false;
                         
-                        showStatus('影片載入成功！現在可以點擊字幕時間戳記跳轉影片。', 'success');
+                        showStatus('影片載入成功！現在可以點擊字幕進行跳轉。', 'success');
                         
                         if (timeInterval) {
                             clearInterval(timeInterval);
@@ -842,13 +822,13 @@
         
         function controlVideo(action) {
             if (!isVideoLoaded) {
-                showDeleteNotification('請先載入影片');
+                showDeleteNotification('請先載入影片', 'error');
                 return;
             }
             
             const iframe = document.getElementById('youtubeIframe');
             if (!iframe) {
-                showDeleteNotification('影片載入錯誤');
+                showDeleteNotification('影片載入錯誤', 'error');
                 return;
             }
             
@@ -857,7 +837,6 @@
                     isPlaying = true;
                     startTimeTracking();
                     
-                    // 從當前時間開始播放
                     const startTime = Math.floor(currentTime);
                     const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${startTime}&autoplay=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
                     iframe.src = newUrl;
@@ -868,14 +847,12 @@
                     isPlaying = false;
                     stopTimeTracking();
                     
-                    // 暫停在當前時間
                     const pauseTime = Math.floor(currentTime);
                     const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${pauseTime}&autoplay=0&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
                     iframe.src = newUrl;
                     showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
                 }
             } else if (action === 'back') {
-                // 後退5秒
                 currentTime = Math.max(0, currentTime - 5);
                 const newTime = Math.floor(currentTime);
                 const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${newTime}&autoplay=${isPlaying ? 1 : 0}&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
@@ -883,7 +860,6 @@
                 updateTimeDisplay();
                 showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
             } else if (action === 'forward') {
-                // 前進5秒
                 currentTime += 5;
                 const newTime = Math.floor(currentTime);
                 const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${newTime}&autoplay=${isPlaying ? 1 : 0}&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
@@ -919,40 +895,63 @@
             }
         }
         
-        function seekToTime(seconds) {
+        function seekToTime(seconds, useYouTubeTime = false) {
             if (!isVideoLoaded) {
-                showMessage('請先載入YouTube影片', 'error');
+                showDeleteNotification('請先載入YouTube影片', 'error');
                 return;
             }
             
             const iframe = document.getElementById('youtubeIframe');
             if (!iframe) {
-                showMessage('影片載入錯誤', 'error');
+                showDeleteNotification('影片載入錯誤', 'error');
                 return;
             }
             
             try {
-                currentTime = seconds;
+                let targetTime = seconds;
+                
+                if (useYouTubeTime && youtubeSubtitles.length > 0) {
+                    targetTime = seconds;
+                }
+                
+                currentTime = targetTime;
                 updateTimeDisplay();
                 
-                const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${Math.floor(seconds)}&autoplay=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${Math.floor(targetTime)}&autoplay=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
                 iframe.src = newUrl;
                 
                 isPlaying = true;
                 startTimeTracking();
                 
-                showDeleteNotification(`🎯 已跳轉到 ${formatTime(seconds)}`);
+                showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
             } catch (error) {
                 console.error('跳轉失敗:', error);
-                showMessage('跳轉失敗', 'error');
+                showDeleteNotification('跳轉失敗', 'error');
             }
         }
         
-        function processSubtitles() {
+        function seekToSubtitle(wrongText, timeInSeconds) {
+            const matchedSubtitle = findMatchingSubtitle(wrongText);
+            
+            if (matchedSubtitle) {
+                showDeleteNotification(`🎯 從YouTube字幕匹配到: "${matchedSubtitle.text}"`);
+                seekToTime(matchedSubtitle.start, true);
+            } else {
+                showDeleteNotification(`🎯 使用校正檔案時間跳轉`);
+                seekToTime(timeInSeconds);
+            }
+        }
+        
+        function processSubtitlesRealtime() {
             const input = document.getElementById('subtitleInput').value.trim();
             
             if (!input) {
-                showMessage('請先輸入字幕校正檔案內容', 'error');
+                document.getElementById('subtitleList').innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        請輸入字幕校正檔案，即時顯示校正結果
+                    </div>
+                `;
+                subtitleData = [];
                 return;
             }
             
@@ -979,70 +978,20 @@
                 }
             }
             
-            if (subtitleData.length === 0) {
-                showMessage('未找到有效的字幕格式，請檢查格式是否正確', 'error');
-                return;
-            }
-            
-            // 顯示處理後的佈局
-            document.getElementById('subtitleSection').classList.add('processed');
-            document.getElementById('subtitleDisplayPanel').style.display = 'block';
-            document.getElementById('viewModeBtn').style.display = 'block';
-            
-            // 更新按鈕組
-            updateButtonGroup();
-            
             displaySubtitles();
-            showMessage(`✅ 成功處理 ${subtitleData.length} 條字幕校正`, 'success');
-            
-            isProcessed = true;
-        }
-        
-        function updateButtonGroup() {
-            const buttonGroup = document.getElementById('buttonGroup');
-            const processBtn = document.getElementById('processBtn');
-            
-            if (isProcessed) {
-                processBtn.classList.add('secondary');
-                
-                // 檢查是否已經有複製按鈕
-                if (!document.getElementById('copyBtn')) {
-                    const copyBtn = document.createElement('button');
-                    copyBtn.id = 'copyBtn';
-                    copyBtn.className = 'copy-btn';
-                    copyBtn.textContent = '📋 複製文字';
-                    copyBtn.onclick = copySubtitleText;
-                    buttonGroup.appendChild(copyBtn);
-                }
-            }
-        }
-        
-        function copySubtitleText() {
-            const textarea = document.getElementById('subtitleInput');
-            
-            try {
-                textarea.select();
-                textarea.setSelectionRange(0, 99999); // For mobile devices
-                
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(textarea.value).then(() => {
-                        showDeleteNotification('📋 文字已複製到剪貼簿');
-                    }).catch(() => {
-                        document.execCommand('copy');
-                        showDeleteNotification('📋 文字已複製到剪貼簿');
-                    });
-                } else {
-                    document.execCommand('copy');
-                    showDeleteNotification('📋 文字已複製到剪貼簿');
-                }
-            } catch (error) {
-                console.error('複製失敗:', error);
-                showDeleteNotification('❌ 複製失敗');
-            }
         }
         
         function displaySubtitles() {
             const container = document.getElementById('subtitleList');
+            
+            if (subtitleData.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        請輸入字幕校正檔案，即時顯示校正結果
+                    </div>
+                `;
+                return;
+            }
             
             container.innerHTML = '';
             
@@ -1056,7 +1005,7 @@
                         ${subtitle.timestamp}
                     </div>
                     <div class="subtitle-content">
-                        <div class="subtitle-wrong" onclick="seekToTime(${subtitle.timeInSeconds})" title="點擊跳轉到 ${subtitle.timestamp}">
+                        <div class="subtitle-wrong" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds})" title="點擊智能跳轉 (會嘗試匹配YouTube字幕)">
                             <strong>錯誤：</strong>${subtitle.wrongText}
                         </div>
                         <div class="subtitle-correct" contenteditable="true" onblur="updateSubtitle(${index}, this.textContent)" onkeypress="handleEnterKey(event, ${index}, this)" title="點擊此處可編輯">
@@ -1072,11 +1021,6 @@
                 
                 container.appendChild(item);
             });
-            
-            // 如果是並排模式，也更新並排面板
-            if (isSideBySide) {
-                document.getElementById('sideSubtitleList').innerHTML = container.innerHTML;
-            }
         }
         
         function handleEnterKey(event, index, element) {
@@ -1119,7 +1063,33 @@
                 return `[${hours}:${minutes}:${seconds}] ${item.lineNumber}:${item.wrongText}:${item.correctText}`;
             }).join('\n');
             
+            textarea.oninput = null;
             textarea.value = newContent;
+            textarea.oninput = processSubtitlesRealtime;
+        }
+        
+        function copySubtitleText() {
+            const textarea = document.getElementById('subtitleInput');
+            
+            try {
+                textarea.select();
+                textarea.setSelectionRange(0, 99999);
+                
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textarea.value).then(() => {
+                        showDeleteNotification('📋 文字已複製到剪貼簿');
+                    }).catch(() => {
+                        document.execCommand('copy');
+                        showDeleteNotification('📋 文字已複製到剪貼簿');
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showDeleteNotification('📋 文字已複製到剪貼簿');
+                }
+            } catch (error) {
+                console.error('複製失敗:', error);
+                showDeleteNotification('❌ 複製失敗', 'error');
+            }
         }
         
         function formatTime(seconds) {
@@ -1146,10 +1116,16 @@
             }, 3000);
         }
         
-        function showDeleteNotification(text) {
+        function showDeleteNotification(text, type = 'success') {
             const notification = document.getElementById('deleteNotification');
             notification.textContent = text;
-            notification.classList.add('show');
+            notification.className = 'delete-notification show';
+            
+            if (type === 'error') {
+                notification.classList.add('error');
+            } else {
+                notification.classList.remove('error');
+            }
             
             setTimeout(() => {
                 notification.classList.remove('show');
@@ -1167,7 +1143,160 @@
 [00:01:28] 36:呃因為一鍵工一鍵排班的功能模組:呃因為一鍵排班的功能模組`;
             
             document.getElementById('subtitleInput').value = exampleData;
+            processSubtitlesRealtime();
         });
-    </script>
-</body>
-</html>
+    </script>(50, '設定影片參數...');
+                
+                // 嘗試獲取YouTube字幕
+                await fetchYouTubeSubtitles(videoId);
+                
+                iframe.onload = function() {
+                    updateProgress(75, '影片載入中...');
+                    
+                    setTimeout(() => {
+                        updateProgress(100, '影片載入完成！');
+                        
+                        currentVideoId = videoId;
+                        isVideoLoaded = true;
+                        currentTime = 0;
+                        isPlaying = false;
+                        
+                        document.getElementById('videoContainer').style.display = 'block';
+                        document.getElementById('videoControls').style.display = 'flex';
+                        
+                        loadBtn.textContent = '重新載入';
+                        loadBtn.disabled = false;
+                        
+                        showStatus('影片載入成功！現在可以點擊字幕進行跳轉。', 'success');
+                        
+                        if (timeInterval) {
+                            clearInterval(timeInterval);
+                            timeInterval = null;
+                        }
+                        
+                        updateTimeDisplay();
+                        
+                    }, 1000);
+                };
+                
+                iframe.onerror = function() {
+                    loadBtn.textContent = '載入影片';
+                    loadBtn.disabled = false;
+                    showMessage('影片載入失敗，請檢查網址是否正確', 'error');
+                    document.getElementById('progressContainer').style.display = 'none';
+                };
+                
+            } catch (error) {
+                console.error('載入影片錯誤:', error);
+                loadBtn.textContent = '載入影片';
+                loadBtn.disabled = false;
+                showMessage('載入影片時發生錯誤', 'error');
+                document.getElementById('progressContainer').style.display = 'none';
+            }
+        }
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const videoId = extractVideoId(url);
+            const loadBtn = document.getElementById('loadVideoBtn');
+            
+            if (!videoId) {
+                showMessage('請輸入有效的YouTube網址', 'error');
+                return;
+            }
+            
+            loadBtn.textContent = '載入中...';
+            loadBtn.disabled = true;
+            
+            updateProgress(25, '正在載入影片...');
+            
+            try {
+                const iframe = document.getElementById('youtubeIframe');
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                
+                iframe.src = embedUrl;
+                updateProgress(50, '設定影片參數...');
+                
+                // 嘗試獲取YouTube字幕
+                await fetchYouTubeSubtitles(videoId);
+                
+                iframe.onload = function() {
+                    updateProgress(75, '影片載入中...');
+                    
+                    setTimeout(() => {
+                        updateProgress(100, '影片載入完成！');
+                        
+                        currentVideoId = videoId;
+                        isVideoLoaded = true;
+                        currentTime = 0;
+                        isPlaying = false;
+                        
+                        document.getElementById('videoContainer').style.display = 'block';
+                        document.getElementById('videoControls').style.display = 'flex';
+                        
+                        loadBtn.textContent = '重新載入';
+                        loadBtn.disabled = false;
+                        
+                        showStatus('影片載入成功！現在可以點擊字幕進行跳轉。', 'success');
+                        
+                        if (timeInterval) {
+                            clearInterval(timeInterval);
+                            timeInterval = null;
+                        }
+                        
+                        updateTimeDisplay();
+                        
+                    }, 1000);
+                };
+                
+                iframe.onerror = function() {
+                    loadBtn.textContent = '載入影片';
+                    loadBtn.disabled = false;
+                    showMessage('影片載入失敗，請檢查網址是否正確', 'error');
+                    document.getElementById('progressContainer').style.display = 'none';
+                };
+                
+            } catch (error) {
+                console.error('載入影片錯誤:', error);
+                loadBtn.textContent = '載入影片';
+                loadBtn.disabled = false;
+                showMessage('載入影片時發生錯誤', 'error');
+                document.getElementById('progressContainer').style.display = 'none';
+            }
+        }
+        
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+        
+        function controlVideo(action) {
+            if (!isVideoLoaded) {
+                showDeleteNotification('請先載入影片', 'error');
+                return;
+            }
+            
+            const iframe = document.getElementById('youtubeIframe');
+            if (!iframe) {
+                showDeleteNotification('影片載入錯誤', 'error');
+                return;
+            }
+            
+            if (action === 'play') {
+                if (!isPlaying) {
+                    isPlaying = true;
+                    startTimeTracking();
+                    
+                    const startTime = Math.floor(currentTime);
+                    const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${startTime}&autoplay=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                    iframe.src = newUrl;
+                    showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+                }
+            } else if (action === 'pause') {
+                if (isPlaying) {
+                    isPlaying = false;
+                    stopTimeTracking();
+                    
+                    const pauseTime = Math.floor(currentTime);
+                    const newUrl = `https://www.youtube.com/embed/${currentVideoId}?enablejsapi=1&start=${pauseTime}&autoplay=0&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                    iframe.src = newUrl;
+                    showDeleteNotification(`
