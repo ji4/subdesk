@@ -342,9 +342,19 @@
             transform: scale(1.05);
         }
         
+        /* 隱藏校正後字幕區域的時間戳記 */
+        .corrected-subtitles-section .timestamp {
+            display: none;
+        }
+        
+        /* 調整校正後字幕區域的佈局 */
+        .corrected-subtitles-section .subtitle-content {
+            margin-right: 10px;
+            margin-left: 0;
+        }
+        
         .subtitle-content {
             flex: 1;
-            margin-right: 10px;
         }
         
         .subtitle-wrong {
