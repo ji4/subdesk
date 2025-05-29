@@ -736,24 +736,25 @@
             
             <!-- 校正後的字幕顯示 -->
             <div class="subtitle-display-panel" id="subtitleDisplayPanel">
-                <div class="subtitle-display-container">
-                    <div class="corrected-subtitles-section">
-                        <h3>
-                            ✅ 校正後的字幕
-                            <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">📱 垂直檢視</button>
-                        </h3>
-                        <div class="subtitle-list" id="subtitleList">
-                            <div style="text-align: center; color: #666; padding: 40px;">
-                                請在下方輸入字幕校正檔案，即時顯示校正結果
-                            </div>
-                        </div>
-                    </div>
-                    
+                <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section">
                         <h3>🎥 YouTube 字幕</h3>
                         <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
                             <div style="text-align: center; color: #666; padding: 40px;">
                                 請先載入影片，這裡會顯示 YouTube 字幕
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="corrected-subtitles-section">
+                        <h3>
+                            ✅ 校正後的字幕
+                            <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">📱 垂直檢視</button>
+                            <button class="view-mode-toggle" id="swapPanelsBtn" onclick="swapSubtitlePanels()" style="margin-left: 8px;">🔄 交換位置</button>
+                        </h3>
+                        <div class="subtitle-list" id="subtitleList">
+                            <div style="text-align: center; color: #666; padding: 40px;">
+                                請在下方輸入字幕校正檔案，即時顯示校正結果
                             </div>
                         </div>
                     </div>
@@ -1788,13 +1789,7 @@
         
         // 頁面載入時初始化
         document.addEventListener('DOMContentLoaded', function() {
-            const exampleData = `[00:00:00] 1:f a C d可以:Figjam可以
-[00:00:00] 2:可是數字的f a C d真的不行:可是數字的FACD真的不行
-[00:00:09] 9:GE GE lab可以:Gitlab可以
-[00:00:11] 10:f a C d不行:Figjam不行
-[00:00:12] 11:哦那你f a C d開多久啊:哦那你Figjam開多久啊
-[00:01:05] 27:那個鍵盤辦公功能組:那個一鍵排班功能組
-[00:01:28] 36:呃因為一鍵工一鍵排班的功能模組:呃因為一鍵排班的功能模組`;
+            const exampleData = ``;
             
             document.getElementById('subtitleInput').value = exampleData;
             processSubtitlesRealtime();
@@ -1821,5 +1816,23 @@
                 console.log('播放器未準備好');
                 showDeleteNotification('🧪 播放器未準備好', 'error');
             }
+        }
+        
+        function swapSubtitlePanels() {
+            const subtitleDisplayContainer = document.getElementById('subtitleDisplayContainer');
+            const youtubeSubtitlesSection = document.querySelector('.youtube-subtitles-section');
+            const correctedSubtitlesSection = document.querySelector('.corrected-subtitles-section');
+            
+            if (isVerticalMode) {
+                subtitleDisplayContainer.style.flexDirection = 'column';
+                youtubeSubtitlesSection.style.maxWidth = '100%';
+                correctedSubtitlesSection.style.maxWidth = '100%';
+            } else {
+                subtitleDisplayContainer.style.flexDirection = 'row';
+                youtubeSubtitlesSection.style.maxWidth = '50%';
+                correctedSubtitlesSection.style.maxWidth = '50%';
+            }
+            
+            isVerticalMode = !isVerticalMode;
         }
     </script>
