@@ -245,6 +245,24 @@
             transition: all 0.3s ease;
         }
         
+        .subtitle-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+        }
+        
+        .subtitle-control-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
         .subtitle-display-container {
             display: flex;
             gap: 15px;
@@ -689,6 +707,16 @@
             .youtube-subtitles-section {
                 max-width: 100%;
             }
+            
+            .subtitle-controls {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .subtitle-control-buttons {
+                justify-content: center;
+            }
         }
     </style>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -736,6 +764,13 @@
             
             <!-- 校正後的字幕顯示 -->
             <div class="subtitle-display-panel" id="subtitleDisplayPanel">
+                <div class="subtitle-controls">
+                    <h3 style="margin: 0; color: #2c3e50; font-size: 1.3rem;">📋 字幕檢視區域</h3>
+                    <div class="subtitle-control-buttons">
+                        <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">📱 垂直檢視</button>
+                        <button class="view-mode-toggle" id="swapPanelsBtn" onclick="swapSubtitlePanels()">🔄 交換位置</button>
+                    </div>
+                </div>
                 <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section">
                         <h3>🎥 YouTube 字幕</h3>
@@ -747,11 +782,7 @@
                     </div>
                     
                     <div class="corrected-subtitles-section">
-                        <h3>
-                            ✅ 校正後的字幕
-                            <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">📱 垂直檢視</button>
-                            <button class="view-mode-toggle" id="swapPanelsBtn" onclick="swapSubtitlePanels()" style="margin-left: 8px;">🔄 交換位置</button>
-                        </h3>
+                        <h3>✅ 校正後的字幕</h3>
                         <div class="subtitle-list" id="subtitleList">
                             <div style="text-align: center; color: #666; padding: 40px;">
                                 請在下方輸入字幕校正檔案，即時顯示校正結果
@@ -1823,16 +1854,17 @@
             const youtubeSubtitlesSection = document.querySelector('.youtube-subtitles-section');
             const correctedSubtitlesSection = document.querySelector('.corrected-subtitles-section');
             
-            if (isVerticalMode) {
-                subtitleDisplayContainer.style.flexDirection = 'column';
-                youtubeSubtitlesSection.style.maxWidth = '100%';
-                correctedSubtitlesSection.style.maxWidth = '100%';
-            } else {
-                subtitleDisplayContainer.style.flexDirection = 'row';
-                youtubeSubtitlesSection.style.maxWidth = '50%';
-                correctedSubtitlesSection.style.maxWidth = '50%';
-            }
+            // 取得當前兩個元素的順序
+            const isYouTubeFirst = youtubeSubtitlesSection.previousElementSibling === null;
             
-            isVerticalMode = !isVerticalMode;
+            if (isYouTubeFirst) {
+                // 如果 YouTube 字幕在前，移動到後面
+                subtitleDisplayContainer.appendChild(youtubeSubtitlesSection);
+                showDeleteNotification('🔄 已將 YouTube 字幕移到右側');
+            } else {
+                // 如果校正字幕在前，將 YouTube 字幕移到前面
+                subtitleDisplayContainer.insertBefore(youtubeSubtitlesSection, correctedSubtitlesSection);
+                showDeleteNotification('🔄 已將 YouTube 字幕移到左側');
+            }
         }
     </script>
