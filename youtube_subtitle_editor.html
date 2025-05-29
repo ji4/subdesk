@@ -1642,7 +1642,13 @@
                 }
             }
             
-            // 如果高亮的字幕改變了
+            // 如果找不到匹配的字幕，保持當前高亮狀態（不清除）
+            if (targetIndex === -1) {
+                console.log('字幕間隙，保持當前高亮狀態');
+                return;
+            }
+            
+            // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
             if (targetIndex !== currentHighlightedYouTube) {
                 console.log('YouTube字幕高亮變化:', { old: currentHighlightedYouTube, new: targetIndex });
                 // 清除舊的高亮
@@ -1688,7 +1694,13 @@
                 }
             }
             
-            // 如果高亮的字幕改變了
+            // 如果找不到匹配的字幕，保持當前高亮狀態（不清除）
+            if (targetIndex === -1) {
+                console.log('校正字幕間隙，保持當前高亮狀態');
+                return;
+            }
+            
+            // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
             if (targetIndex !== currentHighlightedCorrected) {
                 console.log('校正字幕高亮變化:', { old: currentHighlightedCorrected, new: targetIndex });
                 // 清除舊的高亮
