@@ -747,70 +747,19 @@
             try {
                 showDeleteNotification('正在獲取YouTube字幕...', 'info');
                 
-                // 使用 YouTube Data API 獲取字幕
-                const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+                // 使用本地後端服務獲取字幕
+                const response = await fetch(`http://localhost:3000/api/subtitles?videoId=${videoId}`);
                 if (!response.ok) {
-                    throw new Error('無法獲取影片資訊');
+                    throw new Error('無法獲取字幕');
                 }
                 
-                const html = await response.text();
-                
-                // 從 HTML 中提取字幕資訊
-                const captionTracksMatch = html.match(/"captionTracks":(\[.*?\])/);
-                if (!captionTracksMatch) {
-                    throw new Error('找不到字幕資訊');
-                }
-                
-                const captionTracks = JSON.parse(captionTracksMatch[1]);
-                if (!captionTracks || captionTracks.length === 0) {
+                const data = await response.json();
+                if (!data || !data.subtitles || data.subtitles.length === 0) {
                     throw new Error('沒有可用的字幕');
                 }
                 
-                // 找到中文或英文字幕
-                const preferredLanguages = ['zh-TW', 'zh-HK', 'zh-CN', 'zh', 'en'];
-                let selectedTrack = null;
-                
-                for (const lang of preferredLanguages) {
-                    const track = captionTracks.find(track => track.languageCode === lang);
-                    if (track) {
-                        selectedTrack = track;
-                        break;
-                    }
-                }
-                
-                if (!selectedTrack) {
-                    selectedTrack = captionTracks[0]; // 使用第一個可用的字幕
-                }
-                
-                // 獲取字幕內容
-                const subtitleResponse = await fetch(selectedTrack.baseUrl);
-                if (!subtitleResponse.ok) {
-                    throw new Error('無法獲取字幕內容');
-                }
-                
-                const subtitleText = await subtitleResponse.text();
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(subtitleText, 'text/xml');
-                
                 // 解析字幕內容
-                youtubeSubtitles = [];
-                const textElements = xmlDoc.getElementsByTagName('text');
-                
-                for (let element of textElements) {
-                    const start = parseFloat(element.getAttribute('start'));
-                    const text = element.textContent.trim();
-                    
-                    if (text) {  // 只添加非空字幕
-                        youtubeSubtitles.push({
-                            start: start,
-                            text: text
-                        });
-                    }
-                }
-                
-                if (youtubeSubtitles.length === 0) {
-                    throw new Error('字幕內容為空');
-                }
+                youtubeSubtitles = data.subtitles;
                 
                 console.log('解析後的字幕:', youtubeSubtitles);
                 showDeleteNotification(`YouTube字幕載入完成 (共 ${youtubeSubtitles.length} 條)`, 'success');
