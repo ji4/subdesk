@@ -719,33 +719,6 @@
             }
         }
         
-        .debug-panel {
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .debug-toggle {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin: 10px 0;
-        }
-        
-        .debug-toggle:hover {
-            background: #5a6268;
-        }
     </style>
     <script src="https://www.youtube.com/iframe_api"></script>
 </head>
@@ -789,11 +762,6 @@
                 
                 <div id="messages" class="messages"></div>
                 
-                <button class="debug-toggle" onclick="toggleDebugPanel()">🐛 切換調試資訊</button>
-                <div id="debugPanel" class="debug-panel">
-                    <div><strong>調試資訊</strong></div>
-                    <div id="debugContent">等待調試資訊...</div>
-                </div>
             </div>
             
             <!-- 校正後的字幕顯示 -->
@@ -860,7 +828,6 @@
         let isPlayerReady = false;
         let currentHighlightedYouTube = -1; // 當前高亮的YouTube字幕索引
         let currentHighlightedCorrected = -1; // 當前高亮的校正字幕索引
-        let debugMode = false;
         
         // 初始化 YouTube Player
         function onYouTubeIframeAPIReady() {
@@ -1963,61 +1930,6 @@
             }
         }
         
-        function toggleDebugPanel() {
-            const panel = document.getElementById('debugPanel');
-            debugMode = !debugMode;
-            panel.style.display = debugMode ? 'block' : 'none';
-            
-            if (debugMode) {
-                updateDebugInfo();
-            }
-        }
-        
-        function updateDebugInfo() {
-            if (!debugMode) return;
-            
-            const debugContent = document.getElementById('debugContent');
-            const currentTime = player && isPlayerReady ? player.getCurrentTime() : 0;
-            
-            let info = `<div style="margin-bottom: 10px;">
-                <strong>當前狀態:</strong><br>
-                播放時間: ${formatTime(currentTime)}<br>
-                手動highlight活躍: ${window.manualHighlightActive || false}<br>
-                YouTube高亮索引: ${currentHighlightedYouTube}<br>
-                校正字幕高亮索引: ${currentHighlightedCorrected}<br>
-                校正字幕總數: ${subtitleData.length}
-            </div>`;
-            
-            if (currentHighlightedCorrected >= 0 && subtitleData[currentHighlightedCorrected]) {
-                const current = subtitleData[currentHighlightedCorrected];
-                info += `<div style="margin-bottom: 10px;">
-                    <strong>當前高亮校正字幕:</strong><br>
-                    索引: ${currentHighlightedCorrected}<br>
-                    編號: ${current.lineNumber}<br>
-                    時間: ${current.timeInSeconds}秒 (${formatTime(current.timeInSeconds)})<br>
-                    錯誤文字: ${current.wrongText}<br>
-                    正確文字: ${current.correctText}
-                </div>`;
-            }
-            
-            // 顯示附近的字幕
-            if (currentHighlightedCorrected >= 0) {
-                info += `<div style="margin-bottom: 10px;">
-                    <strong>附近字幕 (前後3個):</strong><br>`;
-                
-                const start = Math.max(0, currentHighlightedCorrected - 3);
-                const end = Math.min(subtitleData.length - 1, currentHighlightedCorrected + 3);
-                
-                for (let i = start; i <= end; i++) {
-                    const subtitle = subtitleData[i];
-                    const isCurrent = i === currentHighlightedCorrected;
-                    const timeDiff = Math.abs(currentTime - subtitle.timeInSeconds);
-                    
-                    info += `${isCurrent ? '<strong>' : ''}索引${i} 編號${subtitle.lineNumber} 時間${formatTime(subtitle.timeInSeconds)} 差距${timeDiff.toFixed(1)}秒 "${subtitle.wrongText}"${isCurrent ? '</strong>' : ''}<br>`;
-                }
-                info += `</div>`;
-            }
-            
-            debugContent.innerHTML = info;
-        }
     </script>
+</body>
+</html>
