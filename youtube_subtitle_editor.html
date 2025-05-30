@@ -1335,8 +1335,8 @@
             }
         }
         
-        function seekToSubtitle(wrongText, timeInSeconds) {
-            console.log('嘗試跳轉字幕:', { wrongText, timeInSeconds });
+        function seekToSubtitle(wrongText, timeInSeconds, subtitleIndex = -1) {
+            console.log('嘗試跳轉字幕:', { wrongText, timeInSeconds, subtitleIndex });
             
             if (!player) {
                 showDeleteNotification('請先載入影片', 'error');
@@ -1345,6 +1345,11 @@
 
             try {
                 const matchedSubtitle = findMatchingSubtitle(wrongText);
+                
+                // 先手動highlight點擊的校正字幕
+                if (subtitleIndex >= 0) {
+                    manualHighlightCorrectedSubtitle(subtitleIndex);
+                }
                 
                 if (matchedSubtitle) {
                     console.log('找到匹配字幕:', matchedSubtitle);
@@ -1359,6 +1364,33 @@
                 console.error('跳轉失敗:', error);
                 showDeleteNotification('跳轉失敗，使用校正檔案時間', 'error');
                 seekToTime(timeInSeconds);
+            }
+        }
+        
+        // 新增：手動highlight指定的校正字幕
+        function manualHighlightCorrectedSubtitle(index) {
+            console.log('手動highlight校正字幕，索引:', index);
+            
+            // 清除舊的高亮
+            document.querySelectorAll('.subtitle-item.current-playing')
+                .forEach(item => item.classList.remove('current-playing'));
+            
+            // 設置新的高亮
+            currentHighlightedCorrected = index;
+            const items = document.querySelectorAll('.subtitle-item');
+            if (items[index]) {
+                items[index].classList.add('current-playing');
+                console.log('手動highlight成功，索引:', index);
+                // 滾動到該位置
+                scrollToElement(items[index], 'subtitleList');
+                
+                // 設置一個標記，暫時禁用自動highlight
+                window.manualHighlightActive = true;
+                setTimeout(() => {
+                    window.manualHighlightActive = false;
+                }, 3000); // 3秒後恢復自動highlight
+            } else {
+                console.warn('找不到校正字幕元素，索引:', index);
             }
         }
         
@@ -1428,7 +1460,7 @@
                     <div class="subtitle-header">
                         <div class="subtitle-header-left">
                             <div class="subtitle-number"${isUnmatched ? ' data-unmatched="true"' : ''}>${correspondingNumber}</div>
-                            <div class="subtitle-wrong" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds})" title="點擊智能跳轉 (會嘗試匹配YouTube字幕)">
+                            <div class="subtitle-wrong" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds}, ${index})" title="點擊智能跳轉 (會嘗試匹配YouTube字幕)">
                                 ${subtitle.wrongText}
                             </div>
                         </div>
@@ -1711,6 +1743,12 @@
                 return;
             }
             
+            // 如果手動highlight正在活躍，跳過自動highlight
+            if (window.manualHighlightActive) {
+                console.log('手動highlight活躍中，跳過自動highlight');
+                return;
+            }
+            
             let targetIndex = -1;
             
             // 找到當前時間對應的校正字幕
@@ -1790,6 +1828,9 @@
             
             currentHighlightedYouTube = -1;
             currentHighlightedCorrected = -1;
+            
+            // 重置手動highlight標記
+            window.manualHighlightActive = false;
         }
         
         function getCorrespondingYouTubeNumber(wrongText) {
