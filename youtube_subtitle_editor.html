@@ -758,6 +758,7 @@
                     <div class="current-time" id="currentTime">00:00:00</div>
                     <button class="toggle-controls-btn" id="toggleControlsBtn" onclick="toggleVideoControls()">隱藏控制</button>
                     <button class="toggle-controls-btn" onclick="testSubtitleSync()" title="測試字幕同步">🧪 測試同步</button>
+                    <button class="toggle-controls-btn" onclick="testSubtitleDataSync()" title="測試資料同步">🔧 測試資料</button>
                 </div>
                 
                 <div id="messages" class="messages"></div>
@@ -799,7 +800,7 @@
         <div class="subtitle-section" id="subtitleSection">
             <div class="subtitle-input-panel">
                 <h3>📝 字幕校正檔案</h3>
-                <textarea id="subtitleInput" oninput="processSubtitlesRealtime()" placeholder="請貼上字幕校正檔案內容，格式範例：
+                <textarea id="subtitleInput" placeholder="請貼上字幕校正檔案內容，格式範例：
 [00:00:00] 1:錯誤文字:正確文字
 [00:01:30] 2:另一個錯誤:另一個正確文字
 
@@ -1454,12 +1455,15 @@
                 return;
             }
             
+            // 清空容器
             container.innerHTML = '';
+            
+            console.log('重新渲染字幕，總數:', subtitleData.length);
             
             subtitleData.forEach((subtitle, index) => {
                 const item = document.createElement('div');
                 item.className = 'subtitle-item';
-                item.dataset.index = index;
+                item.dataset.index = index; // 確保索引正確
                 
                 // 根據錯誤文字找到對應的YouTube字幕編號
                 const correspondingNumber = getCorrespondingYouTubeNumber(subtitle.wrongText);
@@ -1485,7 +1489,13 @@
                 `;
                 
                 container.appendChild(item);
+                
+                console.log(`渲染字幕 ${index}: ${subtitle.wrongText}`);
             });
+            
+            // 檢查渲染結果
+            const renderedItems = container.querySelectorAll('.subtitle-item');
+            console.log(`渲染完成，DOM 中有 ${renderedItems.length} 個字幕項目`);
         }
         
         function handleEnterKey(event, index, element) {
@@ -1499,8 +1509,13 @@
         function updateSubtitle(index, newText) {
             if (index >= 0 && index < subtitleData.length) {
                 subtitleData[index].correctText = newText.trim();
+                
+                // 立即更新 textarea
                 updateTextarea();
+                
                 showDeleteNotification('✏️ 字幕已更新');
+                
+                console.log('更新字幕:', index, newText.trim());
             }
         }
         
@@ -1510,10 +1525,21 @@
                 if (item) {
                     item.classList.add('deleting');
                     setTimeout(() => {
+                        // 刪除字幕資料
                         subtitleData.splice(index, 1);
+                        
+                        // 立即更新 textarea 內容
                         updateTextarea();
+                        
+                        // 重新顯示所有字幕（這會重新設定正確的索引）
                         displaySubtitles();
+                        
+                        // 顯示成功訊息
                         showDeleteNotification('🗑️ 字幕已刪除');
+                        
+                        // 確保 textarea 內容確實更新了
+                        console.log('刪除後 subtitleData 長度:', subtitleData.length);
+                        console.log('刪除後 textarea 內容長度:', document.getElementById('subtitleInput').value.length);
                     }, 200);
                 }
             }
@@ -1521,6 +1547,8 @@
         
         function updateTextarea() {
             const textarea = document.getElementById('subtitleInput');
+            
+            // 根據當前的 subtitleData 重新生成完整的內容
             const newContent = subtitleData.map(item => {
                 const hours = Math.floor(item.timeInSeconds / 3600).toString().padStart(2, '0');
                 const minutes = Math.floor((item.timeInSeconds % 3600) / 60).toString().padStart(2, '0');
@@ -1528,9 +1556,19 @@
                 return `[${hours}:${minutes}:${seconds}] ${item.lineNumber}:${item.wrongText}:${item.correctText}`;
             }).join('\n');
             
-            textarea.oninput = null;
+            // 暫時移除事件監聽器，避免循環觸發
+            textarea.removeEventListener('input', processSubtitlesRealtime);
+            
+            // 更新 textarea 的值
             textarea.value = newContent;
-            textarea.oninput = processSubtitlesRealtime;
+            
+            // 重新添加事件監聽器
+            textarea.addEventListener('input', processSubtitlesRealtime);
+            
+            // 觸發一次輸入事件以確保同步（可選）
+            // textarea.dispatchEvent(new Event('input'));
+            
+            console.log('Textarea 已更新，新內容行數:', newContent.split('\n').filter(line => line.trim()).length);
         }
         
         function copySubtitleText() {
@@ -1884,8 +1922,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             const exampleData = ``;
             
-            document.getElementById('subtitleInput').value = exampleData;
+            const textarea = document.getElementById('subtitleInput');
+            textarea.value = exampleData;
+            
+            // 設定事件監聽器
+            textarea.addEventListener('input', processSubtitlesRealtime);
+            
+            // 初始處理
             processSubtitlesRealtime();
+            
+            console.log('頁面初始化完成，事件監聽器已設定');
         });
         
         // 測試字幕同步功能
@@ -1930,6 +1976,28 @@
             }
         }
         
+        // 測試同步功能
+        function testSubtitleDataSync() {
+            console.log('=== 測試字幕資料同步 ===');
+            console.log('subtitleData 陣列長度:', subtitleData.length);
+            console.log('DOM 中字幕項目數量:', document.querySelectorAll('.subtitle-item').length);
+            
+            const textarea = document.getElementById('subtitleInput');
+            const textareaLines = textarea.value.split('\n').filter(line => line.trim()).length;
+            console.log('Textarea 有效行數:', textareaLines);
+            
+            console.log('前3個字幕資料:', subtitleData.slice(0, 3).map(s => ({
+                lineNumber: s.lineNumber,
+                wrongText: s.wrongText,
+                correctText: s.correctText
+            })));
+            
+            // 手動觸發同步
+            updateTextarea();
+            displaySubtitles();
+            
+            showDeleteNotification(`🧪 同步測試完成 - 資料:${subtitleData.length} DOM:${document.querySelectorAll('.subtitle-item').length} 檔案:${textareaLines}`);
+        }
     </script>
 </body>
 </html>
