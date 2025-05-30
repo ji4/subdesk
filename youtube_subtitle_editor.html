@@ -718,6 +718,34 @@
                 justify-content: center;
             }
         }
+        
+        .debug-panel {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .debug-toggle {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        
+        .debug-toggle:hover {
+            background: #5a6268;
+        }
     </style>
     <script src="https://www.youtube.com/iframe_api"></script>
 </head>
@@ -760,6 +788,12 @@
                 </div>
                 
                 <div id="messages" class="messages"></div>
+                
+                <button class="debug-toggle" onclick="toggleDebugPanel()">🐛 切換調試資訊</button>
+                <div id="debugPanel" class="debug-panel">
+                    <div><strong>調試資訊</strong></div>
+                    <div id="debugContent">等待調試資訊...</div>
+                </div>
             </div>
             
             <!-- 校正後的字幕顯示 -->
@@ -826,6 +860,7 @@
         let isPlayerReady = false;
         let currentHighlightedYouTube = -1; // 當前高亮的YouTube字幕索引
         let currentHighlightedCorrected = -1; // 當前高亮的校正字幕索引
+        let debugMode = false;
         
         // 初始化 YouTube Player
         function onYouTubeIframeAPIReady() {
@@ -1369,7 +1404,7 @@
         
         // 新增：手動highlight指定的校正字幕
         function manualHighlightCorrectedSubtitle(index) {
-            console.log('手動highlight校正字幕，索引:', index);
+            console.log('點擊字幕 編號:', subtitleData[index]?.lineNumber);
             
             // 清除舊的高亮
             document.querySelectorAll('.subtitle-item.current-playing')
@@ -1380,17 +1415,16 @@
             const items = document.querySelectorAll('.subtitle-item');
             if (items[index]) {
                 items[index].classList.add('current-playing');
-                console.log('手動highlight成功，索引:', index);
                 // 滾動到該位置
                 scrollToElement(items[index], 'subtitleList');
                 
                 // 設置一個標記，暫時禁用自動highlight
                 window.manualHighlightActive = true;
+                
                 setTimeout(() => {
                     window.manualHighlightActive = false;
-                }, 3000); // 3秒後恢復自動highlight
-            } else {
-                console.warn('找不到校正字幕元素，索引:', index);
+                    console.log('恢復自動跳轉，當前在編號:', subtitleData[currentHighlightedCorrected]?.lineNumber);
+                }, 5000); // 5秒後恢復自動highlight
             }
         }
         
@@ -1429,6 +1463,14 @@
                     });
                 }
             }
+            
+            // 確保字幕數據按時間排序
+            subtitleData.sort((a, b) => a.timeInSeconds - b.timeInSeconds);
+            console.log('字幕數據已按時間排序，前5個:', subtitleData.slice(0, 5).map(s => ({
+                lineNumber: s.lineNumber,
+                time: s.timeInSeconds,
+                text: s.wrongText
+            })));
             
             displaySubtitles();
         }
@@ -1687,13 +1729,12 @@
         
         function highlightYouTubeSubtitle(currentPlayerTime) {
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
-                console.log('沒有YouTube字幕可以高亮');
                 return;
             }
             
             let targetIndex = -1;
             
-            // 找到當前時間對應的字幕
+            // 先嘗試精確範圍匹配
             for (let i = 0; i < youtubeSubtitles.length; i++) {
                 const subtitle = youtubeSubtitles[i];
                 const startTime = subtitle.start;
@@ -1701,96 +1742,109 @@
                 
                 if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
                     targetIndex = i;
-                    console.log('找到匹配的YouTube字幕:', { index: i, startTime, endTime, text: subtitle.text });
                     break;
                 }
             }
             
-            // 如果找不到匹配的字幕，保持當前高亮狀態（不清除）
+            // 如果沒有精確匹配，找最近的字幕
             if (targetIndex === -1) {
-                console.log('字幕間隙，保持當前高亮狀態');
-                return;
+                let minTimeDiff = Infinity;
+                for (let i = 0; i < youtubeSubtitles.length; i++) {
+                    const subtitle = youtubeSubtitles[i];
+                    const timeDiff = Math.abs(currentPlayerTime - subtitle.start);
+                    
+                    if (timeDiff < minTimeDiff && timeDiff <= 3) { // 3秒範圍內
+                        minTimeDiff = timeDiff;
+                        targetIndex = i;
+                    }
+                }
             }
             
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
-            if (targetIndex !== currentHighlightedYouTube) {
-                console.log('YouTube字幕高亮變化:', { old: currentHighlightedYouTube, new: targetIndex });
+            if (targetIndex >= 0 && targetIndex !== currentHighlightedYouTube) {
                 // 清除舊的高亮
-                if (currentHighlightedYouTube >= 0) {
-                    const oldItems = document.querySelectorAll('.youtube-subtitle-item.current-playing');
-                    oldItems.forEach(item => item.classList.remove('current-playing'));
-                }
+                document.querySelectorAll('.youtube-subtitle-item.current-playing')
+                    .forEach(item => item.classList.remove('current-playing'));
                 
                 // 設置新的高亮
                 currentHighlightedYouTube = targetIndex;
-                if (targetIndex >= 0) {
-                    const items = document.querySelectorAll('.youtube-subtitle-item');
-                    if (items[targetIndex]) {
-                        items[targetIndex].classList.add('current-playing');
-                        console.log('YouTube字幕高亮成功，索引:', targetIndex);
-                        // 滾動到該位置
-                        scrollToElement(items[targetIndex], 'youtubeSubtitlesPanel');
-                    } else {
-                        console.warn('找不到YouTube字幕元素，索引:', targetIndex);
-                    }
+                const items = document.querySelectorAll('.youtube-subtitle-item');
+                if (items[targetIndex]) {
+                    items[targetIndex].classList.add('current-playing');
+                    // 滾動到該位置
+                    scrollToElement(items[targetIndex], 'youtubeSubtitlesPanel');
                 }
             }
         }
         
         function highlightCorrectedSubtitle(currentPlayerTime) {
             if (!subtitleData || subtitleData.length === 0) {
-                console.log('沒有校正字幕可以高亮');
                 return;
             }
             
             // 如果手動highlight正在活躍，跳過自動highlight
             if (window.manualHighlightActive) {
-                console.log('手動highlight活躍中，跳過自動highlight');
                 return;
             }
             
             let targetIndex = -1;
             
-            // 找到當前時間對應的校正字幕
-            for (let i = 0; i < subtitleData.length; i++) {
+            // 簡單規則：只允許往後跳，不允許往前跳
+            // 從當前highlight位置開始往後找
+            const startIndex = Math.max(0, currentHighlightedCorrected);
+            
+            // 先找精確匹配
+            for (let i = startIndex; i < subtitleData.length; i++) {
                 const subtitle = subtitleData[i];
                 const startTime = subtitle.timeInSeconds;
-                const endTime = i < subtitleData.length - 1 ? subtitleData[i + 1].timeInSeconds : startTime + 5;
+                const endTime = i < subtitleData.length - 1 ? subtitleData[i + 1].timeInSeconds : startTime + 10;
                 
                 if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
                     targetIndex = i;
-                    console.log('找到匹配的校正字幕:', { index: i, startTime, endTime, text: subtitle.wrongText });
                     break;
                 }
             }
             
-            // 如果找不到匹配的字幕，保持當前高亮狀態（不清除）
+            // 如果沒有精確匹配，找最接近但在後面的字幕
             if (targetIndex === -1) {
-                console.log('校正字幕間隙，保持當前高亮狀態');
-                return;
+                let minTimeDiff = Infinity;
+                for (let i = startIndex; i < subtitleData.length; i++) {
+                    const subtitle = subtitleData[i];
+                    const timeDiff = Math.abs(currentPlayerTime - subtitle.timeInSeconds);
+                    
+                    // 只選擇時間相近的字幕（8秒內）
+                    if (timeDiff < minTimeDiff && timeDiff <= 8) {
+                        minTimeDiff = timeDiff;
+                        targetIndex = i;
+                    }
+                }
+            }
+            
+            // 如果還是沒找到，至少選擇下一個字幕
+            if (targetIndex === -1 && currentHighlightedCorrected >= 0 && currentHighlightedCorrected < subtitleData.length - 1) {
+                // 檢查下一個字幕的時間是否合理（不超過20秒）
+                const nextIndex = currentHighlightedCorrected + 1;
+                const nextSubtitle = subtitleData[nextIndex];
+                const timeDiff = Math.abs(currentPlayerTime - nextSubtitle.timeInSeconds);
+                
+                if (timeDiff <= 20) {
+                    targetIndex = nextIndex;
+                }
             }
             
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
-            if (targetIndex !== currentHighlightedCorrected) {
-                console.log('校正字幕高亮變化:', { old: currentHighlightedCorrected, new: targetIndex });
+            if (targetIndex >= 0 && targetIndex !== currentHighlightedCorrected) {
                 // 清除舊的高亮
-                if (currentHighlightedCorrected >= 0) {
-                    const oldItems = document.querySelectorAll('.subtitle-item.current-playing');
-                    oldItems.forEach(item => item.classList.remove('current-playing'));
-                }
+                document.querySelectorAll('.subtitle-item.current-playing')
+                    .forEach(item => item.classList.remove('current-playing'));
                 
                 // 設置新的高亮
                 currentHighlightedCorrected = targetIndex;
-                if (targetIndex >= 0) {
-                    const items = document.querySelectorAll('.subtitle-item');
-                    if (items[targetIndex]) {
-                        items[targetIndex].classList.add('current-playing');
-                        console.log('校正字幕高亮成功，索引:', targetIndex);
-                        // 滾動到該位置
-                        scrollToElement(items[targetIndex], 'subtitleList');
-                    } else {
-                        console.warn('找不到校正字幕元素，索引:', targetIndex);
-                    }
+                const items = document.querySelectorAll('.subtitle-item');
+                if (items[targetIndex]) {
+                    items[targetIndex].classList.add('current-playing');
+                    // 滾動到該位置
+                    scrollToElement(items[targetIndex], 'subtitleList');
                 }
             }
         }
@@ -1907,5 +1961,63 @@
                 subtitleDisplayContainer.insertBefore(youtubeSubtitlesSection, correctedSubtitlesSection);
                 showDeleteNotification('🔄 已將 YouTube 字幕移到左側');
             }
+        }
+        
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debugPanel');
+            debugMode = !debugMode;
+            panel.style.display = debugMode ? 'block' : 'none';
+            
+            if (debugMode) {
+                updateDebugInfo();
+            }
+        }
+        
+        function updateDebugInfo() {
+            if (!debugMode) return;
+            
+            const debugContent = document.getElementById('debugContent');
+            const currentTime = player && isPlayerReady ? player.getCurrentTime() : 0;
+            
+            let info = `<div style="margin-bottom: 10px;">
+                <strong>當前狀態:</strong><br>
+                播放時間: ${formatTime(currentTime)}<br>
+                手動highlight活躍: ${window.manualHighlightActive || false}<br>
+                YouTube高亮索引: ${currentHighlightedYouTube}<br>
+                校正字幕高亮索引: ${currentHighlightedCorrected}<br>
+                校正字幕總數: ${subtitleData.length}
+            </div>`;
+            
+            if (currentHighlightedCorrected >= 0 && subtitleData[currentHighlightedCorrected]) {
+                const current = subtitleData[currentHighlightedCorrected];
+                info += `<div style="margin-bottom: 10px;">
+                    <strong>當前高亮校正字幕:</strong><br>
+                    索引: ${currentHighlightedCorrected}<br>
+                    編號: ${current.lineNumber}<br>
+                    時間: ${current.timeInSeconds}秒 (${formatTime(current.timeInSeconds)})<br>
+                    錯誤文字: ${current.wrongText}<br>
+                    正確文字: ${current.correctText}
+                </div>`;
+            }
+            
+            // 顯示附近的字幕
+            if (currentHighlightedCorrected >= 0) {
+                info += `<div style="margin-bottom: 10px;">
+                    <strong>附近字幕 (前後3個):</strong><br>`;
+                
+                const start = Math.max(0, currentHighlightedCorrected - 3);
+                const end = Math.min(subtitleData.length - 1, currentHighlightedCorrected + 3);
+                
+                for (let i = start; i <= end; i++) {
+                    const subtitle = subtitleData[i];
+                    const isCurrent = i === currentHighlightedCorrected;
+                    const timeDiff = Math.abs(currentTime - subtitle.timeInSeconds);
+                    
+                    info += `${isCurrent ? '<strong>' : ''}索引${i} 編號${subtitle.lineNumber} 時間${formatTime(subtitle.timeInSeconds)} 差距${timeDiff.toFixed(1)}秒 "${subtitle.wrongText}"${isCurrent ? '</strong>' : ''}<br>`;
+                }
+                info += `</div>`;
+            }
+            
+            debugContent.innerHTML = info;
         }
     </script>
