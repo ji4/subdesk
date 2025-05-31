@@ -405,6 +405,29 @@
             transform: scale(1.02);
         }
         
+        /* 播放完畢的字幕樣式 */
+        .subtitle-item.finished {
+            background: #dee2e6 !important;
+            border: 2px solid #ced4da !important;
+            box-shadow: none !important;
+            transform: none !important;
+            opacity: 0.8 !important;
+        }
+        
+        /* 確保播放完畢的樣式優先於當前播放的樣式 */
+        .subtitle-item.finished.current-playing {
+            background: #dee2e6 !important;
+            border: 2px solid #ced4da !important;
+            box-shadow: none !important;
+            transform: none !important;
+            opacity: 0.8 !important;
+        }
+        
+        /* 強制覆蓋所有其他樣式 */
+        .subtitle-item.finished * {
+            background-color: #dee2e6 !important;
+        }
+        
         .timestamp {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -1309,7 +1332,7 @@
         function seekToTime(seconds, useYouTubeTime = false) {
             console.log('嘗試跳轉時間:', { seconds, useYouTubeTime });
             
-            if (!player) {
+            if (!player || !isPlayerReady) {
                 showDeleteNotification('請先載入影片', 'error');
                 return;
             }
@@ -1765,17 +1788,27 @@
                 }
             }
             
+            console.log('YouTube字幕高亮檢查:', {
+                currentTime: currentPlayerTime,
+                targetIndex,
+                currentHighlighted: currentHighlightedYouTube
+            });
+            
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
             if (targetIndex >= 0 && targetIndex !== currentHighlightedYouTube) {
                 // 清除舊的高亮
                 document.querySelectorAll('.youtube-subtitle-item.current-playing')
-                    .forEach(item => item.classList.remove('current-playing'));
+                    .forEach(item => {
+                        item.classList.remove('current-playing');
+                        console.log('清除YouTube字幕高亮');
+                    });
                 
                 // 設置新的高亮
                 currentHighlightedYouTube = targetIndex;
                 const items = document.querySelectorAll('.youtube-subtitle-item');
                 if (items[targetIndex]) {
                     items[targetIndex].classList.add('current-playing');
+                    console.log('設置新的YouTube字幕高亮:', targetIndex);
                     // 滾動到該位置
                     scrollToElement(items[targetIndex], 'youtubeSubtitlesPanel');
                 }
@@ -1837,17 +1870,43 @@
                 }
             }
             
+            console.log('校正字幕高亮檢查:', {
+                currentTime: currentPlayerTime,
+                targetIndex,
+                currentHighlighted: currentHighlightedCorrected
+            });
+            
+            // 處理播放完畢的字幕
+            if (currentHighlightedCorrected >= 0) {
+                const currentItem = document.querySelector(`.subtitle-item[data-index="${currentHighlightedCorrected}"]`);
+                if (currentItem) {
+                    // 移除當前播放的高亮
+                    currentItem.classList.remove('current-playing');
+                    
+                    // 如果當前時間已經超過這個字幕的時間，就標記為播放完畢
+                    const currentSubtitle = subtitleData[currentHighlightedCorrected];
+                    if (currentPlayerTime > currentSubtitle.timeInSeconds + 2) { // 加2秒緩衝
+                        currentItem.classList.add('finished');
+                        console.log('標記字幕為播放完畢:', currentHighlightedCorrected);
+                    }
+                }
+            }
+            
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
             if (targetIndex >= 0 && targetIndex !== currentHighlightedCorrected) {
-                // 清除舊的高亮
-                document.querySelectorAll('.subtitle-item.current-playing')
-                    .forEach(item => item.classList.remove('current-playing'));
+                // 清除所有高亮和播放完畢的樣式
+                document.querySelectorAll('.subtitle-item.current-playing, .subtitle-item.finished')
+                    .forEach(item => {
+                        item.classList.remove('current-playing', 'finished');
+                        console.log('清除字幕樣式');
+                    });
                 
                 // 設置新的高亮
                 currentHighlightedCorrected = targetIndex;
                 const items = document.querySelectorAll('.subtitle-item');
                 if (items[targetIndex]) {
                     items[targetIndex].classList.add('current-playing');
+                    console.log('設置新的校正字幕高亮:', targetIndex);
                     // 滾動到該位置
                     scrollToElement(items[targetIndex], 'subtitleList');
                 }
@@ -1877,13 +1936,28 @@
         }
         
         function clearAllHighlights() {
+            console.log('清除所有高亮樣式');
+            
             // 清除YouTube字幕高亮
             document.querySelectorAll('.youtube-subtitle-item.current-playing')
-                .forEach(item => item.classList.remove('current-playing'));
+                .forEach(item => {
+                    item.classList.remove('current-playing');
+                    console.log('清除YouTube字幕高亮');
+                });
             
             // 清除校正字幕高亮
             document.querySelectorAll('.subtitle-item.current-playing')
-                .forEach(item => item.classList.remove('current-playing'));
+                .forEach(item => {
+                    item.classList.remove('current-playing');
+                    console.log('清除校正字幕高亮');
+                });
+            
+            // 清除播放完畢的樣式
+            document.querySelectorAll('.subtitle-item.finished')
+                .forEach(item => {
+                    item.classList.remove('finished');
+                    console.log('清除播放完畢樣式');
+                });
             
             currentHighlightedYouTube = -1;
             currentHighlightedCorrected = -1;
