@@ -407,25 +407,25 @@
         
         /* 播放完畢的字幕樣式 */
         .subtitle-item.finished {
-            background: #dee2e6 !important;
             border: 2px solid #ced4da !important;
-            box-shadow: none !important;
-            transform: none !important;
-            opacity: 0.8 !important;
         }
         
         /* 確保播放完畢的樣式優先於當前播放的樣式 */
         .subtitle-item.finished.current-playing {
-            background: #dee2e6 !important;
             border: 2px solid #ced4da !important;
-            box-shadow: none !important;
-            transform: none !important;
-            opacity: 0.8 !important;
         }
         
-        /* 強制覆蓋所有其他樣式 */
-        .subtitle-item.finished * {
-            background-color: #dee2e6 !important;
+        /* 確保內部元素保持原有樣式 */
+        .subtitle-item.finished .subtitle-number {
+            background: #495057 !important;
+        }
+        
+        .subtitle-item.finished .subtitle-wrong {
+            background: #fff5f5 !important;
+        }
+        
+        .subtitle-item.finished .subtitle-correct {
+            background: white !important;
         }
         
         .timestamp {
