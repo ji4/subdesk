@@ -1761,28 +1761,26 @@
             }
             
             let targetIndex = -1;
+            let minTimeDiff = Infinity;
             
-            // 先嘗試精確範圍匹配
+            // 遍歷所有字幕尋找最接近當前時間的字幕
             for (let i = 0; i < youtubeSubtitles.length; i++) {
                 const subtitle = youtubeSubtitles[i];
                 const startTime = subtitle.start;
                 const endTime = i < youtubeSubtitles.length - 1 ? youtubeSubtitles[i + 1].start : startTime + 5;
                 
+                // 檢查是否在當前字幕的時間範圍內
                 if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
                     targetIndex = i;
                     break;
                 }
-            }
-            
-            // 如果沒有精確匹配，找最近的字幕
-            if (targetIndex === -1) {
-                let minTimeDiff = Infinity;
-                for (let i = 0; i < youtubeSubtitles.length; i++) {
-                    const subtitle = youtubeSubtitles[i];
-                    const timeDiff = Math.abs(currentPlayerTime - subtitle.start);
-                    
-                    if (timeDiff < minTimeDiff && timeDiff <= 3) { // 3秒範圍內
-                        minTimeDiff = timeDiff;
+                
+                // 計算與當前時間的差距
+                const timeDiff = Math.abs(currentPlayerTime - startTime);
+                if (timeDiff < minTimeDiff) {
+                    minTimeDiff = timeDiff;
+                    // 如果時間差距在 3 秒內，也考慮這個字幕
+                    if (timeDiff <= 3) {
                         targetIndex = i;
                     }
                 }
@@ -1791,17 +1789,18 @@
             console.log('YouTube字幕高亮檢查:', {
                 currentTime: currentPlayerTime,
                 targetIndex,
-                currentHighlighted: currentHighlightedYouTube
+                currentHighlighted: currentHighlightedYouTube,
+                timeDiff: minTimeDiff
             });
             
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
             if (targetIndex >= 0 && targetIndex !== currentHighlightedYouTube) {
                 // 清除舊的高亮
-                document.querySelectorAll('.youtube-subtitle-item.current-playing')
-                    .forEach(item => {
-                        item.classList.remove('current-playing');
-                        console.log('清除YouTube字幕高亮');
-                    });
+                const oldHighlighted = document.querySelector('.youtube-subtitle-item.current-playing');
+                if (oldHighlighted) {
+                    oldHighlighted.classList.remove('current-playing');
+                    console.log('清除舊的YouTube字幕高亮');
+                }
                 
                 // 設置新的高亮
                 currentHighlightedYouTube = targetIndex;
@@ -1809,8 +1808,14 @@
                 if (items[targetIndex]) {
                     items[targetIndex].classList.add('current-playing');
                     console.log('設置新的YouTube字幕高亮:', targetIndex);
-                    // 滾動到該位置
+                    
+                    // 確保元素在視圖中可見
                     scrollToElement(items[targetIndex], 'youtubeSubtitlesPanel');
+                    
+                    // 強制重繪
+                    items[targetIndex].style.display = 'none';
+                    items[targetIndex].offsetHeight; // 觸發重繪
+                    items[targetIndex].style.display = '';
                 }
             }
         }
