@@ -1336,13 +1336,20 @@
         }
         
         function seekToTime(seconds, useYouTubeTime = false) {
-            console.log('嘗試跳轉時間:', { seconds, useYouTubeTime });
+            console.log('嘗試跳轉時間:', { seconds, useYouTubeTime, isPlayerReady, isVideoLoaded });
             
-            if (!player || !isPlayerReady) {
+            if (!player) {
+                console.error('播放器未初始化');
                 showDeleteNotification('請先載入影片', 'error');
                 return;
             }
-            
+
+            if (!isPlayerReady) {
+                console.error('播放器未準備就緒');
+                showDeleteNotification('播放器未準備就緒，請稍候再試', 'error');
+                return;
+            }
+
             try {
                 let targetTime = Math.max(0, seconds);
                 
@@ -1350,17 +1357,22 @@
                     targetTime = seconds;
                 }
                 
-                console.log('跳轉到時間:', targetTime);
+                console.log('準備跳轉到時間:', targetTime);
                 currentTime = targetTime;
                 updateTimeDisplay();
                 
-                player.seekTo(targetTime, true);
-                player.playVideo();
-                
-                isPlaying = true;
-                startTimeTracking();
-                
-                showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
+                // 確保播放器存在且已準備就緒
+                if (player && typeof player.seekTo === 'function') {
+                    player.seekTo(targetTime, true);
+                    player.playVideo();
+                    
+                    isPlaying = true;
+                    startTimeTracking();
+                    
+                    showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
+                } else {
+                    throw new Error('播放器方法不可用');
+                }
             } catch (error) {
                 console.error('跳轉失敗:', error);
                 showDeleteNotification('跳轉失敗，請重新載入影片', 'error');
