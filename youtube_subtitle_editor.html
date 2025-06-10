@@ -800,9 +800,15 @@
                 <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section">
                         <h3>🎥 YouTube 字幕</h3>
+                        <div class="subtitle-upload-controls" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                            <input type="file" id="subtitleFileInput" accept=".srt,.vtt,.txt" style="display: none;">
+                            <button class="view-mode-toggle" onclick="document.getElementById('subtitleFileInput').click()">📤 上傳字幕檔</button>
+                            <span style="font-size: 12px; color: #666;">支援 .srt, .vtt, .txt 格式</span>
+                        </div>
                         <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
                             <div style="text-align: center; color: #666; padding: 40px;">
-                                請先載入影片，這裡會顯示 YouTube 字幕
+                                請先載入影片，這裡會顯示 YouTube 字幕<br>
+                                或點擊上方按鈕上傳字幕檔案
                             </div>
                         </div>
                     </div>
@@ -2076,6 +2082,131 @@
             displaySubtitles();
             
             showDeleteNotification(`🧪 同步測試完成 - 資料:${subtitleData.length} DOM:${document.querySelectorAll('.subtitle-item').length} 檔案:${textareaLines}`);
+        }
+
+        // 新增：處理字幕檔案上傳
+        document.getElementById('subtitleFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                try {
+                    // 根據檔案類型解析字幕
+                    const subtitles = parseSubtitleFile(content, file.name);
+                    if (subtitles && subtitles.length > 0) {
+                        youtubeSubtitles = subtitles;
+                        updateYouTubeSubtitlesDisplay();
+                        showDeleteNotification(`✅ 成功載入 ${subtitles.length} 條字幕`, 'success');
+                    } else {
+                        throw new Error('無法解析字幕內容');
+                    }
+                } catch (error) {
+                    console.error('解析字幕檔案失敗:', error);
+                    showDeleteNotification('❌ 解析字幕檔案失敗: ' + error.message, 'error');
+                }
+            };
+            reader.onerror = function() {
+                showDeleteNotification('❌ 讀取檔案失敗', 'error');
+            };
+            reader.readAsText(file);
+        });
+
+        // 新增：解析字幕檔案
+        function parseSubtitleFile(content, filename) {
+            const lines = content.split('\n');
+            const subtitles = [];
+            let currentSubtitle = null;
+            let isVTT = filename.toLowerCase().endsWith('.vtt');
+            let isSRT = filename.toLowerCase().endsWith('.srt');
+            
+            // 移除 BOM 和空行
+            const cleanLines = lines.map(line => line.trim()).filter(line => line);
+            
+            if (isVTT) {
+                // 處理 VTT 格式
+                for (let i = 0; i < cleanLines.length; i++) {
+                    const line = cleanLines[i];
+                    if (line.includes('-->')) {
+                        const timeMatch = line.match(/(\d{2}):(\d{2}):(\d{2})\.(\d{3})/);
+                        if (timeMatch) {
+                            const hours = parseInt(timeMatch[1]);
+                            const minutes = parseInt(timeMatch[2]);
+                            const seconds = parseInt(timeMatch[3]);
+                            const startTime = hours * 3600 + minutes * 60 + seconds;
+                            
+                            currentSubtitle = {
+                                start: startTime,
+                                text: ''
+                            };
+                        }
+                    } else if (currentSubtitle && line && !line.includes('WEBVTT')) {
+                        currentSubtitle.text += line + ' ';
+                    }
+                    
+                    if (currentSubtitle && (i === cleanLines.length - 1 || cleanLines[i + 1].includes('-->'))) {
+                        if (currentSubtitle.text) {
+                            currentSubtitle.text = currentSubtitle.text.trim();
+                            subtitles.push(currentSubtitle);
+                            currentSubtitle = null;
+                        }
+                    }
+                }
+            } else if (isSRT) {
+                // 處理 SRT 格式
+                for (let i = 0; i < cleanLines.length; i++) {
+                    const line = cleanLines[i];
+                    if (line.includes('-->')) {
+                        const timeMatch = line.match(/(\d{2}):(\d{2}):(\d{2}),(\d{3})/);
+                        if (timeMatch) {
+                            const hours = parseInt(timeMatch[1]);
+                            const minutes = parseInt(timeMatch[2]);
+                            const seconds = parseInt(timeMatch[3]);
+                            const startTime = hours * 3600 + minutes * 60 + seconds;
+                            
+                            currentSubtitle = {
+                                start: startTime,
+                                text: ''
+                            };
+                        }
+                    } else if (currentSubtitle && line && !/^\d+$/.test(line)) {
+                        currentSubtitle.text += line + ' ';
+                    }
+                    
+                    if (currentSubtitle && (i === cleanLines.length - 1 || /^\d+$/.test(cleanLines[i + 1]))) {
+                        if (currentSubtitle.text) {
+                            currentSubtitle.text = currentSubtitle.text.trim();
+                            subtitles.push(currentSubtitle);
+                            currentSubtitle = null;
+                        }
+                    }
+                }
+            } else {
+                // 處理一般文字格式（假設每行都是時間戳記後接文字）
+                for (let i = 0; i < cleanLines.length; i++) {
+                    const line = cleanLines[i];
+                    const timeMatch = line.match(/(\d{2}):(\d{2}):(\d{2})/);
+                    if (timeMatch) {
+                        const hours = parseInt(timeMatch[1]);
+                        const minutes = parseInt(timeMatch[2]);
+                        const seconds = parseInt(timeMatch[3]);
+                        const startTime = hours * 3600 + minutes * 60 + seconds;
+                        
+                        const text = line.substring(line.indexOf(']') + 1).trim();
+                        if (text) {
+                            subtitles.push({
+                                start: startTime,
+                                text: text
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // 按時間排序
+            subtitles.sort((a, b) => a.start - b.start);
+            return subtitles;
         }
     </script>
 </body>
