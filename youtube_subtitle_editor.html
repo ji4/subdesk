@@ -1609,6 +1609,8 @@
                 return;
             }
             
+            const SKIP_TIME = 5; // 設定前進後退時間為5秒
+            
             if (isLocalVideo) {
                 // 本機影片控制
                 if (!localVideo) {
@@ -1627,13 +1629,13 @@
                         showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
                     }
                 } else if (action === 'back') {
-                    const newTime = Math.max(0, localVideo.currentTime - 5);
+                    const newTime = Math.max(0, localVideo.currentTime - SKIP_TIME);
                     localVideo.currentTime = newTime;
                     currentTime = newTime;
                     updateTimeDisplay();
                     showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
                 } else if (action === 'forward') {
-                    const newTime = localVideo.currentTime + 5;
+                    const newTime = localVideo.currentTime + SKIP_TIME;
                     localVideo.currentTime = newTime;
                     currentTime = newTime;
                     updateTimeDisplay();
@@ -1657,12 +1659,12 @@
                         showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
                     }
                 } else if (action === 'back') {
-                    currentTime = Math.max(0, currentTime - 5);
+                    currentTime = Math.max(0, currentTime - SKIP_TIME);
                     player.seekTo(currentTime, true);
                     updateTimeDisplay();
                     showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
                 } else if (action === 'forward') {
-                    currentTime += 5;
+                    currentTime += SKIP_TIME;
                     player.seekTo(currentTime, true);
                     updateTimeDisplay();
                     showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
@@ -2487,7 +2489,7 @@
             return bestMatch !== -1 ? bestMatch + 1 : '?';
         }
         
-        // 頁面載入時初始化
+        // 初始化頁面時設置鍵盤事件監聽
         document.addEventListener('DOMContentLoaded', function() {
             const exampleData = ``;
             
@@ -2502,6 +2504,33 @@
             
             // 初始處理
             processSubtitlesRealtime();
+            
+            // 添加鍵盤控制
+            document.addEventListener('keydown', function(e) {
+                // 如果正在輸入文字，不處理鍵盤控制
+                if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+                    return;
+                }
+                
+                switch(e.key) {
+                    case ' ': // 空格鍵
+                        e.preventDefault();
+                        if (isPlaying) {
+                            controlVideo('pause');
+                        } else {
+                            controlVideo('play');
+                        }
+                        break;
+                    case 'ArrowLeft': // 左方向鍵
+                        e.preventDefault();
+                        controlVideo('back');
+                        break;
+                    case 'ArrowRight': // 右方向鍵
+                        e.preventDefault();
+                        controlVideo('forward');
+                        break;
+                }
+            });
             
             console.log('頁面初始化完成，事件監聽器已設定');
         });
