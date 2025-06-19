@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube字幕校正工具</title>
+    <title>影片字幕校正工具</title>
     <style>
         * {
             margin: 0;
@@ -56,7 +56,7 @@
             grid-template-columns: 1fr;
         }
         
-        /* YouTube影片區域 */
+        /* 影片區域 */
         .video-section {
             padding: 20px;
             background: #f8f9fa;
@@ -69,6 +69,42 @@
             border-bottom: 2px solid #e9ecef;
         }
         
+        /* 影片載入選擇器 */
+        .video-load-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .video-load-selector button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #495057;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .video-load-selector button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .video-load-selector button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* YouTube輸入區域 */
         .youtube-input {
             display: flex;
             gap: 12px;
@@ -106,6 +142,45 @@
             cursor: not-allowed;
         }
         
+        /* 本機影片輸入區域 */
+        .local-video-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .local-video-input input[type="file"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .local-video-input input[type="file"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .local-video-input button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .local-video-input button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .video-container {
             position: relative;
             width: 100%;
@@ -123,12 +198,18 @@
             padding-bottom: 45%;
         }
         
-        .video-container iframe {
+        .video-container iframe,
+        .video-container video {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            border-radius: 10px;
+        }
+        
+        .video-container video {
+            background: #000;
         }
         
         .video-controls {
@@ -748,16 +829,26 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎬 YouTube字幕校正工具</h1>
+            <h1>🎬 影片字幕校正工具</h1>
             <p>左側載入影片，右側即時校正字幕，點擊字幕直接跳轉</p>
         </div>
         
         <div class="content-wrapper" id="contentWrapper">
-            <!-- YouTube影片區域 -->
+            <!-- 影片區域 -->
             <div class="video-section" id="videoSection">
-                <div class="youtube-input">
+                <div class="video-load-selector">
+                    <button class="active" id="youtubeBtn">YouTube</button>
+                    <button id="localVideoBtn">本機影片</button>
+                </div>
+                
+                <div class="youtube-input" id="youtubeInput">
                     <input type="text" id="youtubeUrl" placeholder="請輸入YouTube影片網址 (如: https://www.youtube.com/watch?v=VIDEO_ID)">
                     <button id="loadVideoBtn" onclick="loadVideo()">載入影片</button>
+                </div>
+                
+                <div class="local-video-input" id="localVideoInput" style="display: none;">
+                    <input type="file" id="localVideoFile" accept="video/*" placeholder="選擇本機影片檔案">
+                    <button id="loadLocalVideoBtn" onclick="loadLocalVideo()">載入影片</button>
                 </div>
                 
                 <div id="statusInfo" class="status-info"></div>
@@ -771,6 +862,9 @@
                 
                 <div id="videoContainer" class="video-container" style="display: none;">
                     <iframe id="youtubeIframe" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                    <video id="localVideo" controls preload="metadata" style="display: none;">
+                        您的瀏覽器不支援影片播放。
+                    </video>
                 </div>
                 
                 <div class="video-controls" id="videoControls" style="display: none;">
@@ -858,6 +952,74 @@
         let isPlayerReady = false;
         let currentHighlightedYouTube = -1; // 當前高亮的YouTube字幕索引
         let currentHighlightedCorrected = -1; // 當前高亮的校正字幕索引
+        let isLocalVideo = false; // 是否為本機影片
+        let localVideo = null; // 本機影片元素
+        
+        // 初始化影片載入選擇器
+        function initVideoLoadSelector() {
+            const youtubeBtn = document.getElementById('youtubeBtn');
+            const localVideoBtn = document.getElementById('localVideoBtn');
+            const youtubeInput = document.getElementById('youtubeInput');
+            const localVideoInput = document.getElementById('localVideoInput');
+            
+            youtubeBtn.addEventListener('click', function() {
+                youtubeBtn.classList.add('active');
+                localVideoBtn.classList.remove('active');
+                youtubeInput.style.display = 'flex';
+                localVideoInput.style.display = 'none';
+                isLocalVideo = false;
+                resetVideoPlayer();
+            });
+            
+            localVideoBtn.addEventListener('click', function() {
+                localVideoBtn.classList.add('active');
+                youtubeBtn.classList.remove('active');
+                localVideoInput.style.display = 'flex';
+                youtubeInput.style.display = 'none';
+                isLocalVideo = true;
+                resetVideoPlayer();
+            });
+        }
+        
+        // 重置影片播放器
+        function resetVideoPlayer() {
+            // 隱藏影片容器
+            document.getElementById('videoContainer').style.display = 'none';
+            document.getElementById('videoControls').style.display = 'none';
+            
+            // 重置狀態
+            isVideoLoaded = false;
+            isPlayerReady = false;
+            currentTime = 0;
+            isPlaying = false;
+            
+            // 停止時間追蹤
+            if (timeInterval) {
+                clearInterval(timeInterval);
+                timeInterval = null;
+            }
+            
+            // 停止字幕同步
+            stopSubtitleSync();
+            
+            // 清除高亮
+            clearAllHighlights();
+            
+            // 重置播放器
+            if (player) {
+                player.destroy();
+                player = null;
+            }
+            
+            // 重置本機影片
+            if (localVideo) {
+                localVideo.pause();
+                localVideo.src = '';
+                localVideo = null;
+            }
+            
+            updateTimeDisplay();
+        }
         
         // 初始化 YouTube Player
         function onYouTubeIframeAPIReady() {
@@ -865,6 +1027,11 @@
         }
 
         async function loadVideo() {
+            if (isLocalVideo) {
+                loadLocalVideo();
+                return;
+            }
+            
             const url = document.getElementById('youtubeUrl').value.trim();
             const videoId = extractVideoId(url);
             const loadBtn = document.getElementById('loadVideoBtn');
@@ -940,6 +1107,125 @@
                 showMessage('載入影片時發生錯誤，請重試', 'error');
                 document.getElementById('progressContainer').style.display = 'none';
             }
+        }
+        
+        // 載入本機影片
+        function loadLocalVideo() {
+            const fileInput = document.getElementById('localVideoFile');
+            const loadBtn = document.getElementById('loadLocalVideoBtn');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showMessage('請選擇影片檔案', 'error');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            
+            // 檢查檔案類型
+            if (!file.type.startsWith('video/')) {
+                showMessage('請選擇有效的影片檔案', 'error');
+                return;
+            }
+            
+            loadBtn.textContent = '載入中...';
+            loadBtn.disabled = true;
+            
+            updateProgress(25, '正在載入本機影片...');
+            
+            try {
+                // 創建影片URL
+                const videoUrl = URL.createObjectURL(file);
+                
+                // 獲取或創建video元素
+                localVideo = document.getElementById('localVideo');
+                if (!localVideo) {
+                    localVideo = document.createElement('video');
+                    localVideo.id = 'localVideo';
+                    localVideo.controls = true;
+                    localVideo.preload = 'metadata';
+                    document.getElementById('videoContainer').appendChild(localVideo);
+                }
+                
+                // 設置影片來源
+                localVideo.src = videoUrl;
+                
+                // 隱藏YouTube iframe，顯示本機影片
+                document.getElementById('youtubeIframe').style.display = 'none';
+                localVideo.style.display = 'block';
+                
+                updateProgress(50, '設定影片參數...');
+                
+                // 監聽影片事件
+                localVideo.addEventListener('loadedmetadata', function() {
+                    updateProgress(75, '影片載入完成');
+                    isVideoLoaded = true;
+                    isPlayerReady = true;
+                    currentTime = 0;
+                    
+                    // 顯示影片容器和控制項
+                    document.getElementById('videoContainer').style.display = 'block';
+                    document.getElementById('videoControls').style.display = 'flex';
+                    
+                    updateProgress(100, '本機影片載入完成！');
+                    
+                    loadBtn.textContent = '重新載入';
+                    loadBtn.disabled = false;
+                    
+                    showStatus('本機影片載入成功！現在可以點擊字幕進行跳轉。', 'success');
+                    
+                    updateTimeDisplay();
+                    
+                    // 設置本機影片的事件監聽器
+                    setupLocalVideoEvents();
+                });
+                
+                localVideo.addEventListener('error', function() {
+                    console.error('本機影片載入錯誤');
+                    loadBtn.textContent = '載入影片';
+                    loadBtn.disabled = false;
+                    showMessage('載入本機影片時發生錯誤，請重試', 'error');
+                    document.getElementById('progressContainer').style.display = 'none';
+                });
+                
+            } catch (error) {
+                console.error('載入本機影片錯誤:', error);
+                loadBtn.textContent = '載入影片';
+                loadBtn.disabled = false;
+                showMessage('載入本機影片時發生錯誤，請重試', 'error');
+                document.getElementById('progressContainer').style.display = 'none';
+            }
+        }
+        
+        // 設置本機影片事件監聽器
+        function setupLocalVideoEvents() {
+            if (!localVideo) return;
+            
+            // 播放事件
+            localVideo.addEventListener('play', function() {
+                isPlaying = true;
+                startTimeTracking();
+                startSubtitleSync();
+            });
+            
+            // 暫停事件
+            localVideo.addEventListener('pause', function() {
+                isPlaying = false;
+                stopTimeTracking();
+                stopSubtitleSync();
+            });
+            
+            // 時間更新事件
+            localVideo.addEventListener('timeupdate', function() {
+                currentTime = localVideo.currentTime;
+                updateTimeDisplay();
+            });
+            
+            // 結束事件
+            localVideo.addEventListener('ended', function() {
+                isPlaying = false;
+                stopTimeTracking();
+                stopSubtitleSync();
+            });
         }
 
         function onPlayerReady(event) {
@@ -1281,31 +1567,69 @@
         }
         
         function controlVideo(action) {
-            if (!isVideoLoaded || !player || !isPlayerReady) {
+            if (!isVideoLoaded) {
                 showDeleteNotification('請先載入影片', 'error');
                 return;
             }
             
-            if (action === 'play') {
-                if (!isPlaying) {
-                    player.playVideo();
-                    showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+            if (isLocalVideo) {
+                // 本機影片控制
+                if (!localVideo) {
+                    showDeleteNotification('本機影片未載入', 'error');
+                    return;
                 }
-            } else if (action === 'pause') {
-                if (isPlaying) {
-                    player.pauseVideo();
-                    showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
+                
+                if (action === 'play') {
+                    if (localVideo.paused) {
+                        localVideo.play();
+                        showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+                    }
+                } else if (action === 'pause') {
+                    if (!localVideo.paused) {
+                        localVideo.pause();
+                        showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
+                    }
+                } else if (action === 'back') {
+                    const newTime = Math.max(0, localVideo.currentTime - 5);
+                    localVideo.currentTime = newTime;
+                    currentTime = newTime;
+                    updateTimeDisplay();
+                    showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
+                } else if (action === 'forward') {
+                    const newTime = localVideo.currentTime + 5;
+                    localVideo.currentTime = newTime;
+                    currentTime = newTime;
+                    updateTimeDisplay();
+                    showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
                 }
-            } else if (action === 'back') {
-                currentTime = Math.max(0, currentTime - 5);
-                player.seekTo(currentTime, true);
-                updateTimeDisplay();
-                showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
-            } else if (action === 'forward') {
-                currentTime += 5;
-                player.seekTo(currentTime, true);
-                updateTimeDisplay();
-                showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
+            } else {
+                // YouTube影片控制
+                if (!player || !isPlayerReady) {
+                    showDeleteNotification('請先載入影片', 'error');
+                    return;
+                }
+                
+                if (action === 'play') {
+                    if (!isPlaying) {
+                        player.playVideo();
+                        showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+                    }
+                } else if (action === 'pause') {
+                    if (isPlaying) {
+                        player.pauseVideo();
+                        showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
+                    }
+                } else if (action === 'back') {
+                    currentTime = Math.max(0, currentTime - 5);
+                    player.seekTo(currentTime, true);
+                    updateTimeDisplay();
+                    showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
+                } else if (action === 'forward') {
+                    currentTime += 5;
+                    player.seekTo(currentTime, true);
+                    updateTimeDisplay();
+                    showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
+                }
             }
         }
         
@@ -1313,6 +1637,12 @@
             if (timeInterval) {
                 clearInterval(timeInterval);
             }
+            
+            if (isLocalVideo) {
+                // 本機影片不需要額外的時間追蹤，因為有timeupdate事件
+                return;
+            }
+            
             timeInterval = setInterval(() => {
                 if (isPlaying) {
                     currentTime += 1;
@@ -1339,56 +1669,79 @@
             console.log('嘗試跳轉時間:', { 
                 seconds, 
                 useYouTubeTime, 
+                isLocalVideo,
                 isPlayerReady, 
                 isVideoLoaded,
                 player: !!player,
-                playerMethods: player ? {
-                    seekTo: typeof player.seekTo === 'function',
-                    playVideo: typeof player.playVideo === 'function'
-                } : null
+                localVideo: !!localVideo
             });
             
-            // 檢查播放器是否已初始化
-            if (!player) {
-                console.error('播放器未初始化');
-                showDeleteNotification('請先載入影片', 'error');
-                return;
-            }
-
-            // 檢查播放器是否已準備就緒
-            if (!isPlayerReady) {
-                console.error('播放器未準備就緒');
-                showDeleteNotification('播放器未準備就緒，請稍候再試', 'error');
-                return;
-            }
-
-            try {
-                let targetTime = Math.max(0, seconds);
-                
-                if (useYouTubeTime && youtubeSubtitles.length > 0) {
-                    targetTime = seconds;
-                }
-                
-                console.log('準備跳轉到時間:', targetTime);
-                currentTime = targetTime;
-                updateTimeDisplay();
-                
-                // 確保播放器方法可用
-                if (typeof player.seekTo !== 'function' || typeof player.playVideo !== 'function') {
-                    throw new Error('播放器方法不可用');
+            if (isLocalVideo) {
+                // 本機影片跳轉
+                if (!localVideo) {
+                    console.error('本機影片未載入');
+                    showDeleteNotification('請先載入本機影片', 'error');
+                    return;
                 }
 
-                // 執行跳轉
-                player.seekTo(targetTime, true);
-                player.playVideo();
-                
-                isPlaying = true;
-                startTimeTracking();
-                
-                showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
-            } catch (error) {
-                console.error('跳轉失敗:', error);
-                showDeleteNotification('跳轉失敗，請重新載入影片', 'error');
+                try {
+                    let targetTime = Math.max(0, seconds);
+                    console.log('準備跳轉本機影片到時間:', targetTime);
+                    
+                    currentTime = targetTime;
+                    localVideo.currentTime = targetTime;
+                    updateTimeDisplay();
+                    
+                    // 如果影片暫停，開始播放
+                    if (localVideo.paused) {
+                        localVideo.play();
+                    }
+                    
+                    showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
+                } catch (error) {
+                    console.error('本機影片跳轉失敗:', error);
+                    showDeleteNotification('跳轉失敗，請重新載入影片', 'error');
+                }
+            } else {
+                // YouTube影片跳轉
+                if (!player) {
+                    console.error('播放器未初始化');
+                    showDeleteNotification('請先載入影片', 'error');
+                    return;
+                }
+
+                if (!isPlayerReady) {
+                    console.error('播放器未準備就緒');
+                    showDeleteNotification('播放器未準備就緒，請稍候再試', 'error');
+                    return;
+                }
+
+                try {
+                    let targetTime = Math.max(0, seconds);
+                    
+                    if (useYouTubeTime && youtubeSubtitles.length > 0) {
+                        targetTime = seconds;
+                    }
+                    
+                    console.log('準備跳轉YouTube影片到時間:', targetTime);
+                    currentTime = targetTime;
+                    updateTimeDisplay();
+                    
+                    if (typeof player.seekTo !== 'function' || typeof player.playVideo !== 'function') {
+                        throw new Error('播放器方法不可用');
+                    }
+
+                    player.seekTo(targetTime, true);
+                    player.playVideo();
+                    
+                    isPlaying = true;
+                    startTimeTracking();
+                    
+                    showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
+                } catch (error) {
+                    console.error('YouTube影片跳轉失敗:', error);
+                    showDeleteNotification('跳轉失敗，請重新載入影片', 'error');
+                }
             }
         }
         
@@ -1771,14 +2124,30 @@
             }
             
             subtitleSyncInterval = setInterval(() => {
-                if (isPlaying && player && isPlayerReady) {
-                    try {
-                        const currentPlayerTime = player.getCurrentTime();
+                if (isPlaying) {
+                    let currentPlayerTime = 0;
+                    
+                    if (isLocalVideo) {
+                        // 本機影片時間追蹤
+                        if (localVideo) {
+                            currentPlayerTime = localVideo.currentTime;
+                        }
+                    } else {
+                        // YouTube影片時間追蹤
+                        if (player && isPlayerReady) {
+                            try {
+                                currentPlayerTime = player.getCurrentTime();
+                            } catch (error) {
+                                console.warn('獲取YouTube播放時間失敗:', error);
+                                return;
+                            }
+                        }
+                    }
+                    
+                    if (currentPlayerTime > 0) {
                         console.log('當前播放時間:', currentPlayerTime);
                         updateCurrentTime(currentPlayerTime);
                         highlightCurrentSubtitles(currentPlayerTime);
-                    } catch (error) {
-                        console.warn('獲取播放時間失敗:', error);
                     }
                 }
             }, 500); // 每500毫秒檢查一次
@@ -2056,6 +2425,9 @@
             // 設定事件監聽器
             textarea.addEventListener('input', processSubtitlesRealtime);
             
+            // 初始化影片載入選擇器
+            initVideoLoadSelector();
+            
             // 初始處理
             processSubtitlesRealtime();
             
@@ -2065,23 +2437,35 @@
         // 測試字幕同步功能
         function testSubtitleSync() {
             console.log('=== 測試字幕同步功能 ===');
-            console.log('播放器狀態:', { isPlaying, isPlayerReady, isVideoLoaded });
+            console.log('播放器狀態:', { isPlaying, isPlayerReady, isVideoLoaded, isLocalVideo });
             console.log('YouTube字幕數量:', youtubeSubtitles?.length || 0);
             console.log('校正字幕數量:', subtitleData?.length || 0);
             
-            if (player && isPlayerReady) {
-                try {
-                    const testTime = player.getCurrentTime();
-                    console.log('當前播放時間:', testTime);
+            if (isLocalVideo) {
+                if (localVideo) {
+                    const testTime = localVideo.currentTime;
+                    console.log('當前本機影片播放時間:', testTime);
                     highlightCurrentSubtitles(testTime);
                     showDeleteNotification(`🧪 測試同步：當前時間 ${formatTime(testTime)}`);
-                } catch (error) {
-                    console.error('測試失敗:', error);
-                    showDeleteNotification('🧪 測試失敗：' + error.message, 'error');
+                } else {
+                    console.log('本機影片未載入');
+                    showDeleteNotification('🧪 本機影片未載入', 'error');
                 }
             } else {
-                console.log('播放器未準備好');
-                showDeleteNotification('🧪 播放器未準備好', 'error');
+                if (player && isPlayerReady) {
+                    try {
+                        const testTime = player.getCurrentTime();
+                        console.log('當前YouTube播放時間:', testTime);
+                        highlightCurrentSubtitles(testTime);
+                        showDeleteNotification(`🧪 測試同步：當前時間 ${formatTime(testTime)}`);
+                    } catch (error) {
+                        console.error('測試失敗:', error);
+                        showDeleteNotification('🧪 測試失敗：' + error.message, 'error');
+                    }
+                } else {
+                    console.log('播放器未準備好');
+                    showDeleteNotification('🧪 播放器未準備好', 'error');
+                }
             }
         }
         
