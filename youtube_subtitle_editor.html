@@ -184,18 +184,11 @@
         .video-container {
             position: relative;
             width: 100%;
-            height: 0;
-            padding-bottom: 56.25%;
-            border-radius: 10px;
+            background: #000;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             margin-bottom: 15px;
-        }
-        
-        .content-wrapper.vertical .video-container {
-            max-width: 800px;
-            margin: 0 auto 15px auto;
-            padding-bottom: 45%;
+            padding-bottom: 56.25%; /* 16:9 比例 */
         }
         
         .video-container iframe,
@@ -205,11 +198,37 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border: none;
         }
         
-        .video-container video {
-            background: #000;
+        /* 添加字幕覆蓋層樣式 */
+        .subtitle-overlay {
+            position: absolute;
+            bottom: 80px; /* 調整位置，避免與控制項重疊 */
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            display: none; /* 預設隱藏 */
+        }
+        
+        .subtitle-overlay-text {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 20px;
+            border-radius: 4px;
+            max-width: 80%;
+            margin: 0 auto;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        }
+        
+        .content-wrapper.vertical .video-container {
+            max-width: 800px;
+            margin: 0 auto 15px auto;
+            padding-bottom: 45%;
         }
         
         .video-controls {
@@ -865,6 +884,10 @@
                     <video id="localVideo" controls preload="metadata" style="display: none;">
                         您的瀏覽器不支援影片播放。
                     </video>
+                    <!-- 添加字幕覆蓋層 -->
+                    <div id="subtitleOverlay" class="subtitle-overlay">
+                        <div id="subtitleOverlayText" class="subtitle-overlay-text"></div>
+                    </div>
                 </div>
                 
                 <div class="video-controls" id="videoControls" style="display: none;">
@@ -1133,10 +1156,16 @@
             updateProgress(25, '正在載入本機影片...');
             
             try {
+                // 重置播放器狀態
+                if (player) {
+                    player.destroy();
+                    player = null;
+                }
+                
                 // 創建影片URL
                 const videoUrl = URL.createObjectURL(file);
                 
-                // 獲取或創建video元素
+                // 重置並準備video元素
                 localVideo = document.getElementById('localVideo');
                 if (!localVideo) {
                     localVideo = document.createElement('video');
@@ -1146,11 +1175,15 @@
                     document.getElementById('videoContainer').appendChild(localVideo);
                 }
                 
-                // 設置影片來源
+                // 重置影片元素
+                localVideo.pause();
+                localVideo.currentTime = 0;
                 localVideo.src = videoUrl;
                 
-                // 隱藏YouTube iframe，顯示本機影片
+                // 設置顯示狀態
                 document.getElementById('youtubeIframe').style.display = 'none';
+                document.getElementById('videoContainer').style.display = 'block';
+                document.getElementById('subtitleOverlay').style.display = 'none'; // 先隱藏字幕覆蓋層
                 localVideo.style.display = 'block';
                 
                 updateProgress(50, '設定影片參數...');
@@ -1162,16 +1195,20 @@
                     isPlayerReady = true;
                     currentTime = 0;
                     
-                    // 顯示影片容器和控制項
-                    document.getElementById('videoContainer').style.display = 'block';
+                    // 顯示控制項
                     document.getElementById('videoControls').style.display = 'flex';
+                    
+                    // 如果有字幕，顯示字幕覆蓋層
+                    if (youtubeSubtitles && youtubeSubtitles.length > 0) {
+                        document.getElementById('subtitleOverlay').style.display = 'block';
+                    }
                     
                     updateProgress(100, '本機影片載入完成！');
                     
                     loadBtn.textContent = '重新載入';
                     loadBtn.disabled = false;
                     
-                    showStatus('本機影片載入成功！現在可以點擊字幕進行跳轉。', 'success');
+                    showStatus('本機影片載入成功！如果已上傳字幕檔案，字幕將自動顯示。', 'success');
                     
                     updateTimeDisplay();
                     
@@ -1179,8 +1216,8 @@
                     setupLocalVideoEvents();
                 });
                 
-                localVideo.addEventListener('error', function() {
-                    console.error('本機影片載入錯誤');
+                localVideo.addEventListener('error', function(e) {
+                    console.error('本機影片載入錯誤:', e.target.error);
                     loadBtn.textContent = '載入影片';
                     loadBtn.disabled = false;
                     showMessage('載入本機影片時發生錯誤，請重試', 'error');
@@ -2176,7 +2213,34 @@
         }
         
         function highlightCurrentSubtitles(currentPlayerTime) {
-            console.log('檢查字幕高亮，當前時間:', currentPlayerTime);
+            if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
+                return;
+            }
+            
+            // 找到當前時間對應的字幕
+            let currentSubtitle = null;
+            for (let i = 0; i < youtubeSubtitles.length; i++) {
+                const subtitle = youtubeSubtitles[i];
+                const nextSubtitle = youtubeSubtitles[i + 1];
+                const startTime = subtitle.start;
+                const endTime = nextSubtitle ? nextSubtitle.start : startTime + 5;
+                
+                if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
+                    currentSubtitle = subtitle;
+                    break;
+                }
+            }
+            
+            // 更新字幕覆蓋層文字
+            const overlayText = document.getElementById('subtitleOverlayText');
+            if (currentSubtitle) {
+                overlayText.textContent = currentSubtitle.text;
+                overlayText.style.display = 'inline-block';
+            } else {
+                overlayText.style.display = 'none';
+            }
+            
+            // 原有的高亮邏輯保持不變
             highlightYouTubeSubtitle(currentPlayerTime);
             highlightCorrectedSubtitle(currentPlayerTime);
         }
@@ -2533,6 +2597,14 @@
                     if (subtitles && subtitles.length > 0) {
                         youtubeSubtitles = subtitles;
                         updateYouTubeSubtitlesDisplay();
+                        
+                        // 如果當前是本機影片模式且影片已載入，顯示字幕覆蓋層
+                        if (isLocalVideo && isVideoLoaded && localVideo) {
+                            document.getElementById('subtitleOverlay').style.display = 'block';
+                            // 立即更新當前字幕
+                            highlightCurrentSubtitles(localVideo.currentTime);
+                        }
+                        
                         showDeleteNotification(`✅ 成功載入 ${subtitles.length} 條字幕`, 'success');
                     } else {
                         throw new Error('無法解析字幕內容');
