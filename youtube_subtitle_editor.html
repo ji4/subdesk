@@ -1798,42 +1798,36 @@
                     manualHighlightCorrectedSubtitle(subtitleIndex);
                 }
 
-                if (isLocalVideo) {
-                    // 本機影片模式：直接使用時間跳轉
-                    console.log('本機影片模式：使用時間跳轉:', timeInSeconds);
-                    showDeleteNotification(`🎯 跳轉到時間點: ${formatTime(timeInSeconds)}`);
-                    seekToTime(timeInSeconds);
-                } else {
-                    // YouTube模式：嘗試匹配字幕
-                    const matchedSubtitle = findMatchingSubtitle(wrongText);
+                // 不論是本機影片還是YouTube影片，都先嘗試找到對應的字幕
+                const matchedSubtitle = findMatchingSubtitle(wrongText);
+                
+                if (matchedSubtitle) {
+                    console.log('找到匹配字幕:', matchedSubtitle);
+                    showDeleteNotification(`🎯 從字幕匹配到: "${matchedSubtitle.text}"`);
                     
-                    if (matchedSubtitle) {
-                        console.log('找到匹配字幕:', matchedSubtitle);
-                        showDeleteNotification(`🎯 從YouTube字幕匹配到: "${matchedSubtitle.text}"`);
-                        
-                        // 找到對應的 YouTube 字幕索引
-                        const youtubeIndex = youtubeSubtitles.findIndex(s => s.start === matchedSubtitle.start && s.text === matchedSubtitle.text);
-                        if (youtubeIndex !== -1) {
-                            // 手動高亮對應的 YouTube 字幕
-                            const youtubeItems = document.querySelectorAll('.youtube-subtitle-item');
-                            if (youtubeItems[youtubeIndex]) {
-                                // 清除舊的高亮
-                                document.querySelectorAll('.youtube-subtitle-item.current-playing')
-                                    .forEach(item => item.classList.remove('current-playing'));
-                                
-                                // 設置新的高亮
-                                currentHighlightedYouTube = youtubeIndex;
-                                youtubeItems[youtubeIndex].classList.add('current-playing');
-                                scrollToElement(youtubeItems[youtubeIndex], 'youtubeSubtitlesPanel');
-                            }
+                    // 找到對應的 YouTube 字幕索引
+                    const youtubeIndex = youtubeSubtitles.findIndex(s => s.start === matchedSubtitle.start && s.text === matchedSubtitle.text);
+                    if (youtubeIndex !== -1) {
+                        // 手動高亮對應的 YouTube 字幕
+                        const youtubeItems = document.querySelectorAll('.youtube-subtitle-item');
+                        if (youtubeItems[youtubeIndex]) {
+                            // 清除舊的高亮
+                            document.querySelectorAll('.youtube-subtitle-item.current-playing')
+                                .forEach(item => item.classList.remove('current-playing'));
+                            
+                            // 設置新的高亮
+                            currentHighlightedYouTube = youtubeIndex;
+                            youtubeItems[youtubeIndex].classList.add('current-playing');
+                            scrollToElement(youtubeItems[youtubeIndex], 'youtubeSubtitlesPanel');
                         }
-                        
-                        seekToTime(matchedSubtitle.start, true);
-                    } else {
-                        console.log('使用校正檔案時間跳轉:', timeInSeconds);
-                        showDeleteNotification(`🎯 使用校正檔案時間跳轉`);
-                        seekToTime(timeInSeconds);
                     }
+                    
+                    // 使用匹配到的字幕時間進行跳轉
+                    seekToTime(matchedSubtitle.start);
+                } else {
+                    console.log('未找到匹配字幕，使用校正檔案時間:', timeInSeconds);
+                    showDeleteNotification('⚠️ 未找到匹配字幕，使用校正檔案時間');
+                    seekToTime(timeInSeconds);
                 }
             } catch (error) {
                 console.error('跳轉失敗:', error);
