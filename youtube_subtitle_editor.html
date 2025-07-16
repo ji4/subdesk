@@ -2502,7 +2502,10 @@
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
                 // 如果正在輸入文字，不處理鍵盤控制
-                if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+                if (e.target.tagName === 'TEXTAREA' || 
+                    e.target.tagName === 'INPUT' || 
+                    e.target.contentEditable === 'true' ||
+                    e.target.closest('[contenteditable="true"]')) {
                     return;
                 }
                 
