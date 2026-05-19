@@ -1350,11 +1350,9 @@
         function setupLocalVideoEvents() {
             if (!localVideo) return;
 
-            // 阻止 video[controls] 原生鍵盤行為，讓 document keydown 統一處理
-            localVideo.addEventListener('keydown', function(e) {
-                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
-                    e.preventDefault();
-                }
+            // 讓 video 元素不持有 keyboard focus，防止 native 方向鍵 seek
+            localVideo.addEventListener('focus', function() {
+                this.blur();
             });
 
             // 播放事件
