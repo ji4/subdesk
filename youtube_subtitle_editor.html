@@ -1349,7 +1349,14 @@
         // 設置本機影片事件監聽器
         function setupLocalVideoEvents() {
             if (!localVideo) return;
-            
+
+            // 阻止 video[controls] 原生鍵盤行為，讓 document keydown 統一處理
+            localVideo.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                }
+            });
+
             // 播放事件
             localVideo.addEventListener('play', function() {
                 isPlaying = true;
