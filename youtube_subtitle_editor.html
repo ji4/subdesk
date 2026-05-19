@@ -2675,12 +2675,17 @@
                 const files = e.dataTransfer.files;
                 if (!files || files.length === 0) return;
                 const file = files[0];
-                if (!file.type.startsWith('video/')) return;
-                e.preventDefault();
-                if (!document.getElementById('localVideoBtn').classList.contains('active')) {
-                    document.getElementById('localVideoBtn').click();
+                const name = file.name.toLowerCase();
+                if (file.type.startsWith('video/')) {
+                    e.preventDefault();
+                    if (!document.getElementById('localVideoBtn').classList.contains('active')) {
+                        document.getElementById('localVideoBtn').click();
+                    }
+                    loadLocalVideoFromFile(file, document.getElementById('loadLocalVideoBtn'));
+                } else if (name.endsWith('.srt') || name.endsWith('.vtt') || name.endsWith('.txt')) {
+                    e.preventDefault();
+                    loadSubtitleFromFile(file);
                 }
-                loadLocalVideoFromFile(file, document.getElementById('loadLocalVideoBtn'));
             });
 
             // 點選選檔後同步更新檔名顯示
@@ -2758,27 +2763,19 @@
         }
 
         // 新增：處理字幕檔案上傳
-        document.getElementById('subtitleFileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
+        function loadSubtitleFromFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
                 try {
-                    // 根據檔案類型解析字幕
                     const subtitles = parseSubtitleFile(content, file.name);
                     if (subtitles && subtitles.length > 0) {
                         youtubeSubtitles = subtitles;
                         updateYouTubeSubtitlesDisplay();
-                        
-                        // 如果當前是本機影片模式且影片已載入，顯示字幕覆蓋層
                         if (isLocalVideo && isVideoLoaded && localVideo) {
                             document.getElementById('subtitleOverlay').style.display = 'block';
-                            // 立即更新當前字幕
                             highlightCurrentSubtitles(localVideo.currentTime);
                         }
-                        
                         showDeleteNotification(`✅ 成功載入 ${subtitles.length} 條字幕`, 'success');
                     } else {
                         throw new Error('無法解析字幕內容');
@@ -2792,6 +2789,12 @@
                 showDeleteNotification('❌ 讀取檔案失敗', 'error');
             };
             reader.readAsText(file);
+        }
+
+        document.getElementById('subtitleFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            loadSubtitleFromFile(file);
         });
 
         // 新增：解析字幕檔案
