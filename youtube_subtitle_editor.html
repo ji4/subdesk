@@ -941,6 +941,22 @@
                 </div>
             </div>
         </div>
+
+        <!-- 輸出區域 -->
+        <div class="subtitle-section" id="subtitleOutputSection">
+            <div class="subtitle-input-panel">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                    <h3 style="margin: 0;">📄 校正後字幕輸出</h3>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="view-mode-toggle" id="outputFormatSrt" onclick="switchOutputFormat('srt')" style="background: #2ecc71; color: white;">SRT</button>
+                        <button class="view-mode-toggle" id="outputFormatVtt" onclick="switchOutputFormat('vtt')">VTT</button>
+                        <button class="view-mode-toggle" id="outputFormatTxt" onclick="switchOutputFormat('txt')">TXT</button>
+                    </div>
+                    <button class="copy-btn" onclick="downloadOutput()" style="margin-left: auto;">⬇️ 下載</button>
+                </div>
+                <textarea id="subtitleOutput" placeholder="點擊左側字幕的 ➕ 後，這裡會自動產生校正後的字幕內容" style="font-family: monospace; font-size: 13px;"></textarea>
+            </div>
+        </div>
     </div>
 
     <!-- 刪除通知 -->
@@ -954,6 +970,7 @@
         let isPlaying = false;
         let timeInterval = null;
         let selectedSubtitles = [];
+        let currentOutputFormat = 'srt';
         let youtubeSubtitles = [];
         let isControlsCollapsed = false;
         let isVerticalMode = false;
@@ -1931,14 +1948,22 @@
                     <div class="subtitle-header">
                         <div class="subtitle-header-left">
                             <div class="subtitle-number">${index + 1}</div>
-                            <div class="subtitle-content" onclick="seekToSelectedSubtitle(${index})" style="cursor: pointer;" title="點擊跳轉到此字幕時間點">
-                                <span style="color: #666; font-size: 11px; display: block;">${formatTime(subtitle.start)}</span>
-                                ${subtitle.text}
+                            <div class="subtitle-wrong" onclick="seekToSelectedSubtitle(${index})" title="點擊跳轉到此字幕時間點">
+                                ${subtitle.originalText.replace(/'/g, "&#39;")}
                             </div>
                         </div>
                         <span class="delete-btn" onclick="deleteSubtitle(${index})" title="點擊刪除">
                             🗑️
                         </span>
+                    </div>
+                    <div class="subtitle-content" onclick="seekToSelectedSubtitle(${index})" style="cursor: pointer;" title="點擊跳轉到此字幕時間點">
+                        <div class="subtitle-correct" contenteditable="true"
+                            onblur="updateCorrectedText(${index}, this.textContent)"
+                            onkeydown="handleEnterKey(event, ${index}, this)"
+                            onclick="event.stopPropagation()"
+                            title="點擊此處可編輯校正後文字">
+                            ${subtitle.correctedText.replace(/'/g, "&#39;")}
+                        </div>
                     </div>
                 `;
 
@@ -1954,12 +1979,97 @@
                     setTimeout(() => {
                         selectedSubtitles.splice(index, 1);
                         displaySelectedSubtitles();
+                        updateOutputTextarea();
                         showDeleteNotification('🗑️ 字幕已刪除');
                     }, 200);
                 }
             }
         }
+
+        function updateCorrectedText(index, newText) {
+            if (index >= 0 && index < selectedSubtitles.length) {
+                selectedSubtitles[index].correctedText = newText.trim();
+                updateOutputTextarea();
+                showDeleteNotification('✏️ 已更新校正文字');
+            }
+        }
+
+        function handleEnterKey(event, index, element) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                element.blur();
+            }
+        }
         
+        function formatSrtTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            const ms = Math.round((seconds % 1) * 1000);
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(3,'0')}`;
+        }
+
+        function formatVttTime(seconds) {
+            return formatSrtTime(seconds).replace(',', '.');
+        }
+
+        function generateOutput() {
+            if (selectedSubtitles.length === 0) return '';
+
+            if (currentOutputFormat === 'txt') {
+                return selectedSubtitles.map(s => s.correctedText).join('\n');
+            }
+
+            const isSrt = currentOutputFormat === 'srt';
+            const lines = isSrt ? [] : ['WEBVTT', ''];
+
+            selectedSubtitles.forEach((s, i) => {
+                const endTime = s.duration ? s.start + s.duration
+                    : (selectedSubtitles[i + 1] ? selectedSubtitles[i + 1].start : s.start + 3);
+                const startStr = isSrt ? formatSrtTime(s.start) : formatVttTime(s.start);
+                const endStr   = isSrt ? formatSrtTime(endTime)  : formatVttTime(endTime);
+
+                if (isSrt) lines.push(String(i + 1));
+                lines.push(`${startStr} --> ${endStr}`);
+                lines.push(s.correctedText);
+                lines.push('');
+            });
+
+            return lines.join('\n');
+        }
+
+        function updateOutputTextarea() {
+            const ta = document.getElementById('subtitleOutput');
+            if (ta) ta.value = generateOutput();
+        }
+
+        function switchOutputFormat(format) {
+            currentOutputFormat = format;
+            ['srt', 'vtt', 'txt'].forEach(f => {
+                const btn = document.getElementById(`outputFormat${f.charAt(0).toUpperCase() + f.slice(1)}`);
+                if (btn) btn.style.background = f === format ? '#2ecc71' : '';
+                if (btn) btn.style.color = f === format ? 'white' : '';
+            });
+            updateOutputTextarea();
+        }
+
+        function downloadOutput() {
+            const content = document.getElementById('subtitleOutput').value;
+            if (!content.trim()) {
+                showDeleteNotification('⚠️ 尚無內容可下載', 'error');
+                return;
+            }
+            const ext = currentOutputFormat;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `corrected_subtitles.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showDeleteNotification(`⬇️ 已下載 .${ext} 檔案`);
+        }
+
         function showMessage(text, type) {
             const container = document.getElementById('messages');
             const message = document.createElement('div');
@@ -2001,23 +2111,31 @@
             const subtitle = youtubeSubtitles[index];
 
             // 避免重複新增同一條字幕
-            const alreadyAdded = selectedSubtitles.some(s => s.start === subtitle.start && s.text === subtitle.text);
+            const alreadyAdded = selectedSubtitles.some(s => s.start === subtitle.start && s.originalText === subtitle.text);
             if (alreadyAdded) {
                 showDeleteNotification('⚠️ 此字幕已在清單中', 'error');
                 return;
             }
 
+            const entry = {
+                start: subtitle.start,
+                duration: subtitle.duration,
+                originalText: subtitle.text,
+                correctedText: subtitle.text,
+            };
+
             // 按時間排序插入
             let insertIndex = selectedSubtitles.length;
             for (let i = 0; i < selectedSubtitles.length; i++) {
-                if (subtitle.start < selectedSubtitles[i].start) {
+                if (entry.start < selectedSubtitles[i].start) {
                     insertIndex = i;
                     break;
                 }
             }
-            selectedSubtitles.splice(insertIndex, 0, subtitle);
+            selectedSubtitles.splice(insertIndex, 0, entry);
 
             displaySelectedSubtitles();
+            updateOutputTextarea();
             showDeleteNotification(`✅ 已新增: "${subtitle.text}"`, 'success');
         }
         
