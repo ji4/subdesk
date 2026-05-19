@@ -363,6 +363,39 @@
             align-items: center;
         }
         
+        .keyboard-hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            background: #f0f4ff;
+            border: 1px solid #d0d9f5;
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .keyboard-hints .hint-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .keyboard-hints kbd {
+            display: inline-block;
+            padding: 1px 6px;
+            background: #fff;
+            border: 1px solid #bbc4e0;
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #333;
+        }
+
         .subtitle-display-container {
             display: flex;
             gap: 15px;
@@ -913,6 +946,12 @@
                         <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">📱 垂直檢視</button>
                         <button class="view-mode-toggle" id="swapPanelsBtn" onclick="swapSubtitlePanels()">🔄 交換位置</button>
                     </div>
+                </div>
+                <div class="keyboard-hints">
+                    <span class="hint-item"><kbd>Space</kbd> 播放 / 暫停</span>
+                    <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> 跳 5 秒</span>
+                    <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> 上 / 下一句</span>
+                    <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> 降 / 升速率</span>
                 </div>
                 <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section">
@@ -1846,6 +1885,27 @@
             showDeleteNotification(`播放速率：${newRate}x`);
         }
 
+        function jumpToSubtitle(dir) {
+            if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
+            const t = currentTime;
+            let idx = -1;
+            for (let i = 0; i < youtubeSubtitles.length; i++) {
+                const start = youtubeSubtitles[i].start;
+                const end = youtubeSubtitles[i + 1] ? youtubeSubtitles[i + 1].start : start + 5;
+                if (t >= start && t < end) { idx = i; break; }
+            }
+            if (idx === -1) {
+                idx = dir === -1
+                    ? youtubeSubtitles.reduce((b, s, i) => s.start <= t ? i : b, 0)
+                    : youtubeSubtitles.findIndex(s => s.start > t);
+                if (idx < 0) idx = 0;
+                if (idx >= youtubeSubtitles.length) idx = youtubeSubtitles.length - 1;
+            } else {
+                idx = Math.min(Math.max(idx + dir, 0), youtubeSubtitles.length - 1);
+            }
+            seekToTime(youtubeSubtitles[idx].start);
+        }
+
         function startTimeTracking() {
             if (timeInterval) {
                 clearInterval(timeInterval);
@@ -2510,6 +2570,16 @@
                 if (e.code === 'BracketRight') {
                     e.preventDefault();
                     changeSpeed(1);
+                    return;
+                }
+                if (e.code === 'KeyA') {
+                    e.preventDefault();
+                    jumpToSubtitle(-1);
+                    return;
+                }
+                if (e.code === 'KeyD') {
+                    e.preventDefault();
+                    jumpToSubtitle(1);
                     return;
                 }
 
