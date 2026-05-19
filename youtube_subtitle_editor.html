@@ -1146,8 +1146,10 @@
                 captionsFetched = false;
                 currentVideoId = videoId;
                 
-                // 設置 iframe
+                // 設置 iframe（確保 iframe 可見、本機影片隱藏）
                 const iframe = document.getElementById('youtubeIframe');
+                iframe.style.display = '';
+                if (localVideo) { localVideo.style.display = 'none'; }
                 const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
                 iframe.src = embedUrl;
                 
@@ -1205,46 +1207,32 @@
             }
         }
         
-        // 載入本機影片
-        function loadLocalVideo() {
-            const fileInput = document.getElementById('localVideoFile');
-            const loadBtn = document.getElementById('loadLocalVideoBtn');
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                showMessage('請選擇影片檔案', 'error');
-                return;
-            }
-            
-            const file = fileInput.files[0];
-            
-            // 檢查檔案類型
-            if (!file.type.startsWith('video/')) {
+        // 載入本機影片（核心邏輯，支援按鈕與拖曳兩種入口）
+        function loadLocalVideoFromFile(file, loadBtn) {
+            if (!file || !file.type.startsWith('video/')) {
                 showMessage('請選擇有效的影片檔案', 'error');
                 return;
             }
 
-            // 清除上一支影片的已選字幕與輸出
             selectedSubtitles = [];
             youtubeSubtitles = [];
             displaySelectedSubtitles();
             updateOutputTextarea();
 
-            loadBtn.textContent = '載入中...';
-            loadBtn.disabled = true;
-            
+            if (loadBtn) { loadBtn.textContent = '載入中...'; loadBtn.disabled = true; }
+
             updateProgress(25, '正在載入本機影片...');
-            
+
             try {
-                // 重置播放器狀態
-                if (player) {
-                    player.destroy();
-                    player = null;
+                // 停止 YouTube 播放器但不 destroy，避免移除 iframe DOM 元素
+                if (player && isPlayerReady) {
+                    try { player.stopVideo(); } catch(e) {}
                 }
-                
-                // 創建影片URL
+                player = null;
+                isPlayerReady = false;
+
                 const videoUrl = URL.createObjectURL(file);
-                
-                // 重置並準備video元素
+
                 localVideo = document.getElementById('localVideo');
                 if (!localVideo) {
                     localVideo = document.createElement('video');
@@ -1253,63 +1241,63 @@
                     localVideo.preload = 'metadata';
                     document.getElementById('videoContainer').appendChild(localVideo);
                 }
-                
-                // 重置影片元素
+
                 localVideo.pause();
                 localVideo.currentTime = 0;
                 localVideo.src = videoUrl;
-                
-                // 設置顯示狀態
+
                 document.getElementById('youtubeIframe').style.display = 'none';
                 document.getElementById('videoContainer').style.display = 'block';
-                document.getElementById('subtitleOverlay').style.display = 'none'; // 先隱藏字幕覆蓋層
+                document.getElementById('subtitleOverlay').style.display = 'none';
                 localVideo.style.display = 'block';
-                
+
                 updateProgress(50, '設定影片參數...');
-                
-                // 監聽影片事件
+
                 localVideo.addEventListener('loadedmetadata', function() {
                     updateProgress(75, '影片載入完成');
                     isVideoLoaded = true;
                     isPlayerReady = true;
                     currentTime = 0;
-                    
-                    // 顯示控制項
+
                     document.getElementById('videoControls').style.display = 'flex';
-                    
-                    // 如果有字幕，顯示字幕覆蓋層
+
                     if (youtubeSubtitles && youtubeSubtitles.length > 0) {
                         document.getElementById('subtitleOverlay').style.display = 'block';
                     }
-                    
+
                     updateProgress(100, '本機影片載入完成！');
-                    
-                    loadBtn.textContent = '重新載入';
-                    loadBtn.disabled = false;
-                    
+
+                    if (loadBtn) { loadBtn.textContent = '重新載入'; loadBtn.disabled = false; }
+
                     showStatus('本機影片載入成功！如果已上傳字幕檔案，字幕將自動顯示。', 'success');
-                    
+
                     updateTimeDisplay();
-                    
-                    // 設置本機影片的事件監聽器
                     setupLocalVideoEvents();
                 });
-                
+
                 localVideo.addEventListener('error', function(e) {
                     console.error('本機影片載入錯誤:', e.target.error);
-                    loadBtn.textContent = '載入影片';
-                    loadBtn.disabled = false;
+                    if (loadBtn) { loadBtn.textContent = '載入影片'; loadBtn.disabled = false; }
                     showMessage('載入本機影片時發生錯誤，請重試', 'error');
                     document.getElementById('progressContainer').style.display = 'none';
                 });
-                
+
             } catch (error) {
                 console.error('載入本機影片錯誤:', error);
-                loadBtn.textContent = '載入影片';
-                loadBtn.disabled = false;
+                if (loadBtn) { loadBtn.textContent = '載入影片'; loadBtn.disabled = false; }
                 showMessage('載入本機影片時發生錯誤，請重試', 'error');
                 document.getElementById('progressContainer').style.display = 'none';
             }
+        }
+
+        function loadLocalVideo() {
+            const fileInput = document.getElementById('localVideoFile');
+            const loadBtn = document.getElementById('loadLocalVideoBtn');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showMessage('請選擇影片檔案', 'error');
+                return;
+            }
+            loadLocalVideoFromFile(fileInput.files[0], loadBtn);
         }
         
         // 設置本機影片事件監聽器
@@ -2619,6 +2607,22 @@
                 }
             });
             
+            // 拖曳影片至頁面任意位置
+            document.addEventListener('dragover', function(e) {
+                if ([...e.dataTransfer.types].includes('Files')) e.preventDefault();
+            });
+            document.addEventListener('drop', function(e) {
+                const files = e.dataTransfer.files;
+                if (!files || files.length === 0) return;
+                const file = files[0];
+                if (!file.type.startsWith('video/')) return;
+                e.preventDefault();
+                if (!document.getElementById('localVideoBtn').classList.contains('active')) {
+                    document.getElementById('localVideoBtn').click();
+                }
+                loadLocalVideoFromFile(file, document.getElementById('loadLocalVideoBtn'));
+            });
+
             console.log('頁面初始化完成，事件監聽器已設定');
         });
         
