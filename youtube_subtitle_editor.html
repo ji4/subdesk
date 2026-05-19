@@ -1031,7 +1031,8 @@
         let currentHighlightedCorrected = -1; // 當前高亮的校正字幕索引
         let isLocalVideo = false; // 是否為本機影片
         let localVideo = null; // 本機影片元素
-        const PLAYBACK_RATES = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+        const YOUTUBE_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+        const LOCAL_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0];
         
         // 初始化影片載入選擇器
         function initVideoLoadSelector() {
@@ -1866,17 +1867,18 @@
                 if (!player || !isPlayerReady) return;
                 cur = player.getPlaybackRate();
             }
-            let idx = PLAYBACK_RATES.findIndex(r => Math.abs(r - cur) < 0.01);
+            const rates = isLocalVideo ? LOCAL_PLAYBACK_RATES : YOUTUBE_PLAYBACK_RATES;
+            let idx = rates.findIndex(r => Math.abs(r - cur) < 0.01);
             if (idx === -1) {
                 idx = dir === 1
-                    ? PLAYBACK_RATES.findIndex(r => r > cur)
-                    : PLAYBACK_RATES.filter(r => r < cur).length - 1;
+                    ? rates.findIndex(r => r > cur)
+                    : rates.filter(r => r < cur).length - 1;
                 if (idx < 0) idx = 0;
-                if (idx >= PLAYBACK_RATES.length) idx = PLAYBACK_RATES.length - 1;
+                if (idx >= rates.length) idx = rates.length - 1;
             } else {
-                idx = Math.min(Math.max(idx + dir, 0), PLAYBACK_RATES.length - 1);
+                idx = Math.min(Math.max(idx + dir, 0), rates.length - 1);
             }
-            const newRate = PLAYBACK_RATES[idx];
+            const newRate = rates[idx];
             if (isLocalVideo) {
                 localVideo.playbackRate = newRate;
             } else {
