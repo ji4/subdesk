@@ -1050,16 +1050,16 @@
                 youtubeInput.style.display = 'flex';
                 localVideoInput.style.display = 'none';
                 isLocalVideo = false;
-                resetVideoPlayer();
+                if (localVideo) localVideo.pause();
             });
-            
+
             localVideoBtn.addEventListener('click', function() {
                 localVideoBtn.classList.add('active');
                 youtubeBtn.classList.remove('active');
                 localVideoInput.style.display = 'flex';
                 youtubeInput.style.display = 'none';
                 isLocalVideo = true;
-                resetVideoPlayer();
+                if (player && isPlayerReady) { try { player.pauseVideo(); } catch(e) {} }
             });
         }
         
