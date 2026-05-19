@@ -945,16 +945,26 @@
         <!-- 輸出區域 -->
         <div class="subtitle-section" id="subtitleOutputSection">
             <div class="subtitle-input-panel">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
                     <h3 style="margin: 0;">📄 校正後字幕輸出</h3>
                     <div style="display: flex; gap: 6px;">
                         <button class="view-mode-toggle" id="outputFormatSrt" onclick="switchOutputFormat('srt')" style="background: #2ecc71; color: white;">SRT</button>
                         <button class="view-mode-toggle" id="outputFormatVtt" onclick="switchOutputFormat('vtt')">VTT</button>
                         <button class="view-mode-toggle" id="outputFormatTxt" onclick="switchOutputFormat('txt')">TXT</button>
                     </div>
-                    <button class="copy-btn" onclick="downloadOutput()" style="margin-left: auto;">⬇️ 下載</button>
+                    <button class="copy-btn" onclick="downloadOutput()" style="margin-left: auto;">⬇️ 下載整份</button>
                 </div>
-                <textarea id="subtitleOutput" placeholder="點擊左側字幕的 ➕ 後，這裡會自動產生校正後的字幕內容" style="font-family: monospace; font-size: 13px;"></textarea>
+                <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 10px; font-size: 13px; color: #555;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="chkOnlySelected" onchange="toggleShowOnlySelected()">
+                        僅顯示校正過的字幕
+                    </label>
+                    <label id="chkComparisonLabel" style="display: none; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
+                        顯示校正前後對比
+                    </label>
+                </div>
+                <textarea id="subtitleOutput" placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出" style="font-family: monospace; font-size: 13px;"></textarea>
             </div>
         </div>
     </div>
@@ -971,6 +981,8 @@
         let timeInterval = null;
         let selectedSubtitles = [];
         let currentOutputFormat = 'srt';
+        let showOnlySelected = false;
+        let showComparison = false;
         let youtubeSubtitles = [];
         let isControlsCollapsed = false;
         let isVerticalMode = false;
@@ -1275,6 +1287,7 @@
             console.log('YouTube Player 已準備就緒');
             isPlayerReady = true;
             isVideoLoaded = true;
+            startSubtitleSync();
             showDeleteNotification('影片播放器已準備就緒', 'success');
             // onApiChange 是主要觸發點；這裡只做 3 秒後的備援
             setTimeout(() => {
@@ -1495,8 +1508,10 @@
                     `;
                 }).join('')}
             `;
+            highlightCurrentSubtitles(currentTime);
+            updateOutputTextarea();
         }
-        
+
         function formatTime(seconds) {
             if (typeof seconds !== 'number' || isNaN(seconds)) {
                 console.warn('無效的時間值:', seconds);
@@ -2013,29 +2028,51 @@
             return formatSrtTime(seconds).replace(',', '.');
         }
 
-        function generateOutput() {
-            if (selectedSubtitles.length === 0) return '';
-
+        function buildSubtitleLines(list, getText) {
             if (currentOutputFormat === 'txt') {
-                return selectedSubtitles.map(s => s.correctedText).join('\n');
+                return list.map(s => getText(s)).join('\n');
             }
-
             const isSrt = currentOutputFormat === 'srt';
             const lines = isSrt ? [] : ['WEBVTT', ''];
-
-            selectedSubtitles.forEach((s, i) => {
+            list.forEach((s, i) => {
                 const endTime = s.duration ? s.start + s.duration
-                    : (selectedSubtitles[i + 1] ? selectedSubtitles[i + 1].start : s.start + 3);
+                    : (list[i + 1] ? list[i + 1].start : s.start + 3);
                 const startStr = isSrt ? formatSrtTime(s.start) : formatVttTime(s.start);
                 const endStr   = isSrt ? formatSrtTime(endTime)  : formatVttTime(endTime);
-
                 if (isSrt) lines.push(String(i + 1));
                 lines.push(`${startStr} --> ${endStr}`);
-                lines.push(s.correctedText);
+                lines.push(getText(s));
                 lines.push('');
             });
-
             return lines.join('\n');
+        }
+
+        function generateFullOutput() {
+            if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
+                return buildSubtitleLines(selectedSubtitles, s => s.correctedText);
+            }
+            const correctionMap = {};
+            selectedSubtitles.forEach(s => { correctionMap[s.start] = s.correctedText; });
+            const merged = youtubeSubtitles.map(s => ({
+                start: s.start,
+                duration: s.duration,
+                text: correctionMap[s.start] !== undefined ? correctionMap[s.start] : s.text,
+            }));
+            return buildSubtitleLines(merged, s => s.text);
+        }
+
+        function generateOutput() {
+            if (showOnlySelected) {
+                if (selectedSubtitles.length === 0) return '';
+                if (showComparison) {
+                    return selectedSubtitles.map((s, i) => {
+                        const time = formatTime(s.start);
+                        return `=== #${i + 1}  [${time}] ===\n${s.originalText}\n────────────────────\n${s.correctedText}`;
+                    }).join('\n\n');
+                }
+                return buildSubtitleLines(selectedSubtitles, s => s.correctedText);
+            }
+            return generateFullOutput();
         }
 
         function updateOutputTextarea() {
@@ -2053,12 +2090,28 @@
             updateOutputTextarea();
         }
 
+        function toggleShowOnlySelected() {
+            showOnlySelected = document.getElementById('chkOnlySelected').checked;
+            const label = document.getElementById('chkComparisonLabel');
+            label.style.display = showOnlySelected ? 'flex' : 'none';
+            if (!showOnlySelected) {
+                showComparison = false;
+                document.getElementById('chkComparison').checked = false;
+            }
+            updateOutputTextarea();
+        }
+
+        function toggleShowComparison() {
+            showComparison = document.getElementById('chkComparison').checked;
+            updateOutputTextarea();
+        }
+
         function downloadOutput() {
-            const content = document.getElementById('subtitleOutput').value;
-            if (!content.trim()) {
-                showDeleteNotification('⚠️ 尚無內容可下載', 'error');
+            if (!youtubeSubtitles?.length && !selectedSubtitles.length) {
+                showDeleteNotification('⚠️ 尚無字幕可下載', 'error');
                 return;
             }
+            const content = generateFullOutput();
             const ext = currentOutputFormat;
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -2067,7 +2120,7 @@
             a.download = `corrected_subtitles.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
-            showDeleteNotification(`⬇️ 已下載 .${ext} 檔案`);
+            showDeleteNotification(`⬇️ 已下載完整校正後字幕 .${ext}`);
         }
 
         function showMessage(text, type) {
@@ -2148,31 +2201,29 @@
             }
             
             subtitleSyncInterval = setInterval(() => {
-                if (isPlaying) {
-                    let currentPlayerTime = 0;
-                    
-                    if (isLocalVideo) {
-                        // 本機影片時間追蹤
-                        if (localVideo) {
-                            currentPlayerTime = localVideo.currentTime;
+                let currentPlayerTime = 0;
+                
+                if (isLocalVideo) {
+                    if (!localVideo || !isVideoLoaded) return;
+                    currentPlayerTime = localVideo.currentTime;
+                    isPlaying = !localVideo.paused && !localVideo.ended;
+                } else {
+                    if (!player || !isPlayerReady || typeof player.getCurrentTime !== 'function') return;
+                    try {
+                        currentPlayerTime = player.getCurrentTime();
+                        if (typeof player.getPlayerState === 'function' && window.YT?.PlayerState) {
+                            isPlaying = player.getPlayerState() === YT.PlayerState.PLAYING;
                         }
-                    } else {
-                        // YouTube影片時間追蹤
-                        if (player && isPlayerReady) {
-                            try {
-                                currentPlayerTime = player.getCurrentTime();
-                            } catch (error) {
-                                console.warn('獲取YouTube播放時間失敗:', error);
-                                return;
-                            }
-                        }
+                    } catch (error) {
+                        console.warn('獲取YouTube播放時間失敗:', error);
+                        return;
                     }
-                    
-                    if (currentPlayerTime >= 0) {
-                        console.log('當前播放時間:', currentPlayerTime);
-                        updateCurrentTime(currentPlayerTime);
-                        highlightCurrentSubtitles(currentPlayerTime);
-                    }
+                }
+                
+                if (currentPlayerTime >= 0) {
+                    console.log('當前播放時間:', currentPlayerTime);
+                    updateCurrentTime(currentPlayerTime);
+                    highlightCurrentSubtitles(currentPlayerTime);
                 }
             }, 500); // 每500毫秒檢查一次
         }
@@ -2193,21 +2244,19 @@
         }
         
         function highlightCurrentSubtitles(currentPlayerTime) {
-            if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
-                return;
-            }
-            
             // 找到當前時間對應的字幕
             let currentSubtitle = null;
-            for (let i = 0; i < youtubeSubtitles.length; i++) {
-                const subtitle = youtubeSubtitles[i];
-                const nextSubtitle = youtubeSubtitles[i + 1];
-                const startTime = subtitle.start;
-                const endTime = nextSubtitle ? nextSubtitle.start : startTime + 5;
-                
-                if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
-                    currentSubtitle = subtitle;
-                    break;
+            if (youtubeSubtitles && youtubeSubtitles.length > 0) {
+                for (let i = 0; i < youtubeSubtitles.length; i++) {
+                    const subtitle = youtubeSubtitles[i];
+                    const nextSubtitle = youtubeSubtitles[i + 1];
+                    const startTime = subtitle.start;
+                    const endTime = nextSubtitle ? nextSubtitle.start : startTime + 5;
+                    
+                    if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
+                        currentSubtitle = subtitle;
+                        break;
+                    }
                 }
             }
             
@@ -2220,7 +2269,6 @@
                 overlayText.style.display = 'none';
             }
             
-            // 原有的高亮邏輯保持不變
             highlightYouTubeSubtitle(currentPlayerTime);
             highlightCorrectedSubtitle(currentPlayerTime);
         }
@@ -2230,7 +2278,7 @@
                 return;
             }
             
-            const targetIndex = findActiveSubtitleIndex(youtubeSubtitles, currentPlayerTime, 'start', 5, 'duration');
+            const targetIndex = findActiveSubtitleIndex(youtubeSubtitles, currentPlayerTime, 'start', 5);
             
             console.log('YouTube字幕高亮檢查:', {
                 currentTime: currentPlayerTime,
@@ -2270,7 +2318,7 @@
                 return;
             }
 
-            const targetIndex = findActiveSubtitleIndex(selectedSubtitles, currentPlayerTime, 'start', 5, 'duration');
+            const targetIndex = findActiveSubtitleIndex(selectedSubtitles, currentPlayerTime, 'start', 5);
 
             console.log('已選字幕高亮檢查:', {
                 currentTime: currentPlayerTime,
