@@ -1057,8 +1057,14 @@
             }
             
             updateTimeDisplay();
+
+            // 清除上一支影片的已選字幕與輸出
+            selectedSubtitles = [];
+            youtubeSubtitles = [];
+            if (typeof displaySelectedSubtitles === 'function') displaySelectedSubtitles();
+            if (typeof updateOutputTextarea === 'function') updateOutputTextarea();
         }
-        
+
         // 初始化 YouTube Player
         function onYouTubeIframeAPIReady() {
             console.log('YouTube API 已準備就緒');
@@ -1078,7 +1084,13 @@
                 showMessage('請輸入有效的YouTube網址', 'error');
                 return;
             }
-            
+
+            // 清除上一支影片的已選字幕與輸出
+            selectedSubtitles = [];
+            youtubeSubtitles = [];
+            displaySelectedSubtitles();
+            updateOutputTextarea();
+
             loadBtn.textContent = '載入中...';
             loadBtn.disabled = true;
             
@@ -1166,7 +1178,13 @@
                 showMessage('請選擇有效的影片檔案', 'error');
                 return;
             }
-            
+
+            // 清除上一支影片的已選字幕與輸出
+            selectedSubtitles = [];
+            youtubeSubtitles = [];
+            displaySelectedSubtitles();
+            updateOutputTextarea();
+
             loadBtn.textContent = '載入中...';
             loadBtn.disabled = true;
             
@@ -2065,10 +2083,12 @@
             if (showOnlySelected) {
                 if (selectedSubtitles.length === 0) return '';
                 if (showComparison) {
-                    return selectedSubtitles.map((s, i) => {
+                    return selectedSubtitles.map((s) => {
+                        const ytIndex = youtubeSubtitles.findIndex(yt => yt.start === s.start);
+                        const num = ytIndex !== -1 ? ytIndex + 1 : '?';
                         const time = formatTime(s.start);
-                        return `=== #${i + 1}  [${time}] ===\n${s.originalText}\n────────────────────\n${s.correctedText}`;
-                    }).join('\n\n');
+                        return `#${num} ${time} | ${s.originalText} | ${s.correctedText}`;
+                    }).join('\n');
                 }
                 return buildSubtitleLines(selectedSubtitles, s => s.correctedText);
             }
