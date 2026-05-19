@@ -17,12 +17,18 @@ or
 $ yarn add youtube-transcript
 ```
 
+or
+
+```bash
+$ pnpm add youtube-transcript
+```
+
 ## Usage
 
 ```js
-import { YoutubeTranscript } from 'youtube-transcript';
+import { fetchTranscript } from 'youtube-transcript';
 
-YoutubeTranscript.fetchTranscript('videoId or URL').then(console.log);
+fetchTranscript('videoId or URL').then(console.log);
 ```
 
 ### Methods
