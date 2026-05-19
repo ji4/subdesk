@@ -2161,7 +2161,7 @@
         }
 
         function handleEnterKey(event, index, element) {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' && !event.isComposing) {
                 event.preventDefault();
                 element.blur();
             }
