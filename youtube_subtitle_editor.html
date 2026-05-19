@@ -964,6 +964,7 @@
     <script>
         let currentVideoId = null;
         let isVideoLoaded = false;
+        let captionsFetched = false;
         let currentTime = 0;
         let isPlaying = false;
         let timeInterval = null;
@@ -1072,6 +1073,7 @@
             try {
                 isPlayerReady = false;
                 isVideoLoaded = false;
+                captionsFetched = false;
                 currentVideoId = videoId;
                 
                 // 設置 iframe
@@ -1092,7 +1094,8 @@
                     events: {
                         'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange,
-                        'onError': onPlayerError
+                        'onError': onPlayerError,
+                        'onApiChange': onApiChange
                     }
                 });
                 
@@ -1270,17 +1273,36 @@
             isPlayerReady = true;
             isVideoLoaded = true;
             showDeleteNotification('影片播放器已準備就緒', 'success');
-            // 字幕尚未載入時，從播放器 API 取得含簽名的字幕 URL
-            if (currentVideoId && (!youtubeSubtitles || youtubeSubtitles.length === 0)) {
-                setTimeout(() => fetchSubtitlesFromPlayer(currentVideoId), 1000);
+            // onApiChange 是主要觸發點；這裡只做 3 秒後的備援
+            setTimeout(() => {
+                if (!captionsFetched && currentVideoId && (!youtubeSubtitles || youtubeSubtitles.length === 0)) {
+                    fetchSubtitlesFromPlayer(currentVideoId);
+                }
+            }, 3000);
+        }
+
+        function onApiChange(event) {
+            // 當 captions 模組載入完畢時立即取得字幕 URL（比 setTimeout 更可靠）
+            if (captionsFetched) return;
+            const modules = player && typeof player.getOptions === 'function' ? player.getOptions() : [];
+            console.log('onApiChange 已載入模組:', modules);
+            if (Array.isArray(modules) && modules.includes('captions')) {
+                if (currentVideoId && (!youtubeSubtitles || youtubeSubtitles.length === 0)) {
+                    captionsFetched = true;
+                    fetchSubtitlesFromPlayer(currentVideoId);
+                }
             }
         }
 
         async function fetchSubtitlesFromPlayer(videoId) {
             try {
-                if (!player || typeof player.loadModule !== 'function') return;
-                player.loadModule('captions');
-                await new Promise(r => setTimeout(r, 800));
+                if (!player || typeof player.getOption !== 'function') return;
+                // 若 captions 模組尚未載入則觸發載入
+                const modules = typeof player.getOptions === 'function' ? player.getOptions() : [];
+                if (!Array.isArray(modules) || !modules.includes('captions')) {
+                    if (typeof player.loadModule === 'function') player.loadModule('captions');
+                    await new Promise(r => setTimeout(r, 1000));
+                }
                 const tracklist = player.getOption('captions', 'tracklist');
                 console.log('播放器字幕軌道:', tracklist);
                 if (!tracklist || tracklist.length === 0) return;
@@ -1373,7 +1395,7 @@
                 showDeleteNotification('正在獲取YouTube字幕...', 'info');
                 
                 // 使用本地後端服務獲取字幕
-                const response = await fetch(`http://localhost:3000/api/subtitles?videoId=${videoId}`);
+                const response = await fetch(`/api/subtitles?videoId=${videoId}`);
                 if (!response.ok) {
                     throw new Error('無法獲取字幕');
                 }
