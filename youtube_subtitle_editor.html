@@ -991,6 +991,7 @@
                         <button class="view-mode-toggle" id="outputFormatVtt" onclick="switchOutputFormat('vtt')">VTT</button>
                         <button class="view-mode-toggle" id="outputFormatTxt" onclick="switchOutputFormat('txt')">TXT</button>
                     </div>
+                    <button class="copy-btn" onclick="copyOutput()">📋 複製</button>
                     <button class="copy-btn" onclick="downloadOutput()" style="margin-left: auto;">⬇️ 下載整份</button>
                 </div>
                 <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 10px; font-size: 13px; color: #555;">
@@ -2216,6 +2217,17 @@
         function toggleShowComparison() {
             showComparison = document.getElementById('chkComparison').checked;
             updateOutputTextarea();
+        }
+
+        function copyOutput() {
+            const text = document.getElementById('subtitleOutput').value;
+            if (!text) {
+                showDeleteNotification('⚠️ 尚無內容可複製', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                showDeleteNotification('📋 已複製到剪貼簿');
+            });
         }
 
         function downloadOutput() {
