@@ -931,28 +931,13 @@
                     </div>
                     
                     <div class="corrected-subtitles-section">
-                        <h3>✅ 校正後的字幕</h3>
+                        <h3>✅ 已選字幕</h3>
                         <div class="subtitle-list" id="subtitleList">
                             <div style="text-align: center; color: #666; padding: 40px;">
-                                請在下方輸入字幕校正檔案，即時顯示校正結果
+                                點擊字幕旁的 ➕ 新增到清單
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 字幕處理區域 -->
-        <div class="subtitle-section" id="subtitleSection">
-            <div class="subtitle-input-panel">
-                <h3>📝 字幕校正檔案</h3>
-                <textarea id="subtitleInput" placeholder="請貼上字幕校正檔案內容，格式範例：
-[00:00:00] 1:錯誤文字:正確文字
-[00:01:30] 2:另一個錯誤:另一個正確文字
-
-內容會即時顯示在上方校正結果"></textarea>
-                <div class="button-group" id="buttonGroup">
-                    <button class="copy-btn" id="copyBtn" onclick="copySubtitleText()">📋 複製校正檔案</button>
                 </div>
             </div>
         </div>
@@ -968,7 +953,7 @@
         let currentTime = 0;
         let isPlaying = false;
         let timeInterval = null;
-        let subtitleData = [];
+        let selectedSubtitles = [];
         let youtubeSubtitles = [];
         let isControlsCollapsed = false;
         let isVerticalMode = false;
@@ -1895,281 +1880,83 @@
             }
         }
         
-        function seekToSubtitle(wrongText, timeInSeconds, subtitleIndex = -1) {
-            console.log('嘗試跳轉字幕:', { wrongText, timeInSeconds, subtitleIndex });
-            
+        function seekToSelectedSubtitle(index) {
             if (!isVideoLoaded) {
                 showDeleteNotification('請先載入影片', 'error');
                 return;
             }
+            if (index < 0 || index >= selectedSubtitles.length) return;
 
-            try {
-                // 先手動highlight點擊的校正字幕
-                if (subtitleIndex >= 0) {
-                    manualHighlightCorrectedSubtitle(subtitleIndex);
-                }
-
-                // 不論是本機影片還是YouTube影片，都先嘗試找到對應的字幕
-                const matchedSubtitle = findMatchingSubtitle(wrongText);
-                
-                if (matchedSubtitle) {
-                    console.log('找到匹配字幕:', matchedSubtitle);
-                    showDeleteNotification(`🎯 從字幕匹配到: "${matchedSubtitle.text}"`);
-                    
-                    // 找到對應的 YouTube 字幕索引
-                    const youtubeIndex = youtubeSubtitles.findIndex(s => s.start === matchedSubtitle.start && s.text === matchedSubtitle.text);
-                    if (youtubeIndex !== -1) {
-                        // 手動高亮對應的 YouTube 字幕
-                        const youtubeItems = document.querySelectorAll('.youtube-subtitle-item');
-                        if (youtubeItems[youtubeIndex]) {
-                            // 清除舊的高亮
-                            document.querySelectorAll('.youtube-subtitle-item.current-playing')
-                                .forEach(item => item.classList.remove('current-playing'));
-                            
-                            // 設置新的高亮
-                            currentHighlightedYouTube = youtubeIndex;
-                            youtubeItems[youtubeIndex].classList.add('current-playing');
-                            scrollToElement(youtubeItems[youtubeIndex], 'youtubeSubtitlesPanel');
-                        }
-                    }
-                    
-                    // 使用匹配到的字幕時間進行跳轉
-                    seekToTime(matchedSubtitle.start);
-                } else {
-                    console.log('未找到匹配字幕，使用校正檔案時間:', timeInSeconds);
-                    showDeleteNotification('⚠️ 未找到匹配字幕，使用校正檔案時間');
-                    seekToTime(timeInSeconds);
-                }
-            } catch (error) {
-                console.error('跳轉失敗:', error);
-                showDeleteNotification('跳轉失敗，使用校正檔案時間', 'error');
-                seekToTime(timeInSeconds);
-            }
+            manualHighlightCorrectedSubtitle(index);
+            seekToTime(selectedSubtitles[index].start);
         }
-        
-        // 新增：手動highlight指定的校正字幕
+
         function manualHighlightCorrectedSubtitle(index) {
-            console.log('點擊字幕 編號:', subtitleData[index]?.lineNumber);
-            
-            // 清除舊的高亮
             document.querySelectorAll('.subtitle-item.current-playing')
                 .forEach(item => item.classList.remove('current-playing'));
-            
-            // 設置新的高亮
+
             currentHighlightedCorrected = index;
             const items = document.querySelectorAll('.subtitle-item');
             if (items[index]) {
                 items[index].classList.add('current-playing');
-                // 滾動到該位置
                 scrollToElement(items[index], 'subtitleList');
-                
-                // 設置一個標記，暫時禁用自動highlight
+
                 window.manualHighlightActive = true;
-                
-                setTimeout(() => {
-                    window.manualHighlightActive = false;
-                    console.log('恢復自動跳轉，當前在編號:', subtitleData[currentHighlightedCorrected]?.lineNumber);
-                }, 5000); // 5秒後恢復自動highlight
+                setTimeout(() => { window.manualHighlightActive = false; }, 5000);
             }
         }
         
-        function processSubtitlesRealtime() {
-            const input = document.getElementById('subtitleInput').value.trim();
-            
-            if (!input) {
-                document.getElementById('subtitleList').innerHTML = `
-                    <div style="text-align: center; color: #666; padding: 40px;">
-                        請輸入字幕校正檔案，即時顯示校正結果
-                    </div>
-                `;
-                subtitleData = [];
-                return;
-            }
-            
-            const lines = input.split('\n').filter(line => line.trim());
-            subtitleData = [];
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                const match = line.match(/\[(\d{2}):(\d{2}):(\d{2})\]\s*(\d+):(.*?):(.*)/);
-                if (match) {
-                    const [, hours, minutes, seconds, lineNum, wrong, correct] = match;
-                    const timeInSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
-                    const timestamp = `${hours}:${minutes}:${seconds}`;
-                    
-                    subtitleData.push({
-                        originalIndex: i,
-                        lineNumber: lineNum,
-                        timeInSeconds,
-                        timestamp,
-                        wrongText: wrong.trim(),
-                        correctText: correct.trim(),
-                        originalLine: line
-                    });
-                }
-            }
-            
-            // 確保字幕數據按時間排序
-            subtitleData.sort((a, b) => a.timeInSeconds - b.timeInSeconds);
-            console.log('字幕數據已按時間排序，前5個:', subtitleData.slice(0, 5).map(s => ({
-                lineNumber: s.lineNumber,
-                time: s.timeInSeconds,
-                text: s.wrongText
-            })));
-            
-            displaySubtitles();
-        }
-        
-        function displaySubtitles() {
+        function displaySelectedSubtitles() {
             const container = document.getElementById('subtitleList');
-            
-            if (subtitleData.length === 0) {
+
+            if (selectedSubtitles.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; color: #666; padding: 40px;">
-                        請輸入字幕校正檔案，即時顯示校正結果
+                        點擊字幕旁的 ➕ 新增到清單
                     </div>
                 `;
+                currentHighlightedCorrected = -1;
                 return;
             }
-            
-            // 清空容器
+
             container.innerHTML = '';
             currentHighlightedCorrected = -1;
-            
-            console.log('重新渲染字幕，總數:', subtitleData.length);
-            
-            subtitleData.forEach((subtitle, index) => {
+
+            selectedSubtitles.forEach((subtitle, index) => {
                 const item = document.createElement('div');
                 item.className = 'subtitle-item';
-                item.dataset.index = index; // 確保索引正確
-                
-                // 根據錯誤文字找到對應的YouTube字幕編號
-                const correspondingNumber = getCorrespondingYouTubeNumber(subtitle.wrongText);
-                const isUnmatched = correspondingNumber === '?';
-                
+                item.dataset.index = index;
+
                 item.innerHTML = `
                     <div class="subtitle-header">
                         <div class="subtitle-header-left">
-                            <div class="subtitle-number"${isUnmatched ? ' data-unmatched="true"' : ''}>${correspondingNumber}</div>
-                            <div class="subtitle-wrong" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds}, ${index})" title="點擊智能跳轉 (會嘗試匹配YouTube字幕)">
-                                ${subtitle.wrongText}
+                            <div class="subtitle-number">${index + 1}</div>
+                            <div class="subtitle-content" onclick="seekToSelectedSubtitle(${index})" style="cursor: pointer;" title="點擊跳轉到此字幕時間點">
+                                <span style="color: #666; font-size: 11px; display: block;">${formatTime(subtitle.start)}</span>
+                                ${subtitle.text}
                             </div>
                         </div>
                         <span class="delete-btn" onclick="deleteSubtitle(${index})" title="點擊刪除">
                             🗑️
                         </span>
                     </div>
-                    <div class="subtitle-content" onclick="seekToSubtitle('${subtitle.wrongText.replace(/'/g, "\\'")}', ${subtitle.timeInSeconds}, ${index})" style="cursor: pointer;" title="點擊跳轉到此字幕時間點">
-                        <div class="subtitle-correct" contenteditable="true" onblur="updateSubtitle(${index}, this.textContent)" onkeypress="handleEnterKey(event, ${index}, this)" title="點擊此處可編輯" onclick="event.stopPropagation()">
-                            ${subtitle.correctText}
-                        </div>
-                    </div>
                 `;
-                
+
                 container.appendChild(item);
-                
-                console.log(`渲染字幕 ${index}: ${subtitle.wrongText}`);
             });
-            
-            // 檢查渲染結果
-            const renderedItems = container.querySelectorAll('.subtitle-item');
-            console.log(`渲染完成，DOM 中有 ${renderedItems.length} 個字幕項目`);
         }
-        
-        function handleEnterKey(event, index, element) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                element.blur();
-                updateSubtitle(index, element.textContent);
-            }
-        }
-        
-        function updateSubtitle(index, newText) {
-            if (index >= 0 && index < subtitleData.length) {
-                subtitleData[index].correctText = newText.trim();
-                
-                // 立即更新 textarea
-                updateTextarea();
-                
-                showDeleteNotification('✏️ 字幕已更新');
-                
-                console.log('更新字幕:', index, newText.trim());
-            }
-        }
-        
+
         function deleteSubtitle(index) {
-            if (index >= 0 && index < subtitleData.length) {
+            if (index >= 0 && index < selectedSubtitles.length) {
                 const item = document.querySelector(`[data-index="${index}"]`);
                 if (item) {
                     item.classList.add('deleting');
                     setTimeout(() => {
-                        // 刪除字幕資料
-                        subtitleData.splice(index, 1);
-                        
-                        // 立即更新 textarea 內容
-                        updateTextarea();
-                        
-                        // 重新顯示所有字幕（這會重新設定正確的索引）
-                        displaySubtitles();
-                        
-                        // 顯示成功訊息
+                        selectedSubtitles.splice(index, 1);
+                        displaySelectedSubtitles();
                         showDeleteNotification('🗑️ 字幕已刪除');
-                        
-                        // 確保 textarea 內容確實更新了
-                        console.log('刪除後 subtitleData 長度:', subtitleData.length);
-                        console.log('刪除後 textarea 內容長度:', document.getElementById('subtitleInput').value.length);
                     }, 200);
                 }
-            }
-        }
-        
-        function updateTextarea() {
-            const textarea = document.getElementById('subtitleInput');
-            
-            // 根據當前的 subtitleData 重新生成完整的內容
-            const newContent = subtitleData.map(item => {
-                const hours = Math.floor(item.timeInSeconds / 3600).toString().padStart(2, '0');
-                const minutes = Math.floor((item.timeInSeconds % 3600) / 60).toString().padStart(2, '0');
-                const seconds = Math.floor(item.timeInSeconds % 60).toString().padStart(2, '0');
-                return `[${hours}:${minutes}:${seconds}] ${item.lineNumber}:${item.wrongText}:${item.correctText}`;
-            }).join('\n');
-            
-            // 暫時移除事件監聽器，避免循環觸發
-            textarea.removeEventListener('input', processSubtitlesRealtime);
-            
-            // 更新 textarea 的值
-            textarea.value = newContent;
-            
-            // 重新添加事件監聽器
-            textarea.addEventListener('input', processSubtitlesRealtime);
-            
-            // 觸發一次輸入事件以確保同步（可選）
-            // textarea.dispatchEvent(new Event('input'));
-            
-            console.log('Textarea 已更新，新內容行數:', newContent.split('\n').filter(line => line.trim()).length);
-        }
-        
-        function copySubtitleText() {
-            const textarea = document.getElementById('subtitleInput');
-            
-            try {
-                textarea.select();
-                textarea.setSelectionRange(0, 99999);
-                
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(textarea.value).then(() => {
-                        showDeleteNotification('📋 文字已複製到剪貼簿');
-                    }).catch(() => {
-                        document.execCommand('copy');
-                        showDeleteNotification('📋 文字已複製到剪貼簿');
-                    });
-                } else {
-                    document.execCommand('copy');
-                    showDeleteNotification('📋 文字已複製到剪貼簿');
-                }
-            } catch (error) {
-                console.error('複製失敗:', error);
-                showDeleteNotification('❌ 複製失敗', 'error');
             }
         }
         
@@ -2210,62 +1997,28 @@
                 showDeleteNotification('無效的字幕索引', 'error');
                 return;
             }
-            
+
             const subtitle = youtubeSubtitles[index];
-            const timeInSeconds = subtitle.start;
-            
-            // 將時間轉換為 HH:MM:SS 格式
-            const hours = Math.floor(timeInSeconds / 3600);
-            const minutes = Math.floor((timeInSeconds % 3600) / 60);
-            const seconds = Math.floor(timeInSeconds % 60);
-            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // 生成編號（使用索引 + 1）
-            const lineNumber = index + 1;
-            
-            // 創建新的校正檔案行 - 讓正確文字預設值也是原本的字幕內容
-            const newLine = `[${timeString}] ${lineNumber}:${subtitle.text}:${subtitle.text}`;
-            
-            // 獲取當前的校正檔案內容
-            const textarea = document.getElementById('subtitleInput');
-            const currentContent = textarea.value.trim();
-            
-            // 將新行添加到適當位置（按時間排序）
-            let lines = currentContent ? currentContent.split('\n') : [];
-            let insertIndex = lines.length;
-            
-            // 找到合適的插入位置（按時間排序）
-            for (let i = 0; i < lines.length; i++) {
-                const match = lines[i].match(/\[(\d{2}):(\d{2}):(\d{2})\]/);
-                if (match) {
-                    const lineTimeInSeconds = parseInt(match[1]) * 3600 + parseInt(match[2]) * 60 + parseInt(match[3]);
-                    if (timeInSeconds < lineTimeInSeconds) {
-                        insertIndex = i;
-                        break;
-                    }
+
+            // 避免重複新增同一條字幕
+            const alreadyAdded = selectedSubtitles.some(s => s.start === subtitle.start && s.text === subtitle.text);
+            if (alreadyAdded) {
+                showDeleteNotification('⚠️ 此字幕已在清單中', 'error');
+                return;
+            }
+
+            // 按時間排序插入
+            let insertIndex = selectedSubtitles.length;
+            for (let i = 0; i < selectedSubtitles.length; i++) {
+                if (subtitle.start < selectedSubtitles[i].start) {
+                    insertIndex = i;
+                    break;
                 }
             }
-            
-            // 插入新行
-            lines.splice(insertIndex, 0, newLine);
-            
-            // 更新 textarea 內容
-            const newContent = lines.join('\n');
-            textarea.value = newContent;
-            
-            // 重新處理字幕
-            processSubtitlesRealtime();
-            
-            // 顯示成功通知
-            showDeleteNotification(`✅ 已添加字幕到校正檔: "${subtitle.text}"`, 'success');
-            
-            console.log('添加字幕到校正檔:', {
-                index,
-                time: timeString,
-                lineNumber,
-                text: subtitle.text,
-                newLine
-            });
+            selectedSubtitles.splice(insertIndex, 0, subtitle);
+
+            displaySelectedSubtitles();
+            showDeleteNotification(`✅ 已新增: "${subtitle.text}"`, 'success');
         }
         
         let subtitleSyncInterval = null;
@@ -2391,18 +2144,17 @@
         }
         
         function highlightCorrectedSubtitle(currentPlayerTime) {
-            if (!subtitleData || subtitleData.length === 0) {
+            if (!selectedSubtitles || selectedSubtitles.length === 0) {
                 return;
             }
-            
-            // 如果手動highlight正在活躍，跳過自動highlight
+
             if (window.manualHighlightActive) {
                 return;
             }
-            
-            const targetIndex = findActiveSubtitleIndex(subtitleData, currentPlayerTime, 'timeInSeconds', 10);
-            
-            console.log('校正字幕高亮檢查:', {
+
+            const targetIndex = findActiveSubtitleIndex(selectedSubtitles, currentPlayerTime, 'start', 5, 'duration');
+
+            console.log('已選字幕高亮檢查:', {
                 currentTime: currentPlayerTime,
                 targetIndex,
                 currentHighlighted: currentHighlightedCorrected
@@ -2519,47 +2271,10 @@
             window.manualHighlightActive = false;
         }
         
-        function getCorrespondingYouTubeNumber(wrongText) {
-            if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
-                return '?';
-            }
-
-            let bestMatch = -1;
-            let bestScore = 0;
-            
-            // 清理文字以進行比對
-            const cleanWrongText = wrongText.toLowerCase().trim();
-            
-            for (let i = 0; i < youtubeSubtitles.length; i++) {
-                const subtitle = youtubeSubtitles[i];
-                const cleanSubtitleText = subtitle.text.toLowerCase().trim();
-                const score = calculateSimilarity(cleanWrongText, cleanSubtitleText);
-                
-                if (score > bestScore && score > 0.2) { // 降低相似度閾值到0.2
-                    bestScore = score;
-                    bestMatch = i;
-                }
-            }
-            
-            // 如果找到匹配，返回對應的編號（索引+1），否則返回問號
-            return bestMatch !== -1 ? bestMatch + 1 : '?';
-        }
-        
         // 初始化頁面時設置鍵盤事件監聽
         document.addEventListener('DOMContentLoaded', function() {
-            const exampleData = ``;
-            
-            const textarea = document.getElementById('subtitleInput');
-            textarea.value = exampleData;
-            
-            // 設定事件監聽器
-            textarea.addEventListener('input', processSubtitlesRealtime);
-            
             // 初始化影片載入選擇器
             initVideoLoadSelector();
-            
-            // 初始處理
-            processSubtitlesRealtime();
             
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
@@ -2599,7 +2314,7 @@
             console.log('=== 測試字幕同步功能 ===');
             console.log('播放器狀態:', { isPlaying, isPlayerReady, isVideoLoaded, isLocalVideo });
             console.log('YouTube字幕數量:', youtubeSubtitles?.length || 0);
-            console.log('校正字幕數量:', subtitleData?.length || 0);
+            console.log('已選字幕數量:', selectedSubtitles?.length || 0);
             
             if (isLocalVideo) {
                 if (localVideo) {
@@ -2648,27 +2363,11 @@
             }
         }
         
-        // 測試同步功能
         function testSubtitleDataSync() {
             console.log('=== 測試字幕資料同步 ===');
-            console.log('subtitleData 陣列長度:', subtitleData.length);
+            console.log('已選字幕數量:', selectedSubtitles.length);
             console.log('DOM 中字幕項目數量:', document.querySelectorAll('.subtitle-item').length);
-            
-            const textarea = document.getElementById('subtitleInput');
-            const textareaLines = textarea.value.split('\n').filter(line => line.trim()).length;
-            console.log('Textarea 有效行數:', textareaLines);
-            
-            console.log('前3個字幕資料:', subtitleData.slice(0, 3).map(s => ({
-                lineNumber: s.lineNumber,
-                wrongText: s.wrongText,
-                correctText: s.correctText
-            })));
-            
-            // 手動觸發同步
-            updateTextarea();
-            displaySubtitles();
-            
-            showDeleteNotification(`🧪 同步測試完成 - 資料:${subtitleData.length} DOM:${document.querySelectorAll('.subtitle-item').length} 檔案:${textareaLines}`);
+            showDeleteNotification(`🧪 同步測試完成 - 已選:${selectedSubtitles.length} DOM:${document.querySelectorAll('.subtitle-item').length}`);
         }
 
         // 新增：處理字幕檔案上傳
