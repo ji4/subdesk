@@ -500,7 +500,7 @@ body {
   display: flex;
   flex: 1;
   overflow: hidden;
-  min-height: 200px;
+  min-height: 0;
 }
 
 .youtube-subtitles-section {
@@ -616,10 +616,13 @@ body {
 }
 
 .youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar { width: 6px; }
-.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar-track { background: transparent; }
+.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
 .youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.22);
   border-radius: 3px;
+}
+.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.38);
 }
 
 /* --- Subtitle Items (corrected list) --- */

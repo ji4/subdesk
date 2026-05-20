@@ -31,6 +31,7 @@
                 localVideoInput.style.display = 'none';
                 isLocalVideo = false;
                 if (localVideo) localVideo.pause();
+                updateYouTubeSubtitlesDisplay();
             });
 
             localVideoBtn.addEventListener('click', function() {
@@ -40,6 +41,7 @@
                 youtubeInput.style.display = 'none';
                 isLocalVideo = true;
                 if (player && isPlayerReady) { try { player.pauseVideo(); } catch(e) {} }
+                updateYouTubeSubtitlesDisplay();
             });
         }
         
@@ -1122,27 +1124,29 @@
 
         function syncOutputToList() {
             if (currentOutputFormat === 'txt') return;
+            if (showOnlyModified) return; // 只顯示已修改時，index 對不上全部字幕，略過同步
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
             const ta = document.getElementById('subtitleOutput');
             if (!ta) return;
             const ext = currentOutputFormat === 'vtt' ? 'output.vtt' : 'output.srt';
             const parsed = parseSubtitleFile(ta.value, ext);
             if (!parsed || parsed.length === 0) return;
+            // 用 index 對應，避免毫秒精度丟失導致時間戳碰撞時配對錯誤
+            if (parsed.length !== youtubeSubtitles.length) return;
             let changed = false;
-            parsed.forEach(p => {
-                const match = youtubeSubtitles.find(s => Math.abs(s.start - p.start) < 0.15);
-                if (!match) return;
-                const newText = p.text;
-                if (newText !== match.text) {
-                    match.editedText = newText;
-                    match.modified = true;
+            for (let i = 0; i < parsed.length; i++) {
+                const newText = parsed[i].text;
+                const s = youtubeSubtitles[i];
+                if (newText !== s.text) {
+                    s.editedText = newText;
+                    s.modified = true;
                     changed = true;
-                } else if (match.modified && newText === match.text) {
-                    delete match.editedText;
-                    match.modified = false;
+                } else if (s.modified) {
+                    delete s.editedText;
+                    s.modified = false;
                     changed = true;
                 }
-            });
+            }
             if (changed) updateYouTubeSubtitlesDisplay(true); // skipOutput=true 避免迴圈
         }
 
