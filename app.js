@@ -226,9 +226,11 @@
                 localVideo.currentTime = 0;
                 localVideo.src = videoUrl;
 
+                const isAudioOnly = file.type.startsWith('audio/');
                 document.getElementById('youtubeIframe').style.display = 'none';
                 document.getElementById('videoContainer').style.display = 'block';
                 document.getElementById('subtitleOverlay').style.display = 'none';
+                document.getElementById('videoClickOverlay').style.display = isAudioOnly ? 'block' : 'none';
                 localVideo.style.display = 'block';
 
                 updateProgress(50, '設定影片參數...');
@@ -316,6 +318,15 @@
                 stopTimeTracking();
                 stopSubtitleSync();
             });
+        }
+
+        function handleVideoContainerClick() {
+            if (!isLocalVideo || !localVideo) return;
+            if (localVideo.paused) {
+                localVideo.play();
+            } else {
+                localVideo.pause();
+            }
         }
 
         function onPlayerReady(event) {
@@ -518,7 +529,8 @@
             const time = formatTime(subtitle.start);
             const classes = ['youtube-subtitle-item'];
             if (subtitle.modified) classes.push('modified');
-            const timeBadge = `<span class="youtube-subtitle-time" onclick="event.stopPropagation();seekToTime(${subtitle.start})" title="點擊跳轉到 ${escapeHtml(time)}" style="cursor:pointer;">${escapeHtml(time)}</span>`;
+            const timeBadge = `<span class="youtube-subtitle-time" title="${escapeHtml(time)}">${escapeHtml(time)}</span>`;
+            const seekZone = `<div class="subtitle-seek-zone" onclick="seekToTime(${subtitle.start})" title="跳轉到 ${escapeHtml(time)}"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--text-muted)"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg></div>`;
             const showComparison = subtitle.modified && subtitlePanelFilter === 'modified';
             let contentHTML;
             if (showComparison) {
@@ -532,7 +544,6 @@
                         <span class="youtube-subtitle-text subtitle-correct"
                               contenteditable="true"
                               data-index="${idx}"
-                              onclick="event.stopPropagation()"
                               onblur="saveSubtitleEdit(${idx}, this)"
                               onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(edited)}</span>
                     </div>`;
@@ -544,12 +555,11 @@
                         <span class="youtube-subtitle-text"
                               contenteditable="true"
                               data-index="${idx}"
-                              onclick="event.stopPropagation()"
                               onblur="saveSubtitleEdit(${idx}, this)"
                               onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(displayText)}</span>
                     </div>`;
             }
-            return `<div class="${classes.join(' ')}" data-index="${idx}" onclick="seekToTime(${subtitle.start})">${contentHTML}</div>`;
+            return `<div class="${classes.join(' ')}" data-index="${idx}">${contentHTML}${seekZone}</div>`;
         }
 
         function updateYouTubeSubtitlesDisplay() {

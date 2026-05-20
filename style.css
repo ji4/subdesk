@@ -326,6 +326,16 @@ body {
   text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
+/* Click overlay for audio files (play/pause on click) */
+.video-click-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  bottom: 0;
+  z-index: 6;
+  cursor: pointer;
+  display: none;
+}
+
 /* Video Controls */
 .video-controls {
   display: flex;
@@ -426,6 +436,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .subtitle-controls {
@@ -768,17 +779,15 @@ body {
 }
 
 .youtube-subtitle-item {
-  padding: 8px 16px;
+  padding: 8px 0 8px 16px;
   border-bottom: 1px solid var(--border);
   font-size: 16px;
   line-height: 1.4;
-  cursor: pointer;
+  cursor: default;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
   background: transparent;
   transition: background var(--dur-normal) var(--ease);
-  position: relative;
 }
 
 .youtube-subtitle-item:last-child { border-bottom: none; }
@@ -787,22 +796,26 @@ body {
   background: rgba(255, 255, 255, 0.032);
 }
 
-/* Right-side click area hint */
-.youtube-subtitle-item::after {
-  content: '';
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394A3B8' opacity='0.35'%3E%3Cpath d='M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z'/%3E%3C/svg%3E") center/contain no-repeat;
-  opacity: 0;
-  transition: opacity var(--dur-normal) var(--ease);
-  pointer-events: none;
+/* Seek zone — right-side clickable strip */
+.subtitle-seek-zone {
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.022);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background var(--dur-normal) var(--ease);
 }
 
-.youtube-subtitle-item:hover::after { opacity: 1; }
+.subtitle-seek-zone:hover { background: rgba(20, 184, 166, 0.14); }
+
+.subtitle-seek-zone svg {
+  opacity: 0.35;
+  transition: opacity var(--dur-normal) var(--ease);
+}
+
+.subtitle-seek-zone:hover svg { opacity: 0.9; }
 
 .youtube-subtitle-item.current-playing {
   background: rgba(20, 184, 166, 0.16) !important;
@@ -814,12 +827,20 @@ body {
   border-left: 3px solid var(--warning);
 }
 
-.youtube-subtitle-content { flex: 1; cursor: default; min-width: 0; }
+.youtube-subtitle-content {
+  flex: 1;
+  cursor: default;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 2px 0;
+}
 
 /* Modified subtitle — two-line layout */
 .youtube-subtitle-content.modified-content {
-  display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 5px;
 }
 
@@ -838,9 +859,10 @@ body {
 .youtube-subtitle-time {
   color: var(--primary);
   font-weight: 600;
-  margin-right: 6px;
   font-family: var(--font-mono);
   font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .youtube-subtitle-text {

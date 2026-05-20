@@ -61,6 +61,7 @@
                     <div id="subtitleOverlay" class="subtitle-overlay">
                         <div id="subtitleOverlayText" class="subtitle-overlay-text"></div>
                     </div>
+                    <div id="videoClickOverlay" class="video-click-overlay" onclick="handleVideoContainerClick()"></div>
                 </div>
 
                 <div class="video-controls" id="videoControls" style="display: none;">
@@ -95,9 +96,9 @@
                             </div>
                         </div>
                         <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
-                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px;">
+                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">
                                 請先載入影片，這裡會顯示字幕<br>
-                                或點擊上方按鈕上傳字幕檔案
+                                或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此
                             </div>
                         </div>
                     </div>
@@ -136,7 +137,7 @@
 
     <!-- 拖曳覆蓋層 -->
     <div id="dragOverlay">
-        <div class="drag-overlay-inner">拖曳影片或字幕檔（.srt .vtt）至此</div>
+        <div class="drag-overlay-inner">拖曳影片、音訊或字幕檔（.srt .vtt）至此</div>
     </div>
 
     <script src="app.js"></script>
