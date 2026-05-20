@@ -8,6 +8,11 @@
 
 ## Color Tokens
 
+> **背景色更新（2026-05）：** `--bg: #111214`（近黑）、`--surface: #1A1C1F`、`--surface-2: #252830`，
+> 取代原本偏藍的 slate 系列色，使整體更接近 OLED 純黑風格。
+
+
+
 | Token | Value | Usage |
 |-------|-------|-------|
 | `--bg` | `#0F172A` | 主背景（頁面、面板底色） |
@@ -30,13 +35,20 @@
 **字型：** Plus Jakarta Sans  
 **載入：** `https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap`
 
+**基準：** `body { font-size: 16px }` — 所有 body text 最小 16px
+
 | 元素 | 大小 | 字重 | 顏色 |
 |------|------|------|------|
 | Header 標題 | 1rem (16px) | 600 | `--text` |
-| 區塊 h3 | 0.875–0.9375rem | 600 | `--text` |
-| 字幕文字 | 13px | 400 | `--text` |
-| 時間戳記 | 11px | 600 | `--primary` |
-| 次要說明 | 11–12px | 400 | `--text-muted` |
+| 區塊 h3 | 1rem (16px) | 600 | `--text` |
+| 字幕文字（subtitle-wrong/correct） | 16px | 400 | `--text` / `--error` |
+| YouTube 字幕列表項目 | 16px | 400 | `--text` |
+| 按鈕標籤（CTA、載入影片） | 16px | 600 | varies |
+| 快捷鍵提示文字 | 16px | 400 | `--text` |
+| 輸出區塊 options/textarea | 16px / 15px | 400 | `--text-muted` / `--text` |
+| 時間戳記 badge | 13px | 600 | `--primary` |
+| 序號 badge（索引） | 12px | 600 | `--text-muted` |
+| 次要說明（formats span） | 14px | 400 | `--text-muted` |
 | 等寬（輸出/時間） | `Consolas, Monaco, monospace` | — | — |
 
 ---
@@ -61,9 +73,11 @@
 
 | 元素 | 樣式 |
 |------|------|
-| `.subtitle-item.current-playing` | `background: rgba(20,184,166,0.08)` + 左側 `2px solid --primary` |
+| `.subtitle-item.current-playing` | `background: rgba(20,184,166,0.16)` + 左側 `3px solid --primary !important` |
 | `.youtube-subtitle-item.current-playing` | 同上 |
 | `.subtitle-item.finished` | `border-left: 2px solid transparent`（恢復原位） |
+
+> **注意：** 暗底必須用 16%+ 透明度，否則 8% teal 幾乎不可見（與暗底對比度不足）。
 
 ---
 
@@ -87,6 +101,9 @@
 | Secondary（控制、切換） | `--surface-2` | `--text-muted` | `1px solid --border` |
 | Active tab | `--primary` | `#0F172A` | none |
 | Ghost（刪除、toggle） | `transparent` | `--text-muted` | `1px solid --border` |
+| Upload subtitle（上傳字幕檔） | `rgba(20,184,166,0.14)` | `--primary` | `1px solid rgba(20,184,166,0.38)` |
+
+> **上傳字幕按鈕** 使用 primary teal outline 樣式與其他 secondary 按鈕區分，突顯其主要行動性質。
 
 ### Input / Textarea
 

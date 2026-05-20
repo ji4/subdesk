@@ -42,7 +42,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -97,7 +97,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .content-wrapper.vertical .video-section {
@@ -123,7 +123,7 @@ body {
   color: var(--text-muted);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   font-family: var(--font-body);
   transition: all var(--dur-normal) var(--ease);
@@ -147,7 +147,7 @@ body {
   background: var(--surface);
   color: var(--text);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-family: var(--font-body);
   transition: border-color var(--dur-normal) var(--ease);
 }
@@ -161,7 +161,7 @@ body {
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
@@ -186,7 +186,7 @@ body {
   padding: 9px 13px;
   border: 1px dashed var(--primary);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 16px;
   background: rgba(20, 184, 166, 0.04);
   cursor: pointer;
   display: flex;
@@ -229,7 +229,7 @@ body {
   color: #0F172A;
   border: none;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
@@ -308,7 +308,7 @@ body {
   color: var(--text);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 12.5px;
+  font-size: 15px;
   font-weight: 500;
   font-family: var(--font-body);
   transition: all var(--dur-normal) var(--ease);
@@ -325,7 +325,7 @@ body {
   padding: 7px 14px;
   border-radius: 6px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--primary);
   border: 1px solid var(--border);
@@ -339,7 +339,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-family: var(--font-body);
   transition: all var(--dur-normal) var(--ease);
 }
@@ -354,7 +354,7 @@ body {
   padding: 9px 13px;
   border-radius: 8px;
   display: none;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .progress-container { display: none; }
@@ -375,12 +375,12 @@ body {
 
 .progress-text {
   margin-top: 6px;
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--text-muted);
   text-align: center;
 }
 
-.messages { font-size: 13px; }
+.messages { font-size: 15px; }
 
 /* --- Subtitle Display Panel --- */
 .subtitle-display-panel {
@@ -404,7 +404,7 @@ body {
 .subtitle-controls h3 {
   margin: 0;
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
@@ -417,12 +417,12 @@ body {
 .keyboard-hints {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px 14px;
-  background: var(--surface);
+  gap: 6px 18px;
+  background: var(--surface-2);
   border-bottom: 1px solid var(--border);
-  padding: 7px 16px;
-  font-size: 12px;
-  color: var(--text-muted);
+  padding: 9px 16px;
+  font-size: 16px;
+  color: var(--text);
   line-height: 1.6;
   flex-shrink: 0;
 }
@@ -430,20 +430,21 @@ body {
 .keyboard-hints .hint-item {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   white-space: nowrap;
 }
 
 .keyboard-hints kbd {
   display: inline-block;
-  padding: 1px 5px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-bottom: 2px solid var(--border);
-  border-radius: 4px;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.38);
+  border-radius: 5px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text);
+  font-weight: 600;
 }
 
 .subtitle-display-container {
@@ -473,7 +474,7 @@ body {
 .subtitle-display-panel h3 {
   padding: 10px 16px;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
@@ -481,12 +482,12 @@ body {
 }
 
 .view-mode-toggle {
-  padding: 5px 11px;
+  padding: 6px 13px;
   background: var(--surface-2);
   color: var(--text-muted);
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
   font-family: var(--font-body);
   cursor: pointer;
@@ -507,8 +508,21 @@ body {
   flex-shrink: 0;
 }
 
+.subtitle-upload-controls .view-mode-toggle {
+  background: rgba(20, 184, 166, 0.14);
+  color: var(--primary);
+  border-color: rgba(20, 184, 166, 0.38);
+  font-weight: 600;
+}
+
+.subtitle-upload-controls .view-mode-toggle:hover {
+  background: rgba(20, 184, 166, 0.24);
+  color: var(--primary);
+  border-color: rgba(20, 184, 166, 0.55);
+}
+
 .subtitle-upload-controls span {
-  font-size: 11.5px;
+  font-size: 14px;
   color: var(--text-muted);
 }
 
@@ -581,7 +595,7 @@ body {
   padding: 2px 6px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
   min-width: 22px;
   max-width: 34px;
@@ -601,7 +615,7 @@ body {
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 13px;
   font-family: var(--font-mono);
   white-space: nowrap;
   min-width: 78px;
@@ -616,7 +630,7 @@ body {
 
 .subtitle-wrong {
   color: var(--error);
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   padding: 4px 8px;
   background: rgba(239, 68, 68, 0.07);
@@ -634,7 +648,7 @@ body {
 
 .subtitle-correct {
   color: var(--text);
-  font-size: 14px;
+  font-size: 16px;
   padding: 7px 11px;
   background: var(--surface);
   border-radius: 6px;
@@ -663,7 +677,7 @@ body {
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -681,7 +695,7 @@ body {
   padding: 2px 7px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
   margin-right: 6px;
   min-width: 24px;
@@ -692,7 +706,7 @@ body {
 .youtube-subtitle-item {
   padding: 8px 16px;
   border-bottom: 1px solid var(--border);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.4;
   cursor: pointer;
   display: flex;
@@ -718,7 +732,7 @@ body {
   font-weight: 600;
   margin-right: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .youtube-subtitle-text { color: var(--text); }
@@ -727,9 +741,9 @@ body {
   background: rgba(34, 197, 94, 0.12);
   color: var(--success);
   border: 1px solid rgba(34, 197, 94, 0.2);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 14px;
   font-family: var(--font-body);
   cursor: pointer;
   margin-left: 8px;
@@ -751,7 +765,7 @@ body {
 
 .subtitle-input-panel h3 {
   color: var(--text);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
@@ -772,7 +786,7 @@ body {
   gap: 20px;
   align-items: center;
   margin-bottom: 10px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-muted);
 }
 
@@ -793,7 +807,7 @@ body {
   color: var(--text);
   border-radius: 8px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
   resize: vertical;
   transition: border-color var(--dur-normal) var(--ease);
@@ -808,7 +822,7 @@ body {
   color: #0F172A;
   border: none;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
@@ -826,7 +840,7 @@ body {
   border-radius: 8px;
   margin: 8px 0;
   border-left: 3px solid var(--error);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .success-message {
@@ -836,7 +850,7 @@ body {
   border-radius: 8px;
   margin: 8px 0;
   border-left: 3px solid var(--success);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 /* Toast Notification */
@@ -850,7 +864,7 @@ body {
   padding: 11px 16px;
   border-radius: 8px;
   z-index: 1000;
-  font-size: 13px;
+  font-size: 15px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transform: translateX(120%);
