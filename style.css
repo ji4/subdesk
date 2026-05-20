@@ -6,9 +6,9 @@
 
 /* --- Design Tokens --- */
 :root {
-  --bg:          #0F172A;
-  --surface:     #1E293B;
-  --surface-2:   #334155;
+  --bg:          #111214;
+  --surface:     #1A1C1F;
+  --surface-2:   #252830;
   --border:      rgba(255, 255, 255, 0.08);
   --primary:     #14B8A6;
   --primary-dk:  #0D9488;
@@ -48,7 +48,8 @@ body {
 
 /* --- Layout --- */
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -420,7 +421,7 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 7px 16px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   line-height: 1.6;
   flex-shrink: 0;
@@ -441,7 +442,7 @@ body {
   border-bottom: 2px solid var(--border);
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text);
 }
 
@@ -515,14 +516,15 @@ body {
 .subtitle-list {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   background: var(--bg);
 }
 
 .youtube-subtitles-section .youtube-subtitles-panel {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   background: var(--bg);
-  max-height: none;
 }
 
 /* --- Subtitle Items (corrected list) --- */
@@ -544,9 +546,9 @@ body {
 }
 
 .subtitle-item.current-playing {
-  background: rgba(20, 184, 166, 0.08) !important;
-  border-left: 2px solid var(--primary);
-  border-bottom-color: rgba(20, 184, 166, 0.2) !important;
+  background: rgba(20, 184, 166, 0.16) !important;
+  border-left: 3px solid var(--primary) !important;
+  border-bottom-color: rgba(20, 184, 166, 0.25) !important;
 }
 
 .subtitle-item.finished { border-left: 2px solid transparent; }
@@ -614,7 +616,7 @@ body {
 
 .subtitle-wrong {
   color: var(--error);
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   padding: 4px 8px;
   background: rgba(239, 68, 68, 0.07);
@@ -632,7 +634,7 @@ body {
 
 .subtitle-correct {
   color: var(--text);
-  font-size: 13px;
+  font-size: 14px;
   padding: 7px 11px;
   background: var(--surface);
   border-radius: 6px;
@@ -690,7 +692,7 @@ body {
 .youtube-subtitle-item {
   padding: 8px 16px;
   border-bottom: 1px solid var(--border);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   cursor: pointer;
   display: flex;
@@ -704,9 +706,9 @@ body {
 .youtube-subtitle-item:hover { background: rgba(255, 255, 255, 0.025); }
 
 .youtube-subtitle-item.current-playing {
-  background: rgba(20, 184, 166, 0.08) !important;
-  border-left: 2px solid var(--primary);
-  border-bottom-color: rgba(20, 184, 166, 0.2) !important;
+  background: rgba(20, 184, 166, 0.16) !important;
+  border-left: 3px solid var(--primary) !important;
+  border-bottom-color: rgba(20, 184, 166, 0.25) !important;
 }
 
 .youtube-subtitle-content { flex: 1; cursor: pointer; }
@@ -749,7 +751,7 @@ body {
 
 .subtitle-input-panel h3 {
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   font-weight: 600;
 }
 
@@ -770,7 +772,7 @@ body {
   gap: 20px;
   align-items: center;
   margin-bottom: 10px;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -791,7 +793,7 @@ body {
   color: var(--text);
   border-radius: 8px;
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.5;
   resize: vertical;
   transition: border-color var(--dur-normal) var(--ease);
