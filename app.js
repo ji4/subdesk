@@ -6,6 +6,7 @@
         let timeInterval = null;
         let currentOutputFormat = 'srt';
         let showOnlyModified = false;
+        let showComparison = false;
         let subtitlePanelFilter = 'all';
         let youtubeSubtitles = [];
         let player = null;
@@ -1107,6 +1108,16 @@
             if (showOnlyModified) {
                 const modified = youtubeSubtitles.filter(s => s.modified);
                 if (modified.length === 0) return '';
+                if (showComparison) {
+                    return modified.map(s => {
+                        const idx = youtubeSubtitles.indexOf(s);
+                        const num = idx !== -1 ? idx + 1 : '?';
+                        const time = formatTime(s.start);
+                        const original = s.text;
+                        const corrected = s.editedText !== undefined ? s.editedText : s.text;
+                        return `#${num} ${time} | ${original} | ${corrected}`;
+                    }).join('\n');
+                }
                 return buildSubtitleLines(modified, s => s.editedText !== undefined ? s.editedText : s.text);
             }
             return generateFullOutput();
@@ -1186,6 +1197,18 @@
 
         function toggleShowOnlyModified() {
             showOnlyModified = document.getElementById('chkOnlyModified').checked;
+            const label = document.getElementById('chkComparisonLabel');
+            if (label) label.style.display = showOnlyModified ? 'inline-flex' : 'none';
+            if (!showOnlyModified) {
+                showComparison = false;
+                const chk = document.getElementById('chkComparison');
+                if (chk) chk.checked = false;
+            }
+            updateOutputTextarea();
+        }
+
+        function toggleShowComparison() {
+            showComparison = document.getElementById('chkComparison').checked;
             updateOutputTextarea();
         }
 

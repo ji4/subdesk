@@ -126,6 +126,10 @@
                         <input type="checkbox" id="chkOnlyModified" onchange="toggleShowOnlyModified()">
                         僅顯示已修改字幕
                     </label>
+                    <label id="chkComparisonLabel" style="display: none; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
+                        顯示校正前後對比
+                    </label>
                 </div>
                 <textarea id="subtitleOutput" placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出" oninput="onOutputInput()"></textarea>
             </div>
