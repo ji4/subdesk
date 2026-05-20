@@ -246,6 +246,7 @@
                     if (youtubeSubtitles && youtubeSubtitles.length > 0) {
                         document.getElementById('subtitleOverlay').style.display = 'block';
                     }
+                    updateYouTubeSubtitlesDisplay();
 
                     updateProgress(100, '本機影片載入完成！');
 
@@ -338,6 +339,7 @@
                 if (data && data.title) currentFileName = data.title;
             } catch(e) {}
             startSubtitleSync();
+            updateYouTubeSubtitlesDisplay();
             showDeleteNotification('影片播放器已準備就緒', 'success');
             // onApiChange 是主要觸發點；這裡只做 3 秒後的備援
             setTimeout(() => {
@@ -544,6 +546,7 @@
                         <span class="youtube-subtitle-text subtitle-correct"
                               contenteditable="true"
                               data-index="${idx}"
+                              oninput="liveSync(${idx}, this)"
                               onblur="saveSubtitleEdit(${idx}, this)"
                               onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(edited)}</span>
                     </div>`;
@@ -555,6 +558,7 @@
                         <span class="youtube-subtitle-text"
                               contenteditable="true"
                               data-index="${idx}"
+                              oninput="liveSync(${idx}, this)"
                               onblur="saveSubtitleEdit(${idx}, this)"
                               onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(displayText)}</span>
                     </div>`;
@@ -567,12 +571,10 @@
             currentHighlightedYouTube = -1;
 
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
-                panel.innerHTML = `
-                    <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">
-                        請先載入影片，這裡會顯示字幕<br>
-                        或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此
-                    </div>
-                `;
+                const msg = isVideoLoaded
+                    ? `尚未載入字幕<br>請點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`
+                    : `請先載入影片，這裡會顯示字幕<br>或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                panel.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">${msg}</div>`;
                 return;
             }
 
@@ -586,10 +588,10 @@
             updateOutputTextarea();
         }
 
-        function saveSubtitleEdit(index, element) {
-            const newText = element.textContent.trim();
+        // 即時同步：輸入時更新資料模型、amber border、輸出區
+        function liveSync(index, element) {
+            const newText = element.textContent;
             const s = youtubeSubtitles[index];
-            const wasModified = s.modified;
             if (newText !== s.text) {
                 s.editedText = newText;
                 s.modified = true;
@@ -597,13 +599,29 @@
                 delete s.editedText;
                 s.modified = false;
             }
-            // Re-render this row if modified state changed
-            if (s.modified !== wasModified) {
-                const item = document.querySelector(`.youtube-subtitle-item[data-index="${index}"]`);
-                if (item) {
+            const item = element.closest('.youtube-subtitle-item');
+            if (item) item.classList.toggle('modified', !!s.modified);
+            updateOutputTextarea();
+        }
+
+        function saveSubtitleEdit(index, element) {
+            const newText = element.textContent.trim();
+            const s = youtubeSubtitles[index];
+            if (newText !== s.text) {
+                s.editedText = newText;
+                s.modified = true;
+            } else {
+                delete s.editedText;
+                s.modified = false;
+            }
+            // Re-render only if two-line format state or modified class needs to change
+            const item = element.closest('.youtube-subtitle-item');
+            if (item) {
+                const hasTwoLine = !!item.querySelector('.modified-content');
+                const needsTwoLine = s.modified && subtitlePanelFilter === 'modified';
+                if (hasTwoLine !== needsTwoLine || item.classList.contains('modified') !== !!s.modified) {
                     const wasPlaying = item.classList.contains('current-playing');
-                    const newHtml = renderSubtitleItemHTML(s, index);
-                    item.outerHTML = newHtml;
+                    item.outerHTML = renderSubtitleItemHTML(s, index);
                     if (wasPlaying) {
                         const replaced = document.querySelector(`.youtube-subtitle-item[data-index="${index}"]`);
                         if (replaced) replaced.classList.add('current-playing');

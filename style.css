@@ -112,7 +112,7 @@ body {
 
 .content-wrapper {
   display: grid;
-  grid-template-columns: 1.2fr 4px 1fr;
+  grid-template-columns: 2.3fr 4px 1fr;
   grid-template-rows: minmax(520px, auto);
   align-items: stretch;
 }
@@ -320,7 +320,7 @@ body {
   padding: 4px 12px;
   background: rgba(0, 0, 0, 0.82);
   color: white;
-  font-size: 17px;
+  font-size: 26px;
   border-radius: 4px;
   max-width: 80%;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
@@ -611,10 +611,7 @@ body {
   overflow-y: auto;
   min-height: 0;
   background: var(--bg);
-  scrollbar-width: none;
 }
-
-.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar { display: none; }
 
 /* --- Subtitle Items (corrected list) --- */
 .subtitle-item {
