@@ -9,7 +9,6 @@
         let subtitlePanelFilter = 'all';
         let youtubeSubtitles = [];
         let isControlsCollapsed = false;
-        let isVerticalMode = false;
         let player = null;
         let isPlayerReady = false;
         let currentHighlightedYouTube = -1;
@@ -516,6 +515,40 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function renderSubtitleItemHTML(subtitle, idx) {
+            const time = formatTime(subtitle.start);
+            const classes = ['youtube-subtitle-item'];
+            if (subtitle.modified) classes.push('modified');
+            const timeBadge = `<span class="youtube-subtitle-time" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${escapeHtml(time)}" style="cursor:pointer;">${escapeHtml(time)}</span>`;
+            let contentHTML;
+            if (subtitle.modified) {
+                const edited = subtitle.editedText !== undefined ? subtitle.editedText : subtitle.text;
+                contentHTML = `
+                    <div class="youtube-subtitle-content modified-content">
+                        <div class="youtube-subtitle-original-row">
+                            ${timeBadge}
+                            <span class="subtitle-wrong">${escapeHtml(subtitle.text)}</span>
+                        </div>
+                        <span class="youtube-subtitle-text subtitle-correct"
+                              contenteditable="true"
+                              data-index="${idx}"
+                              onblur="saveSubtitleEdit(${idx}, this)"
+                              onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(edited)}</span>
+                    </div>`;
+            } else {
+                contentHTML = `
+                    <div class="youtube-subtitle-content">
+                        ${timeBadge}
+                        <span class="youtube-subtitle-text"
+                              contenteditable="true"
+                              data-index="${idx}"
+                              onblur="saveSubtitleEdit(${idx}, this)"
+                              onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(subtitle.text)}</span>
+                    </div>`;
+            }
+            return `<div class="${classes.join(' ')}" data-index="${idx}">${contentHTML}</div>`;
+        }
+
         function updateYouTubeSubtitlesDisplay() {
             const panel = document.getElementById('youtubeSubtitlesPanel');
             currentHighlightedYouTube = -1;
@@ -532,34 +565,9 @@
 
             const filtered = youtubeSubtitles
                 .map((s, i) => ({ ...s, _index: i }))
-                .filter(s => {
-                    if (subtitlePanelFilter === 'modified') return s.modified;
-                    if (subtitlePanelFilter === 'confirmed') return s.confirmed;
-                    return true;
-                });
+                .filter(s => subtitlePanelFilter === 'modified' ? s.modified : true);
 
-            panel.innerHTML = filtered.map(subtitle => {
-                const idx = subtitle._index;
-                const time = formatTime(subtitle.start);
-                const displayText = subtitle.editedText !== undefined ? subtitle.editedText : subtitle.text;
-                const classes = ['youtube-subtitle-item'];
-                if (subtitle.modified) classes.push('modified');
-                if (subtitle.confirmed) classes.push('confirmed');
-                return `
-                    <div class="${classes.join(' ')}" data-index="${idx}">
-                        <div class="youtube-subtitle-number">${idx + 1}</div>
-                        <div class="youtube-subtitle-content">
-                            <span class="youtube-subtitle-time" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${escapeHtml(time)}" style="cursor:pointer;">${escapeHtml(time)}</span>
-                            <span class="youtube-subtitle-text"
-                                  contenteditable="true"
-                                  data-index="${idx}"
-                                  onblur="saveSubtitleEdit(${idx}, this)"
-                                  onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(displayText)}</span>
-                        </div>
-                        <button class="youtube-subtitle-confirm-btn" onclick="confirmSubtitle(${idx})" title="${subtitle.confirmed ? '取消確認' : '標記為已確認'}">${subtitle.confirmed ? '✓ 確認' : '確認'}</button>
-                    </div>
-                `;
-            }).join('');
+            panel.innerHTML = filtered.map(s => renderSubtitleItemHTML(s, s._index)).join('');
 
             highlightCurrentSubtitles(currentTime);
             updateOutputTextarea();
@@ -567,35 +575,34 @@
 
         function saveSubtitleEdit(index, element) {
             const newText = element.textContent.trim();
-            const original = youtubeSubtitles[index].text;
-            if (newText !== original) {
-                youtubeSubtitles[index].editedText = newText;
-                youtubeSubtitles[index].modified = true;
-                const item = element.closest('.youtube-subtitle-item');
-                if (item) item.classList.add('modified');
+            const s = youtubeSubtitles[index];
+            const wasModified = s.modified;
+            if (newText !== s.text) {
+                s.editedText = newText;
+                s.modified = true;
             } else {
-                delete youtubeSubtitles[index].editedText;
-                youtubeSubtitles[index].modified = false;
-                const item = element.closest('.youtube-subtitle-item');
-                if (item) item.classList.remove('modified');
+                delete s.editedText;
+                s.modified = false;
             }
-            updateOutputTextarea();
-        }
-
-        function confirmSubtitle(index) {
-            youtubeSubtitles[index].confirmed = !youtubeSubtitles[index].confirmed;
-            const item = document.querySelector(`.youtube-subtitle-item[data-index="${index}"]`);
-            if (item) {
-                item.classList.toggle('confirmed', youtubeSubtitles[index].confirmed);
-                const btn = item.querySelector('.youtube-subtitle-confirm-btn');
-                if (btn) btn.textContent = youtubeSubtitles[index].confirmed ? '✓ 確認' : '確認';
+            // Re-render this row if modified state changed
+            if (s.modified !== wasModified) {
+                const item = document.querySelector(`.youtube-subtitle-item[data-index="${index}"]`);
+                if (item) {
+                    const wasPlaying = item.classList.contains('current-playing');
+                    const newHtml = renderSubtitleItemHTML(s, index);
+                    item.outerHTML = newHtml;
+                    if (wasPlaying) {
+                        const replaced = document.querySelector(`.youtube-subtitle-item[data-index="${index}"]`);
+                        if (replaced) replaced.classList.add('current-playing');
+                    }
+                }
             }
             updateOutputTextarea();
         }
 
         function filterSubtitlePanel(mode) {
             subtitlePanelFilter = mode;
-            ['all', 'modified', 'confirmed'].forEach(m => {
+            ['all', 'modified'].forEach(m => {
                 const btn = document.getElementById(`filter${m.charAt(0).toUpperCase() + m.slice(1)}`);
                 if (btn) btn.classList.toggle('active', m === mode);
             });
@@ -791,21 +798,6 @@
                 if (expandBtn) {
                     expandBtn.remove();
                 }
-            }
-        }
-        
-        function toggleViewMode() {
-            const contentWrapper = document.getElementById('contentWrapper');
-            const viewModeToggle = document.getElementById('viewModeToggle');
-            
-            isVerticalMode = !isVerticalMode;
-            
-            if (isVerticalMode) {
-                contentWrapper.classList.add('vertical');
-                viewModeToggle.textContent = '📱 左右並排';
-            } else {
-                contentWrapper.classList.remove('vertical');
-                viewModeToggle.textContent = '📱 垂直檢視';
             }
         }
         
@@ -1360,10 +1352,52 @@
             currentHighlightedYouTube = -1;
         }
         
+        // 可拖曳分隔線
+        function initPanelDivider() {
+            const divider = document.getElementById('panelDivider');
+            const wrapper = document.getElementById('contentWrapper');
+            if (!divider || !wrapper) return;
+
+            let dragging = false;
+            let startX = 0;
+            let startCols = null;
+
+            divider.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                dragging = true;
+                startX = e.clientX;
+                divider.classList.add('dragging');
+                const style = window.getComputedStyle(wrapper);
+                startCols = style.gridTemplateColumns; // e.g. "600px 4px 400px"
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!dragging) return;
+                const delta = e.clientX - startX;
+                const parts = startCols.split(' ');
+                const leftPx = parseFloat(parts[0]) + delta;
+                const rightPx = parseFloat(parts[2]) - delta;
+                if (leftPx < 200 || rightPx < 200) return;
+                wrapper.style.gridTemplateColumns = `${leftPx}px 4px ${rightPx}px`;
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (!dragging) return;
+                dragging = false;
+                divider.classList.remove('dragging');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            });
+        }
+
         // 初始化頁面時設置鍵盤事件監聽
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化影片載入選擇器
             initVideoLoadSelector();
+            // 初始化可拖曳分隔線
+            initPanelDivider();
             
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
@@ -1440,7 +1474,7 @@
                         document.getElementById('localVideoBtn').click();
                     }
                     loadLocalVideoFromFile(file, document.getElementById('loadLocalVideoBtn'));
-                } else if (name.endsWith('.srt') || name.endsWith('.vtt') || name.endsWith('.txt')) {
+                } else if (name.endsWith('.srt') || name.endsWith('.vtt')) {
                     e.preventDefault();
                     loadSubtitleFromFile(file);
                 }
@@ -1461,6 +1495,11 @@
         
         // 處理字幕檔案上傳
         function loadSubtitleFromFile(file) {
+            const name = file.name.toLowerCase();
+            if (!name.endsWith('.srt') && !name.endsWith('.vtt')) {
+                showDeleteNotification('❌ 僅支援 .srt 和 .vtt 格式', 'error');
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
@@ -1563,28 +1602,8 @@
                         }
                     }
                 }
-            } else {
-                // 處理一般文字格式（假設每行都是時間戳記後接文字）
-                for (let i = 0; i < cleanLines.length; i++) {
-                    const line = cleanLines[i];
-                    const timeMatch = line.match(/(\d{2}):(\d{2}):(\d{2})/);
-                    if (timeMatch) {
-                        const hours = parseInt(timeMatch[1]);
-                        const minutes = parseInt(timeMatch[2]);
-                        const seconds = parseInt(timeMatch[3]);
-                        const startTime = hours * 3600 + minutes * 60 + seconds;
-                        
-                        const text = line.substring(line.indexOf(']') + 1).trim();
-                        if (text) {
-                            subtitles.push({
-                                start: startTime,
-                                text: text
-                            });
-                        }
-                    }
-                }
             }
-            
+
             // 按時間排序
             subtitles.sort((a, b) => a.start - b.start);
             return subtitles;

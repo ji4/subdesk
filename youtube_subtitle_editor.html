@@ -75,24 +75,24 @@
                 <div id="messages" class="messages"></div>
             </div>
 
+            <!-- 可拖曳分隔線 -->
+            <div class="panel-divider" id="panelDivider"></div>
+
             <!-- 字幕顯示區 -->
             <div class="subtitle-display-panel" id="subtitleDisplayPanel">
                 <div class="subtitle-controls">
                     <h3>字幕列表</h3>
-                    <div class="subtitle-control-buttons">
-                        <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">垂直檢視</button>
-                    </div>
+                    <div class="subtitle-control-buttons"></div>
                 </div>
                 <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section" id="youtubeSubtitlesSection">
                         <div class="subtitle-upload-controls">
-                            <input type="file" id="subtitleFileInput" accept=".srt,.vtt,.txt" style="display: none;">
+                            <input type="file" id="subtitleFileInput" accept=".srt,.vtt" style="display: none;">
                             <button class="view-mode-toggle subtitle-upload-btn" onclick="document.getElementById('subtitleFileInput').click()">上傳字幕檔</button>
-                            <span>支援 .srt, .vtt, .txt 格式</span>
+                            <span>支援 .srt, .vtt 格式</span>
                             <div class="subtitle-filter-btns">
                                 <button class="filter-btn active" id="filterAll" onclick="filterSubtitlePanel('all')">全部</button>
                                 <button class="filter-btn" id="filterModified" onclick="filterSubtitlePanel('modified')">已修改</button>
-                                <button class="filter-btn" id="filterConfirmed" onclick="filterSubtitlePanel('confirmed')">已確認</button>
                             </div>
                         </div>
                         <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
