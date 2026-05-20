@@ -196,9 +196,6 @@
             if (_display) _display.textContent = file.name;
             if (_zone) _zone.classList.add('has-file');
 
-            youtubeSubtitles = [];
-            updateOutputTextarea();
-
             if (loadBtn) { loadBtn.textContent = '載入中...'; loadBtn.disabled = true; }
 
             updateProgress(25, '正在載入本機影片...');
@@ -566,14 +563,19 @@
             return `<div class="${classes.join(' ')}" data-index="${idx}">${contentHTML}${seekZone}</div>`;
         }
 
-        function updateYouTubeSubtitlesDisplay() {
+        function updateYouTubeSubtitlesDisplay(skipOutput = false) {
             const panel = document.getElementById('youtubeSubtitlesPanel');
             currentHighlightedYouTube = -1;
 
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
-                const msg = isVideoLoaded
-                    ? `尚未載入字幕<br>請點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`
-                    : `請先載入影片，這裡會顯示字幕<br>或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                let msg;
+                if (!isVideoLoaded) {
+                    msg = `請先載入影片，這裡會顯示字幕<br>或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                } else if (isLocalVideo) {
+                    msg = `本機影片不含自動字幕<br>請點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                } else {
+                    msg = `正在嘗試取得 YouTube 字幕<br>若無法取得，可點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                }
                 panel.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">${msg}</div>`;
                 return;
             }
@@ -585,7 +587,7 @@
             panel.innerHTML = filtered.map(s => renderSubtitleItemHTML(s, s._index)).join('');
 
             highlightCurrentSubtitles(currentTime);
-            updateOutputTextarea();
+            if (!skipOutput) updateOutputTextarea();
         }
 
         // 即時同步：輸入時更新資料模型、amber border、輸出區
@@ -1109,6 +1111,39 @@
         function updateOutputTextarea() {
             const ta = document.getElementById('subtitleOutput');
             if (ta) ta.value = generateOutput();
+        }
+
+        // 雙向同步：下方輸出 textarea 改動回寫至字幕列表
+        let _outputSyncTimer = null;
+        function onOutputInput() {
+            clearTimeout(_outputSyncTimer);
+            _outputSyncTimer = setTimeout(syncOutputToList, 400);
+        }
+
+        function syncOutputToList() {
+            if (currentOutputFormat === 'txt') return;
+            if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
+            const ta = document.getElementById('subtitleOutput');
+            if (!ta) return;
+            const ext = currentOutputFormat === 'vtt' ? 'output.vtt' : 'output.srt';
+            const parsed = parseSubtitleFile(ta.value, ext);
+            if (!parsed || parsed.length === 0) return;
+            let changed = false;
+            parsed.forEach(p => {
+                const match = youtubeSubtitles.find(s => Math.abs(s.start - p.start) < 0.15);
+                if (!match) return;
+                const newText = p.text;
+                if (newText !== match.text) {
+                    match.editedText = newText;
+                    match.modified = true;
+                    changed = true;
+                } else if (match.modified && newText === match.text) {
+                    delete match.editedText;
+                    match.modified = false;
+                    changed = true;
+                }
+            });
+            if (changed) updateYouTubeSubtitlesDisplay(true); // skipOutput=true 避免迴圈
         }
 
         function switchOutputFormat(format) {

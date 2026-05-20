@@ -67,8 +67,8 @@
                 <div class="video-controls" id="videoControls" style="display: none;">
                     <button id="playBtn" onclick="controlVideo('play')" title="播放">▶ 播放</button>
                     <button id="pauseBtn" onclick="controlVideo('pause')" title="暫停">⏸ 暫停</button>
-                    <button id="backBtn" onclick="controlVideo('back')" title="後退5秒">⏪ -5s</button>
-                    <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">⏩ +5s</button>
+                    <button id="backBtn" onclick="controlVideo('back')" title="後退5秒">-5s</button>
+                    <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">+5s</button>
                     <div class="current-time" id="currentTime">00:00:00</div>
                 </div>
 
@@ -127,7 +127,7 @@
                         僅顯示已修改字幕
                     </label>
                 </div>
-                <textarea id="subtitleOutput" placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出"></textarea>
+                <textarea id="subtitleOutput" placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出" oninput="onOutputInput()"></textarea>
             </div>
         </div>
     </div>

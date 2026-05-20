@@ -608,9 +608,18 @@ body {
 
 .youtube-subtitles-section .youtube-subtitles-panel {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   min-height: 0;
   background: var(--bg);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
+}
+
+.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar { width: 6px; }
+.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar-track { background: transparent; }
+.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 3px;
 }
 
 /* --- Subtitle Items (corrected list) --- */
