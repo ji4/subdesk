@@ -35,7 +35,7 @@
                     <label class="file-drop-zone" id="fileDropZone" for="localVideoFile">
                         <span id="fileNameDisplay">選擇或拖曳影片至此</span>
                     </label>
-                    <input type="file" id="localVideoFile" accept="video/*" style="display:none">
+                    <input type="file" id="localVideoFile" accept="video/*,audio/*" style="display:none">
                     <button id="loadLocalVideoBtn" onclick="loadLocalVideo()">載入影片</button>
                 </div>
 
@@ -147,6 +147,11 @@
 
     <!-- 刪除通知 -->
     <div class="delete-notification" id="deleteNotification"></div>
+
+    <!-- 拖曳覆蓋層 -->
+    <div id="dragOverlay">
+        <div class="drag-overlay-inner">拖曳影片或字幕檔至此</div>
+    </div>
 
     <script src="app.js"></script>
 </body>

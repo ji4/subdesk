@@ -193,8 +193,8 @@
         
         // 載入本機影片（核心邏輯，支援按鈕與拖曳兩種入口）
         function loadLocalVideoFromFile(file, loadBtn) {
-            if (!file || !file.type.startsWith('video/')) {
-                showMessage('請選擇有效的影片檔案', 'error');
+            if (!file || (!file.type.startsWith('video/') && !file.type.startsWith('audio/'))) {
+                showMessage('請選擇有效的影片或音訊檔案', 'error');
                 return;
             }
 
@@ -1625,7 +1625,7 @@
                 if (!files || files.length === 0) return;
                 const file = files[0];
                 const name = file.name.toLowerCase();
-                if (file.type.startsWith('video/')) {
+                if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
                     e.preventDefault();
                     if (!document.getElementById('localVideoBtn').classList.contains('active')) {
                         document.getElementById('localVideoBtn').click();
