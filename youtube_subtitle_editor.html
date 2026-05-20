@@ -15,7 +15,12 @@
     <div class="container">
         <div class="header">
             <h1>影片字幕校正工具</h1>
-            <p>左側載入影片，右側即時校正字幕，點擊字幕直接跳轉</p>
+            <div class="header-shortcuts">
+                <span class="hint-item"><kbd>Space</kbd> 播放 / 暫停</span>
+                <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> 跳 5 秒</span>
+                <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> 上 / 下一句</span>
+                <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> 降 / 升速率</span>
+            </div>
         </div>
 
         <div class="content-wrapper" id="contentWrapper">
@@ -65,8 +70,6 @@
                     <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">⏩ +5s</button>
                     <div class="current-time" id="currentTime">00:00:00</div>
                     <button class="toggle-controls-btn" id="toggleControlsBtn" onclick="toggleVideoControls()">隱藏控制</button>
-                    <button class="toggle-controls-btn" onclick="testSubtitleSync()" title="測試字幕同步">測試同步</button>
-                    <button class="toggle-controls-btn" onclick="testSubtitleDataSync()" title="測試資料同步">測試資料</button>
                 </div>
 
                 <div id="messages" class="messages"></div>
@@ -75,39 +78,27 @@
             <!-- 字幕顯示區 -->
             <div class="subtitle-display-panel" id="subtitleDisplayPanel">
                 <div class="subtitle-controls">
-                    <h3>字幕檢視區域</h3>
+                    <h3>字幕列表</h3>
                     <div class="subtitle-control-buttons">
                         <button class="view-mode-toggle" id="viewModeToggle" onclick="toggleViewMode()">垂直檢視</button>
-                        <button class="view-mode-toggle" id="swapPanelsBtn" onclick="swapSubtitlePanels()">交換位置</button>
                     </div>
-                </div>
-                <div class="keyboard-hints">
-                    <span class="hint-item"><kbd>Space</kbd> 播放 / 暫停</span>
-                    <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> 跳 5 秒</span>
-                    <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> 上 / 下一句</span>
-                    <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> 降 / 升速率</span>
                 </div>
                 <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section" id="youtubeSubtitlesSection">
-                        <h3>YouTube 字幕</h3>
                         <div class="subtitle-upload-controls">
                             <input type="file" id="subtitleFileInput" accept=".srt,.vtt,.txt" style="display: none;">
-                            <button class="view-mode-toggle" onclick="document.getElementById('subtitleFileInput').click()">上傳字幕檔</button>
+                            <button class="view-mode-toggle subtitle-upload-btn" onclick="document.getElementById('subtitleFileInput').click()">上傳字幕檔</button>
                             <span>支援 .srt, .vtt, .txt 格式</span>
-                        </div>
-                        <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
-                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 13px;">
-                                請先載入影片，這裡會顯示 YouTube 字幕<br>
-                                或點擊上方按鈕上傳字幕檔案
+                            <div class="subtitle-filter-btns">
+                                <button class="filter-btn active" id="filterAll" onclick="filterSubtitlePanel('all')">全部</button>
+                                <button class="filter-btn" id="filterModified" onclick="filterSubtitlePanel('modified')">已修改</button>
+                                <button class="filter-btn" id="filterConfirmed" onclick="filterSubtitlePanel('confirmed')">已確認</button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="corrected-subtitles-section" id="correctedSubtitlesSection">
-                        <h3>已選字幕</h3>
-                        <div class="subtitle-list" id="subtitleList">
-                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 13px;">
-                                點擊字幕旁的 + 新增到清單
+                        <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
+                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px;">
+                                請先載入影片，這裡會顯示字幕<br>
+                                或點擊上方按鈕上傳字幕檔案
                             </div>
                         </div>
                     </div>
@@ -132,12 +123,8 @@
                 </div>
                 <div class="output-options">
                     <label>
-                        <input type="checkbox" id="chkOnlySelected" onchange="toggleShowOnlySelected()">
-                        僅顯示校正過的字幕
-                    </label>
-                    <label id="chkComparisonLabel" style="display: none;">
-                        <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
-                        顯示校正前後對比
+                        <input type="checkbox" id="chkOnlyModified" onchange="toggleShowOnlyModified()">
+                        僅顯示已修改字幕
                     </label>
                 </div>
                 <textarea id="subtitleOutput" placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出"></textarea>
