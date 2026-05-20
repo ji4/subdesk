@@ -1125,11 +1125,33 @@
         }
 
         function syncOutputToList() {
-            if (currentOutputFormat === 'txt') return;
             if (showOnlyModified) return; // 只顯示已修改時，index 對不上全部字幕，略過同步
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
             const ta = document.getElementById('subtitleOutput');
             if (!ta) return;
+
+            if (currentOutputFormat === 'txt') {
+                // TXT：每行對應一條字幕（依 index）
+                const lines = ta.value.split('\n');
+                if (lines.length !== youtubeSubtitles.length) return;
+                let changed = false;
+                for (let i = 0; i < lines.length; i++) {
+                    const newText = lines[i];
+                    const s = youtubeSubtitles[i];
+                    if (newText !== s.text) {
+                        s.editedText = newText;
+                        s.modified = true;
+                        changed = true;
+                    } else if (s.modified) {
+                        delete s.editedText;
+                        s.modified = false;
+                        changed = true;
+                    }
+                }
+                if (changed) updateYouTubeSubtitlesDisplay(true); // skipOutput=true 避免迴圈
+                return;
+            }
+
             const ext = currentOutputFormat === 'vtt' ? 'output.vtt' : 'output.srt';
             const parsed = parseSubtitleFile(ta.value, ext);
             if (!parsed || parsed.length === 0) return;
