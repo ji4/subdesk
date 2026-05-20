@@ -61,6 +61,7 @@ body {
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  position: relative;
 }
 
 .header h1 {
@@ -81,7 +82,10 @@ body {
   gap: 4px 16px;
   align-items: center;
   flex-wrap: wrap;
-  margin-left: auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .header-shortcuts .hint-item {
@@ -109,6 +113,7 @@ body {
 .content-wrapper {
   display: grid;
   grid-template-columns: 1.2fr 4px 1fr;
+  grid-template-rows: minmax(520px, auto);
   align-items: stretch;
 }
 
@@ -595,7 +600,10 @@ body {
   overflow-y: auto;
   min-height: 0;
   background: var(--bg);
+  scrollbar-width: none;
 }
+
+.youtube-subtitles-section .youtube-subtitles-panel::-webkit-scrollbar { display: none; }
 
 /* --- Subtitle Items (corrected list) --- */
 .subtitle-item {
@@ -770,10 +778,31 @@ body {
   justify-content: space-between;
   background: transparent;
   transition: background var(--dur-normal) var(--ease);
+  position: relative;
 }
 
 .youtube-subtitle-item:last-child { border-bottom: none; }
-.youtube-subtitle-item:hover { background: rgba(255, 255, 255, 0.025); }
+
+.youtube-subtitle-item:hover {
+  background: rgba(255, 255, 255, 0.032);
+}
+
+/* Right-side click area hint */
+.youtube-subtitle-item::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394A3B8' opacity='0.35'%3E%3Cpath d='M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z'/%3E%3C/svg%3E") center/contain no-repeat;
+  opacity: 0;
+  transition: opacity var(--dur-normal) var(--ease);
+  pointer-events: none;
+}
+
+.youtube-subtitle-item:hover::after { opacity: 1; }
 
 .youtube-subtitle-item.current-playing {
   background: rgba(20, 184, 166, 0.16) !important;
@@ -866,6 +895,7 @@ body {
 }
 
 .output-format-btns { display: flex; gap: 6px; }
+.output-format-btns .view-mode-toggle { font-size: 12px; padding: 4px 10px; }
 
 .output-action-btns { display: flex; gap: 8px; margin-left: auto; }
 
@@ -888,7 +918,7 @@ body {
 
 .subtitle-input-panel textarea {
   width: 100%;
-  height: 320px;
+  height: 640px;
   padding: 11px 13px;
   border: 1px solid var(--border);
   background: var(--surface);

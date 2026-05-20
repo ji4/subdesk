@@ -8,7 +8,6 @@
         let showOnlyModified = false;
         let subtitlePanelFilter = 'all';
         let youtubeSubtitles = [];
-        let isControlsCollapsed = false;
         let player = null;
         let isPlayerReady = false;
         let currentHighlightedYouTube = -1;
@@ -519,9 +518,10 @@
             const time = formatTime(subtitle.start);
             const classes = ['youtube-subtitle-item'];
             if (subtitle.modified) classes.push('modified');
-            const timeBadge = `<span class="youtube-subtitle-time" onclick="seekToTime(${subtitle.start})" title="點擊跳轉到 ${escapeHtml(time)}" style="cursor:pointer;">${escapeHtml(time)}</span>`;
+            const timeBadge = `<span class="youtube-subtitle-time" onclick="event.stopPropagation();seekToTime(${subtitle.start})" title="點擊跳轉到 ${escapeHtml(time)}" style="cursor:pointer;">${escapeHtml(time)}</span>`;
+            const showComparison = subtitle.modified && subtitlePanelFilter === 'modified';
             let contentHTML;
-            if (subtitle.modified) {
+            if (showComparison) {
                 const edited = subtitle.editedText !== undefined ? subtitle.editedText : subtitle.text;
                 contentHTML = `
                     <div class="youtube-subtitle-content modified-content">
@@ -532,21 +532,24 @@
                         <span class="youtube-subtitle-text subtitle-correct"
                               contenteditable="true"
                               data-index="${idx}"
+                              onclick="event.stopPropagation()"
                               onblur="saveSubtitleEdit(${idx}, this)"
                               onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(edited)}</span>
                     </div>`;
             } else {
+                const displayText = subtitle.modified && subtitle.editedText !== undefined ? subtitle.editedText : subtitle.text;
                 contentHTML = `
                     <div class="youtube-subtitle-content">
                         ${timeBadge}
                         <span class="youtube-subtitle-text"
                               contenteditable="true"
                               data-index="${idx}"
+                              onclick="event.stopPropagation()"
                               onblur="saveSubtitleEdit(${idx}, this)"
-                              onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(subtitle.text)}</span>
+                              onkeydown="handleEnterKey(event, ${idx}, this)">${escapeHtml(displayText)}</span>
                     </div>`;
             }
-            return `<div class="${classes.join(' ')}" data-index="${idx}">${contentHTML}</div>`;
+            return `<div class="${classes.join(' ')}" data-index="${idx}" onclick="seekToTime(${subtitle.start})">${contentHTML}</div>`;
         }
 
         function updateYouTubeSubtitlesDisplay() {
@@ -555,9 +558,9 @@
 
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
                 panel.innerHTML = `
-                    <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">
                         請先載入影片，這裡會顯示字幕<br>
-                        或點擊上方按鈕上傳字幕檔案
+                        或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此
                     </div>
                 `;
                 return;
@@ -777,29 +780,6 @@
             }, 4000);
         }
         
-        function toggleVideoControls() {
-            const videoControls = document.getElementById('videoControls');
-            const toggleBtn = document.getElementById('toggleControlsBtn');
-            
-            isControlsCollapsed = !isControlsCollapsed;
-            
-            if (isControlsCollapsed) {
-                videoControls.classList.add('collapsed');
-                const expandBtn = document.createElement('button');
-                expandBtn.id = 'expandControlsBtn';
-                expandBtn.className = 'toggle-controls-btn';
-                expandBtn.textContent = '展開控制';
-                expandBtn.onclick = toggleVideoControls;
-                expandBtn.style.marginTop = '10px';
-                videoControls.parentNode.appendChild(expandBtn);
-            } else {
-                videoControls.classList.remove('collapsed');
-                const expandBtn = document.getElementById('expandControlsBtn');
-                if (expandBtn) {
-                    expandBtn.remove();
-                }
-            }
-        }
         
         function extractVideoId(url) {
             const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;

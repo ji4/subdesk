@@ -69,7 +69,6 @@
                     <button id="backBtn" onclick="controlVideo('back')" title="後退5秒">⏪ -5s</button>
                     <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">⏩ +5s</button>
                     <div class="current-time" id="currentTime">00:00:00</div>
-                    <button class="toggle-controls-btn" id="toggleControlsBtn" onclick="toggleVideoControls()">隱藏控制</button>
                 </div>
 
                 <div id="messages" class="messages"></div>
@@ -137,7 +136,7 @@
 
     <!-- 拖曳覆蓋層 -->
     <div id="dragOverlay">
-        <div class="drag-overlay-inner">拖曳影片或字幕檔至此</div>
+        <div class="drag-overlay-inner">拖曳影片或字幕檔（.srt .vtt）至此</div>
     </div>
 
     <script src="app.js"></script>
