@@ -437,6 +437,7 @@ body {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  max-height: calc(100vh - 58px);
 }
 
 .subtitle-controls {

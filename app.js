@@ -571,12 +571,14 @@
 
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
                 let msg;
-                if (!isVideoLoaded) {
-                    msg = `請先載入影片，這裡會顯示字幕<br>或點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                if (!isVideoLoaded && isLocalVideo) {
+                    msg = `請先載入本機影片<br>再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                } else if (!isVideoLoaded) {
+                    msg = `請先載入影片<br>再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
                 } else if (isLocalVideo) {
-                    msg = `本機影片不含自動字幕<br>請點擊「上傳字幕檔」按鈕，<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                    msg = `本機影片不含自動字幕<br>請點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
                 } else {
-                    msg = `正在嘗試取得 YouTube 字幕<br>若無法取得，可點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                    msg = `未偵測到字幕<br>請點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
                 }
                 panel.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">${msg}</div>`;
                 return;
