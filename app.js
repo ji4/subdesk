@@ -1136,10 +1136,38 @@
         }
 
         function syncOutputToList() {
-            if (showOnlyModified) return; // 只顯示已修改時，index 對不上全部字幕，略過同步
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
             const ta = document.getElementById('subtitleOutput');
             if (!ta) return;
+
+            // 比對模式：解析 #num time | original | corrected 格式，依編號同步
+            if (showOnlyModified && showComparison) {
+                const lines = ta.value.split('\n').filter(l => l.trim());
+                let changed = false;
+                for (const line of lines) {
+                    const numMatch = line.match(/^#(\d+)/);
+                    if (!numMatch) continue;
+                    const s = youtubeSubtitles[parseInt(numMatch[1]) - 1];
+                    if (!s) continue;
+                    const pipe1 = line.indexOf(' | ');
+                    const pipe2 = pipe1 !== -1 ? line.indexOf(' | ', pipe1 + 3) : -1;
+                    if (pipe2 === -1) continue;
+                    const corrected = line.substring(pipe2 + 3);
+                    if (corrected !== s.text) {
+                        s.editedText = corrected;
+                        s.modified = true;
+                        changed = true;
+                    } else if (s.modified) {
+                        delete s.editedText;
+                        s.modified = false;
+                        changed = true;
+                    }
+                }
+                if (changed) updateYouTubeSubtitlesDisplay(true);
+                return;
+            }
+
+            if (showOnlyModified) return; // 非比對的 modified 模式：index 對不上全部字幕，略過同步
 
             if (currentOutputFormat === 'txt') {
                 // TXT：每行對應一條字幕（依 index）
