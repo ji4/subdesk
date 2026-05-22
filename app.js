@@ -1707,7 +1707,13 @@
                 const headerH = header ? header.offsetHeight : 50;
                 const maxHeight = (window.innerHeight - headerH) * 0.5;
                 const minHeight = 80;
-                outputSection.style.height = `${Math.min(Math.max(newHeight, minHeight), maxHeight)}px`;
+                const clampedHeight = Math.min(Math.max(newHeight, minHeight), maxHeight);
+                outputSection.style.height = `${clampedHeight}px`;
+                // 輸出區越大，左右比例趨近 1:1
+                const fraction = (clampedHeight - minHeight) / (maxHeight - minHeight);
+                const leftFr = 2.3 - 1.3 * fraction;
+                const wrapper = document.getElementById('contentWrapper');
+                if (wrapper) wrapper.style.gridTemplateColumns = `${leftFr}fr 4px 1fr`;
             });
 
             document.addEventListener('mouseup', function() {

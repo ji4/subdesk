@@ -142,6 +142,7 @@ body {
   align-items: stretch;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* Panel divider */
@@ -175,7 +176,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* Video Source Selector */
@@ -325,7 +326,7 @@ body {
   background: #000;
   border-radius: 8px;
   overflow: hidden;
-  padding-bottom: 56.25%;
+  padding-bottom: min(56.25%, calc(100vh - 320px));
   flex-shrink: 0;
 }
 
@@ -945,7 +946,7 @@ body {
 .subtitle-section {
   border-top: 1px solid var(--border);
   background: var(--bg);
-  height: 280px;
+  height: 300px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
