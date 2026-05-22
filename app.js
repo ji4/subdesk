@@ -1,10 +1,14 @@
         // localStorage 持久化
         const LS_KEYS = {
-            subtitles:    'yte_subtitles',
-            youtubeUrl:   'yte_youtubeUrl',
-            isLocalVideo: 'yte_isLocalVideo',
-            fileName:     'yte_fileName',
-            outputFormat: 'yte_outputFormat'
+            subtitles:        'yte_subtitles',
+            youtubeUrl:       'yte_youtubeUrl',
+            isLocalVideo:     'yte_isLocalVideo',
+            fileName:         'yte_fileName',
+            outputFormat:     'yte_outputFormat',
+            panelFilter:      'yte_panelFilter',
+            showOnlyModified: 'yte_showOnlyModified',
+            showComparison:   'yte_showComparison',
+            dividerCols:      'yte_dividerCols'
         };
 
         let _saveStateTimer = null;
@@ -20,15 +24,27 @@
                 } else {
                     localStorage.removeItem(LS_KEYS.subtitles);
                 }
-                const urlInput = document.getElementById('youtubeUrl');
-                if (urlInput && urlInput.value.trim()) {
-                    localStorage.setItem(LS_KEYS.youtubeUrl, urlInput.value.trim());
+                // 只在 YouTube 模式下儲存 URL；本機模式時主動清除，避免重整時誤載入 YouTube
+                if (!isLocalVideo) {
+                    const urlInput = document.getElementById('youtubeUrl');
+                    if (urlInput && urlInput.value.trim()) {
+                        localStorage.setItem(LS_KEYS.youtubeUrl, urlInput.value.trim());
+                    } else {
+                        localStorage.removeItem(LS_KEYS.youtubeUrl);
+                    }
                 } else {
                     localStorage.removeItem(LS_KEYS.youtubeUrl);
                 }
                 localStorage.setItem(LS_KEYS.isLocalVideo, String(isLocalVideo));
                 localStorage.setItem(LS_KEYS.fileName, currentFileName);
                 localStorage.setItem(LS_KEYS.outputFormat, currentOutputFormat);
+                localStorage.setItem(LS_KEYS.panelFilter, subtitlePanelFilter);
+                localStorage.setItem(LS_KEYS.showOnlyModified, String(showOnlyModified));
+                localStorage.setItem(LS_KEYS.showComparison, String(showComparison));
+                const wrapper = document.getElementById('contentWrapper');
+                if (wrapper && wrapper.style.gridTemplateColumns) {
+                    localStorage.setItem(LS_KEYS.dividerCols, wrapper.style.gridTemplateColumns);
+                }
             } catch (e) {
                 console.warn('localStorage 儲存失敗:', e);
             }
@@ -36,11 +52,15 @@
 
         function loadState() {
             try {
-                const savedSubtitles = localStorage.getItem(LS_KEYS.subtitles);
-                const savedUrl       = localStorage.getItem(LS_KEYS.youtubeUrl);
-                const savedIsLocal   = localStorage.getItem(LS_KEYS.isLocalVideo);
-                const savedFileName  = localStorage.getItem(LS_KEYS.fileName);
-                const savedFormat    = localStorage.getItem(LS_KEYS.outputFormat);
+                const savedSubtitles        = localStorage.getItem(LS_KEYS.subtitles);
+                const savedUrl              = localStorage.getItem(LS_KEYS.youtubeUrl);
+                const savedIsLocal          = localStorage.getItem(LS_KEYS.isLocalVideo);
+                const savedFileName         = localStorage.getItem(LS_KEYS.fileName);
+                const savedFormat           = localStorage.getItem(LS_KEYS.outputFormat);
+                const savedPanelFilter      = localStorage.getItem(LS_KEYS.panelFilter);
+                const savedShowOnlyModified = localStorage.getItem(LS_KEYS.showOnlyModified);
+                const savedShowComparison   = localStorage.getItem(LS_KEYS.showComparison);
+                const savedDividerCols      = localStorage.getItem(LS_KEYS.dividerCols);
 
                 if (!savedSubtitles && !savedUrl) return;
 
@@ -57,6 +77,29 @@
                 }
                 if (savedFormat) {
                     switchOutputFormat(savedFormat);
+                }
+                if (savedPanelFilter) {
+                    subtitlePanelFilter = savedPanelFilter;
+                    ['all', 'modified'].forEach(m => {
+                        const btn = document.getElementById(`filter${m.charAt(0).toUpperCase() + m.slice(1)}`);
+                        if (btn) btn.classList.toggle('active', m === savedPanelFilter);
+                    });
+                }
+                if (savedShowOnlyModified === 'true') {
+                    showOnlyModified = true;
+                    const chk = document.getElementById('chkOnlyModified');
+                    if (chk) chk.checked = true;
+                    const label = document.getElementById('chkComparisonLabel');
+                    if (label) label.style.display = 'inline-flex';
+                }
+                if (savedShowComparison === 'true' && showOnlyModified) {
+                    showComparison = true;
+                    const chk = document.getElementById('chkComparison');
+                    if (chk) chk.checked = true;
+                }
+                if (savedDividerCols) {
+                    const wrapper = document.getElementById('contentWrapper');
+                    if (wrapper) wrapper.style.gridTemplateColumns = savedDividerCols;
                 }
                 if (savedSubtitles) {
                     const parsed = JSON.parse(savedSubtitles);
@@ -345,6 +388,7 @@
                     if (loadBtn) { loadBtn.textContent = '重新載入'; loadBtn.disabled = false; }
 
                     showStatus('本機影片載入成功！如果已上傳字幕檔案，字幕將自動顯示。', 'success');
+                    saveState();
 
                     updateTimeDisplay();
                     setupLocalVideoEvents();
@@ -741,6 +785,7 @@
                 if (btn) btn.classList.toggle('active', m === mode);
             });
             updateYouTubeSubtitlesDisplay();
+            saveState();
         }
 
         function formatTime(seconds) {
@@ -1330,11 +1375,13 @@
                 if (chk) chk.checked = false;
             }
             updateOutputTextarea();
+            saveState();
         }
 
         function toggleShowComparison() {
             showComparison = document.getElementById('chkComparison').checked;
             updateOutputTextarea();
+            saveState();
         }
 
         function copyOutput() {
@@ -1608,6 +1655,7 @@
                 divider.classList.remove('dragging');
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
+                saveState();
             });
         }
 
