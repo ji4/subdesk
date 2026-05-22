@@ -47,8 +47,10 @@
                 if (savedIsLocal === 'true') {
                     document.getElementById('localVideoBtn').click();
                 }
-                if (savedUrl) {
+                if (savedUrl && savedIsLocal !== 'true') {
                     document.getElementById('youtubeUrl').value = savedUrl;
+                    _pendingAutoLoad = true;
+                    _autoLoadSkipSubtitles = !!savedSubtitles;
                 }
                 if (savedFileName) {
                     currentFileName = savedFileName;
@@ -78,6 +80,8 @@
         let currentVideoId = null;
         let isVideoLoaded = false;
         let captionsFetched = false;
+        let _pendingAutoLoad = false;
+        let _autoLoadSkipSubtitles = false;
         let currentTime = 0;
         let isPlaying = false;
         let timeInterval = null;
@@ -170,26 +174,32 @@
         // 初始化 YouTube Player
         function onYouTubeIframeAPIReady() {
             console.log('YouTube API 已準備就緒');
+            if (_pendingAutoLoad) {
+                _pendingAutoLoad = false;
+                loadVideo(_autoLoadSkipSubtitles);
+            }
         }
 
-        async function loadVideo() {
+        async function loadVideo(skipSubtitleFetch = false) {
             if (isLocalVideo) {
                 loadLocalVideo();
                 return;
             }
-            
+
             const url = document.getElementById('youtubeUrl').value.trim();
             const videoId = extractVideoId(url);
             const loadBtn = document.getElementById('loadVideoBtn');
-            
+
             if (!videoId) {
                 showMessage('請輸入有效的YouTube網址', 'error');
                 return;
             }
 
-            // 清除上一支影片的字幕與輸出
-            youtubeSubtitles = [];
-            updateOutputTextarea();
+            // 僅在非自動重載時清除字幕（自動重載時保留已儲存的編輯）
+            if (!skipSubtitleFetch) {
+                youtubeSubtitles = [];
+                updateOutputTextarea();
+            }
 
             loadBtn.textContent = '載入中...';
             loadBtn.disabled = true;
@@ -227,13 +237,17 @@
                     }
                 });
                 
-                // 獲取字幕
-                try {
-                    await fetchYouTubeSubtitles(videoId);
-                    updateProgress(75, '字幕載入完成');
-                } catch (error) {
-                    console.warn('獲取字幕失敗:', error);
-                    showDeleteNotification('無法獲取字幕，但影片仍可播放', 'error');
+                // 獲取字幕（自動重載且已有儲存字幕時略過）
+                if (skipSubtitleFetch) {
+                    updateProgress(75, '使用已儲存的字幕');
+                } else {
+                    try {
+                        await fetchYouTubeSubtitles(videoId);
+                        updateProgress(75, '字幕載入完成');
+                    } catch (error) {
+                        console.warn('獲取字幕失敗:', error);
+                        showDeleteNotification('無法獲取字幕，但影片仍可播放', 'error');
+                    }
                 }
                 
                 // 顯示影片容器和控制項
