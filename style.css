@@ -88,6 +88,10 @@ body {
   pointer-events: none;
 }
 
+/* 拖曳時讓 iframe / video 不攔截滑鼠事件，保持 drag overlay 可見 */
+.yte-dragging #youtubeIframe,
+.yte-dragging #localVideo { pointer-events: none; }
+
 .header-reset-btn {
   padding: 5px 12px;
   font-size: 12px;

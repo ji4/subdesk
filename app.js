@@ -1734,15 +1734,18 @@
                 if ([...e.dataTransfer.types].includes('Files')) {
                     e.preventDefault();
                     document.getElementById('dragOverlay').classList.add('active');
+                    document.body.classList.add('yte-dragging');
                 }
             });
             document.addEventListener('dragleave', function(e) {
                 if (e.relatedTarget === null) {
                     document.getElementById('dragOverlay').classList.remove('active');
+                    document.body.classList.remove('yte-dragging');
                 }
             });
             document.addEventListener('drop', function(e) {
                 document.getElementById('dragOverlay').classList.remove('active');
+                document.body.classList.remove('yte-dragging');
                 const files = e.dataTransfer.files;
                 if (!files || files.length === 0) return;
                 const file = files[0];
