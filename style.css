@@ -48,7 +48,8 @@ body {
 
 /* --- Layout --- */
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -137,8 +138,10 @@ body {
 .content-wrapper {
   display: grid;
   grid-template-columns: 2.3fr 4px 1fr;
-  grid-template-rows: minmax(520px, auto);
+  grid-template-rows: 1fr;
   align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Panel divider */
@@ -152,6 +155,18 @@ body {
 
 .panel-divider:hover,
 .panel-divider.dragging { background: var(--primary); }
+
+/* Vertical (horizontal drag handle) divider between top panel and output */
+.vertical-divider {
+  height: 4px;
+  background: var(--border);
+  cursor: row-resize;
+  flex-shrink: 0;
+  transition: background var(--dur-normal) var(--ease);
+}
+
+.vertical-divider:hover,
+.vertical-divider.dragging { background: var(--primary); }
 
 /* --- Video Section --- */
 .video-section {
@@ -461,7 +476,6 @@ body {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  max-height: calc(100vh - 58px);
 }
 
 .subtitle-controls {
@@ -931,10 +945,21 @@ body {
 .subtitle-section {
   border-top: 1px solid var(--border);
   background: var(--bg);
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-.subtitle-input-panel { padding: 16px; }
+.subtitle-input-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
 
 .subtitle-input-panel h3 {
   color: var(--text);
@@ -974,7 +999,8 @@ body {
 
 .subtitle-input-panel textarea {
   width: 100%;
-  height: 640px;
+  flex: 1;
+  min-height: 40px;
   padding: 11px 13px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -983,7 +1009,7 @@ body {
   font-family: var(--font-mono);
   font-size: 15px;
   line-height: 1.5;
-  resize: vertical;
+  resize: none;
   transition: border-color var(--dur-normal) var(--ease);
 }
 

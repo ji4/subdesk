@@ -8,7 +8,8 @@
             panelFilter:      'yte_panelFilter',
             showOnlyModified: 'yte_showOnlyModified',
             showComparison:   'yte_showComparison',
-            dividerCols:      'yte_dividerCols'
+            dividerCols:      'yte_dividerCols',
+            outputHeight:     'yte_outputHeight'
         };
 
         let _saveStateTimer = null;
@@ -44,6 +45,10 @@
                 const wrapper = document.getElementById('contentWrapper');
                 if (wrapper && wrapper.style.gridTemplateColumns) {
                     localStorage.setItem(LS_KEYS.dividerCols, wrapper.style.gridTemplateColumns);
+                }
+                const outputSection = document.getElementById('subtitleOutputSection');
+                if (outputSection && outputSection.style.height) {
+                    localStorage.setItem(LS_KEYS.outputHeight, outputSection.style.height);
                 }
             } catch (e) {
                 console.warn('localStorage 儲存失敗:', e);
@@ -105,6 +110,11 @@
                 if (savedDividerCols) {
                     const wrapper = document.getElementById('contentWrapper');
                     if (wrapper) wrapper.style.gridTemplateColumns = savedDividerCols;
+                }
+                const savedOutputHeight = localStorage.getItem(LS_KEYS.outputHeight);
+                if (savedOutputHeight) {
+                    const outputSection = document.getElementById('subtitleOutputSection');
+                    if (outputSection) outputSection.style.height = savedOutputHeight;
                 }
                 if (savedSubtitles) {
                     const parsed = JSON.parse(savedSubtitles);
@@ -1669,12 +1679,55 @@
             });
         }
 
+        // 上下可拖曳分隔線（調整輸出區高度）
+        function initVerticalDivider() {
+            const divider = document.getElementById('verticalDivider');
+            const outputSection = document.getElementById('subtitleOutputSection');
+            if (!divider || !outputSection) return;
+
+            let dragging = false;
+            let startY = 0;
+            let startHeight = 0;
+
+            divider.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                dragging = true;
+                startY = e.clientY;
+                startHeight = outputSection.getBoundingClientRect().height;
+                divider.classList.add('dragging');
+                document.body.style.cursor = 'row-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!dragging) return;
+                const delta = startY - e.clientY; // 往上拖 → delta 正值 → 輸出區變大
+                const newHeight = startHeight + delta;
+                const header = document.querySelector('.header');
+                const headerH = header ? header.offsetHeight : 50;
+                const maxHeight = (window.innerHeight - headerH) * 0.5;
+                const minHeight = 80;
+                outputSection.style.height = `${Math.min(Math.max(newHeight, minHeight), maxHeight)}px`;
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (!dragging) return;
+                dragging = false;
+                divider.classList.remove('dragging');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                saveState();
+            });
+        }
+
         // 初始化頁面時設置鍵盤事件監聽
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化影片載入選擇器
             initVideoLoadSelector();
             // 初始化可拖曳分隔線
             initPanelDivider();
+            // 初始化上下分隔線
+            initVerticalDivider();
             // 還原 localStorage 狀態
             loadState();
             
