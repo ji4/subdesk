@@ -88,6 +88,27 @@ body {
   pointer-events: none;
 }
 
+.header-reset-btn {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease);
+}
+
+.header-reset-btn:hover {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.header-reset-btn:active { transform: scale(0.96); }
+
 .header-shortcuts .hint-item {
   display: flex;
   align-items: center;
