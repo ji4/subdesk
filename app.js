@@ -62,10 +62,15 @@
                 const savedShowComparison   = localStorage.getItem(LS_KEYS.showComparison);
                 const savedDividerCols      = localStorage.getItem(LS_KEYS.dividerCols);
 
-                if (!savedSubtitles && !savedUrl) return;
+                const hasLocalFile = savedIsLocal === 'true' && !!savedFileName;
+                if (!savedSubtitles && !savedUrl && !hasLocalFile) return;
 
                 if (savedIsLocal === 'true') {
                     document.getElementById('localVideoBtn').click();
+                    if (savedFileName) {
+                        const display = document.getElementById('fileNameDisplay');
+                        if (display) display.textContent = `${savedFileName}（請重新選取）`;
+                    }
                 }
                 if (savedUrl && savedIsLocal !== 'true') {
                     document.getElementById('youtubeUrl').value = savedUrl;
@@ -106,8 +111,13 @@
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         youtubeSubtitles = parsed;
                         updateYouTubeSubtitlesDisplay();
-                        showDeleteNotification(`✅ 已還原上次編輯（${parsed.length} 條字幕）`, 'success');
+                        const msg = isLocalVideo && currentFileName
+                            ? `✅ 已還原 ${parsed.length} 條字幕，請重新選取影片：${currentFileName}`
+                            : `✅ 已還原上次編輯（${parsed.length} 條字幕）`;
+                        showDeleteNotification(msg, 'success');
                     }
+                } else if (isLocalVideo && currentFileName) {
+                    showDeleteNotification(`⚠️ 上次的影片：${currentFileName}，請重新選取`, 'error');
                 }
             } catch (e) {
                 console.warn('載入 localStorage 失敗:', e);
