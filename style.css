@@ -904,6 +904,16 @@ body {
   font-size: 15px;
 }
 
+.subtitle-index {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 2.5ch;
+  text-align: right;
+}
+
 .youtube-subtitle-time {
   color: var(--primary);
   font-weight: 600;

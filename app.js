@@ -688,6 +688,7 @@
             const time = formatTime(subtitle.start);
             const classes = ['youtube-subtitle-item'];
             if (subtitle.modified) classes.push('modified');
+            const indexBadge = `<span class="subtitle-index">${idx + 1}</span>`;
             const timeBadge = `<span class="youtube-subtitle-time" title="${escapeHtml(time)}">${escapeHtml(time)}</span>`;
             const seekZone = `<div class="subtitle-seek-zone" onclick="seekToTime(${subtitle.start})" title="跳轉到 ${escapeHtml(time)}"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--text-muted)"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg></div>`;
             const showComparison = subtitle.modified && subtitlePanelFilter === 'modified';
@@ -697,7 +698,7 @@
                 contentHTML = `
                     <div class="youtube-subtitle-content modified-content">
                         <div class="youtube-subtitle-original-row">
-                            ${timeBadge}
+                            ${indexBadge}${timeBadge}
                             <span class="subtitle-wrong">${escapeHtml(subtitle.text)}</span>
                         </div>
                         <span class="youtube-subtitle-text subtitle-correct"
@@ -711,7 +712,7 @@
                 const displayText = subtitle.modified && subtitle.editedText !== undefined ? subtitle.editedText : subtitle.text;
                 contentHTML = `
                     <div class="youtube-subtitle-content">
-                        ${timeBadge}
+                        ${indexBadge}${timeBadge}
                         <span class="youtube-subtitle-text"
                               contenteditable="true"
                               data-index="${idx}"
