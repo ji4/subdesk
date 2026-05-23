@@ -177,6 +177,7 @@ body {
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* Video Source Selector */
@@ -326,8 +327,8 @@ body {
   background: #000;
   border-radius: 8px;
   overflow: hidden;
-  padding-bottom: min(56.25%, calc(100vh - 320px));
-  flex-shrink: 0;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
 }
 
 .video-container iframe,
@@ -336,12 +337,12 @@ body {
   top: 0; left: 0;
   width: 100%; height: 100%;
   border: none;
+  object-fit: contain;
 }
 
 .content-wrapper.vertical .video-container {
   max-width: 800px;
   margin: 0 auto;
-  padding-bottom: 45%;
 }
 
 /* Subtitle Overlay on Video */
