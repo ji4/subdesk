@@ -48,8 +48,7 @@ body {
 
 /* --- Layout --- */
 .container {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -140,8 +139,7 @@ body {
   grid-template-columns: 2.3fr 4px 1fr;
   grid-template-rows: 1fr;
   align-items: stretch;
-  flex: 1;
-  min-height: 0;
+  height: calc(100vh - 58px);
   overflow: hidden;
 }
 
@@ -947,10 +945,8 @@ body {
 .subtitle-section {
   border-top: 1px solid var(--border);
   background: var(--bg);
-  height: 300px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   flex-shrink: 0;
 }
 
@@ -958,9 +954,6 @@ body {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
 }
 
 .subtitle-input-panel h3 {
@@ -1001,8 +994,8 @@ body {
 
 .subtitle-input-panel textarea {
   width: 100%;
-  flex: 1;
-  min-height: 40px;
+  height: 400px;
+  min-height: 100px;
   padding: 11px 13px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -1011,7 +1004,7 @@ body {
   font-family: var(--font-mono);
   font-size: 15px;
   line-height: 1.5;
-  resize: none;
+  resize: vertical;
   transition: border-color var(--dur-normal) var(--ease);
 }
 

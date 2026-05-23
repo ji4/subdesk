@@ -9,7 +9,8 @@
             showOnlyModified: 'yte_showOnlyModified',
             showComparison:   'yte_showComparison',
             dividerCols:      'yte_dividerCols',
-            outputHeight:     'yte_outputHeight'
+            outputHeight:     'yte_outputHeight',
+            cwHeight:         'yte_cwHeight'
         };
 
         let _saveStateTimer = null;
@@ -46,9 +47,8 @@
                 if (wrapper && wrapper.style.gridTemplateColumns) {
                     localStorage.setItem(LS_KEYS.dividerCols, wrapper.style.gridTemplateColumns);
                 }
-                const outputSection = document.getElementById('subtitleOutputSection');
-                if (outputSection && outputSection.style.height) {
-                    localStorage.setItem(LS_KEYS.outputHeight, outputSection.style.height);
+                if (wrapper && wrapper.style.height) {
+                    localStorage.setItem(LS_KEYS.cwHeight, wrapper.style.height);
                 }
             } catch (e) {
                 console.warn('localStorage 儲存失敗:', e);
@@ -107,14 +107,13 @@
                     const chk = document.getElementById('chkComparison');
                     if (chk) chk.checked = true;
                 }
-                if (savedDividerCols) {
-                    const wrapper = document.getElementById('contentWrapper');
-                    if (wrapper) wrapper.style.gridTemplateColumns = savedDividerCols;
+                const wrapper = document.getElementById('contentWrapper');
+                if (savedDividerCols && wrapper) {
+                    wrapper.style.gridTemplateColumns = savedDividerCols;
                 }
-                const savedOutputHeight = localStorage.getItem(LS_KEYS.outputHeight);
-                if (savedOutputHeight) {
-                    const outputSection = document.getElementById('subtitleOutputSection');
-                    if (outputSection) outputSection.style.height = savedOutputHeight;
+                const savedCwHeight = localStorage.getItem(LS_KEYS.cwHeight);
+                if (savedCwHeight && wrapper) {
+                    wrapper.style.height = savedCwHeight;
                 }
                 if (savedSubtitles) {
                     const parsed = JSON.parse(savedSubtitles);
@@ -1682,8 +1681,8 @@
         // 上下可拖曳分隔線（調整輸出區高度）
         function initVerticalDivider() {
             const divider = document.getElementById('verticalDivider');
-            const outputSection = document.getElementById('subtitleOutputSection');
-            if (!divider || !outputSection) return;
+            const wrapper = document.getElementById('contentWrapper');
+            if (!divider || !wrapper) return;
 
             let dragging = false;
             let startY = 0;
@@ -1693,7 +1692,7 @@
                 e.preventDefault();
                 dragging = true;
                 startY = e.clientY;
-                startHeight = outputSection.getBoundingClientRect().height;
+                startHeight = wrapper.getBoundingClientRect().height;
                 divider.classList.add('dragging');
                 document.body.style.cursor = 'row-resize';
                 document.body.style.userSelect = 'none';
@@ -1701,19 +1700,17 @@
 
             document.addEventListener('mousemove', function(e) {
                 if (!dragging) return;
-                const delta = startY - e.clientY; // 往上拖 → delta 正值 → 輸出區變大
-                const newHeight = startHeight + delta;
+                const delta = startY - e.clientY; // 往上拖 → delta 正值 → content-wrapper 縮小
                 const header = document.querySelector('.header');
-                const headerH = header ? header.offsetHeight : 50;
-                const maxHeight = (window.innerHeight - headerH) * 0.5;
-                const minHeight = 80;
-                const clampedHeight = Math.min(Math.max(newHeight, minHeight), maxHeight);
-                outputSection.style.height = `${clampedHeight}px`;
-                // 輸出區越大，左右比例趨近 1:1
-                const fraction = (clampedHeight - minHeight) / (maxHeight - minHeight);
+                const headerH = header ? header.offsetHeight : 58;
+                const maxH = window.innerHeight - headerH;
+                const minH = maxH * 0.5;
+                const clampedHeight = Math.min(Math.max(startHeight - delta, minH), maxH);
+                wrapper.style.height = `${clampedHeight}px`;
+                // 上方面板縮小時，左右比例趨近 1:1
+                const fraction = (maxH - clampedHeight) / (maxH - minH);
                 const leftFr = 2.3 - 1.3 * fraction;
-                const wrapper = document.getElementById('contentWrapper');
-                if (wrapper) wrapper.style.gridTemplateColumns = `${leftFr}fr 4px 1fr`;
+                wrapper.style.gridTemplateColumns = `${leftFr}fr 4px 1fr`;
             });
 
             document.addEventListener('mouseup', function() {
