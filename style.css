@@ -44,6 +44,7 @@ body {
   min-height: 100vh;
   font-size: 16px;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 /* --- Layout --- */
@@ -141,6 +142,7 @@ body {
   align-items: stretch;
   height: calc(100vh - 58px);
   overflow: hidden;
+  min-width: 0;
 }
 
 /* Panel divider */
@@ -176,6 +178,7 @@ body {
   gap: 12px;
   overflow: hidden;
   min-height: 0;
+  min-width: 0;
 }
 
 /* Video Source Selector */
@@ -476,6 +479,7 @@ body {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  min-width: 0;
 }
 
 .subtitle-controls {
@@ -958,6 +962,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .subtitle-input-panel {
@@ -1087,10 +1092,210 @@ body {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  .content-wrapper { grid-template-columns: 1fr !important; }
+  .header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+  }
+
+  .header h1 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .header-reset-btn {
+    flex: 0 0 auto;
+  }
+
+  .header-shortcuts {
+    position: static;
+    transform: none;
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    row-gap: 6px;
+  }
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: calc(100vh - 57px);
+    overflow: visible;
+  }
+
   .panel-divider { display: none; }
-  .video-controls { flex-direction: column; gap: 6px; }
-  .video-controls button { min-width: 160px; }
+
+  .vertical-divider { display: none; }
+
+  .video-section {
+    padding: 12px;
+    overflow: visible;
+  }
+
+  .youtube-input,
+  .local-video-input {
+    align-items: stretch;
+  }
+
+  .youtube-input input,
+  .file-drop-zone {
+    min-width: 0;
+  }
+
+  .youtube-input button,
+  .local-video-input button {
+    flex: 0 0 auto;
+  }
+
+  .video-controls {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px 6px;
+  }
+
+  .video-controls button {
+    min-width: 0;
+    width: 100%;
+    padding-inline: 8px;
+  }
+
+  .current-time {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  .subtitle-display-panel {
+    min-height: min(460px, 60vh);
+    border-top: 1px solid var(--border);
+  }
+
   .subtitle-controls { flex-direction: column; gap: 8px; }
   .subtitle-control-buttons { justify-content: center; }
+
+  .subtitle-upload-controls {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .subtitle-upload-controls span {
+    flex: 1 1 150px;
+  }
+
+  .subtitle-filter-btns {
+    margin-left: 0;
+    flex: 1 1 100%;
+  }
+
+  .filter-btn {
+    flex: 1;
+  }
+
+  .youtube-subtitle-item {
+    padding-left: 12px;
+  }
+
+  .subtitle-section {
+    min-height: 360px;
+  }
+
+  .subtitle-input-panel {
+    padding: 12px;
+  }
+
+  .output-header,
+  .output-options {
+    flex-wrap: wrap;
+  }
+
+  .output-action-btns {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .subtitle-upload-controls {
+    flex-wrap: wrap;
+  }
+
+  .subtitle-upload-controls span {
+    flex: 1 1 110px;
+  }
+
+  .subtitle-filter-btns {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+
+  .filter-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-shortcuts {
+    display: none;
+  }
+
+  .video-load-selector {
+    gap: 4px;
+  }
+
+  .video-load-selector button {
+    padding: 9px 8px;
+    font-size: 14px;
+  }
+
+  .youtube-input,
+  .local-video-input {
+    flex-direction: column;
+  }
+
+  .youtube-input button,
+  .local-video-input button {
+    width: 100%;
+  }
+
+  .video-controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .video-controls button {
+    padding: 7px 4px;
+    font-size: 12px;
+  }
+
+  .subtitle-upload-btn {
+    flex: 1 1 100%;
+  }
+
+  .subtitle-upload-controls span {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+
+  .youtube-subtitle-content {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 4px 6px;
+  }
+
+  .youtube-subtitle-text {
+    flex: 1 1 100%;
+  }
+
+  .subtitle-seek-zone {
+    flex-basis: 38px;
+  }
+
+  .output-format-btns,
+  .output-action-btns {
+    width: 100%;
+  }
+
+  .output-format-btns .view-mode-toggle,
+  .output-action-btns .copy-btn {
+    flex: 1;
+  }
 }

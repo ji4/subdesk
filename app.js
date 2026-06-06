@@ -320,7 +320,7 @@
                 
                 // 顯示影片容器和控制項
                 document.getElementById('videoContainer').style.display = 'block';
-                document.getElementById('videoControls').style.display = 'flex';
+                document.getElementById('videoControls').style.display = '';
                 
                 updateProgress(100, '影片載入完成！');
                 
@@ -401,7 +401,7 @@
                     isPlayerReady = true;
                     currentTime = 0;
 
-                    document.getElementById('videoControls').style.display = 'flex';
+                    document.getElementById('videoControls').style.display = '';
 
                     if (youtubeSubtitles && youtubeSubtitles.length > 0) {
                         document.getElementById('subtitleOverlay').style.display = 'block';
