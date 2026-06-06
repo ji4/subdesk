@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 待驗收清單.md
+node_modules/
+.claude/
+.vscode/
+.env
+.env.*
