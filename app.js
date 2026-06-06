@@ -13,6 +13,12 @@
             cwHeight:         'yte_cwHeight'
         };
 
+        const API_BASE_URL = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
+
+        function apiUrl(path) {
+            return `${API_BASE_URL}${path}`;
+        }
+
         let _saveStateTimer = null;
         function debouncedSaveState() {
             clearTimeout(_saveStateTimer);
@@ -552,7 +558,7 @@
 
         async function tryProxyCaptions(captionUrl) {
             try {
-                const resp = await fetch(`/api/proxy-captions?url=${encodeURIComponent(captionUrl)}`);
+                const resp = await fetch(apiUrl(`/api/proxy-captions?url=${encodeURIComponent(captionUrl)}`));
                 if (!resp.ok) return;
                 const text = await resp.text();
                 if (!text || text.length < 10) return;
@@ -622,7 +628,7 @@
                 showDeleteNotification('正在獲取YouTube字幕...', 'info');
                 
                 // 使用本地後端服務獲取字幕
-                const response = await fetch(`/api/subtitles?videoId=${videoId}`);
+                const response = await fetch(apiUrl(`/api/subtitles?videoId=${videoId}`));
                 if (!response.ok) {
                     throw new Error('無法獲取字幕');
                 }
