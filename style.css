@@ -1151,7 +1151,7 @@ body {
 
   .video-controls {
     display: grid;
-    grid-template-columns: minmax(68px, 1fr) auto minmax(68px, 1fr);
+    grid-template-columns: minmax(68px, 1fr) minmax(68px, 1fr) auto;
     gap: 8px 6px;
     align-items: center;
     padding: 8px 10px;
@@ -1173,14 +1173,14 @@ body {
   }
 
   .current-time {
-    order: 2;
+    order: 3;
     min-height: 34px;
     display: flex;
     align-items: center;
   }
 
   #forwardBtn {
-    order: 3;
+    order: 2;
   }
 
   .current-time {
@@ -1197,9 +1197,13 @@ body {
 
   .subtitle-upload-controls {
     display: grid;
-    grid-template-columns: minmax(112px, 1.15fr) minmax(0, 1.85fr);
-    gap: 8px;
+    grid-template-columns: minmax(0, 1.75fr) minmax(112px, 1fr);
+    gap: 14px;
     padding: 8px 12px;
+  }
+
+  .subtitle-upload-btn {
+    order: 2;
   }
 
   .subtitle-upload-controls span {
@@ -1207,6 +1211,7 @@ body {
   }
 
   .subtitle-filter-btns {
+    order: 1;
     margin-left: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1285,7 +1290,7 @@ body {
   }
 
   .video-controls {
-    grid-template-columns: minmax(62px, 1fr) auto minmax(62px, 1fr);
+    grid-template-columns: minmax(62px, 1fr) minmax(62px, 1fr) auto;
   }
 
   .video-controls button {
