@@ -87,7 +87,16 @@
                     <button id="pauseBtn" onclick="controlVideo('pause')" title="暫停">⏸ 暫停</button>
                     <button id="backBtn" onclick="controlVideo('back')" title="後退5秒">-5s</button>
                     <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">+5s</button>
-                    <div class="current-time" id="currentTime">00:00:00</div>
+                    <div class="current-time" id="currentTime" aria-label="目前播放時間，可輸入時間跳轉">
+                        <input class="time-digit" id="timeDigit0" inputmode="numeric" maxlength="1" aria-label="小時十位" value="0">
+                        <input class="time-digit" id="timeDigit1" inputmode="numeric" maxlength="1" aria-label="小時個位" value="0">
+                        <span class="time-separator">:</span>
+                        <input class="time-digit" id="timeDigit2" inputmode="numeric" maxlength="1" aria-label="分鐘十位" value="0">
+                        <input class="time-digit" id="timeDigit3" inputmode="numeric" maxlength="1" aria-label="分鐘個位" value="0">
+                        <span class="time-separator">:</span>
+                        <input class="time-digit" id="timeDigit4" inputmode="numeric" maxlength="1" aria-label="秒數十位" value="0">
+                        <input class="time-digit" id="timeDigit5" inputmode="numeric" maxlength="1" aria-label="秒數個位" value="0">
+                    </div>
                 </div>
 
                 <div id="messages" class="messages"></div>

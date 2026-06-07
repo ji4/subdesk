@@ -166,6 +166,8 @@
         let isLocalVideo = false; // 是否為本機影片
         let localVideo = null; // 本機影片元素
         let currentFileName = ''; // 下載時的檔名（YouTube 標題或本機檔名）
+        let isEditingCurrentTime = false;
+        let currentTimeEditTimer = null;
         const YOUTUBE_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
         const LOCAL_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0];
         
@@ -828,6 +830,114 @@
             
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
+
+        function getTimeDigitInputs() {
+            return Array.from(document.querySelectorAll('#currentTime .time-digit'));
+        }
+
+        function setCurrentTimeEditorValue(seconds) {
+            const inputs = getTimeDigitInputs();
+            if (inputs.length !== 6) return;
+            const value = formatTime(seconds).replace(/:/g, '').slice(-6).padStart(6, '0');
+            inputs.forEach((input, index) => {
+                input.value = value[index];
+            });
+        }
+
+        function getCurrentTimeEditorSeconds() {
+            const digits = getTimeDigitInputs().map(input => input.value.replace(/\D/g, '') || '0');
+            const hours = parseInt(digits.slice(0, 2).join(''), 10);
+            const minutes = Math.min(parseInt(digits.slice(2, 4).join(''), 10), 59);
+            const seconds = Math.min(parseInt(digits.slice(4, 6).join(''), 10), 59);
+            return hours * 3600 + minutes * 60 + seconds;
+        }
+
+        function applyEditedCurrentTime(showNotification = false) {
+            const targetTime = getCurrentTimeEditorSeconds();
+            currentTime = Math.max(0, targetTime);
+
+            if (isLocalVideo && localVideo) {
+                localVideo.currentTime = currentTime;
+            } else if (player && isPlayerReady && typeof player.seekTo === 'function') {
+                player.seekTo(currentTime, true);
+            }
+
+            setCurrentTimeEditorValue(currentTime);
+            highlightCurrentSubtitles(currentTime);
+
+            if (showNotification) {
+                showDeleteNotification(`🎯 已跳轉到 ${formatTime(currentTime)}`);
+            }
+        }
+
+        function scheduleEditedCurrentTimeApply() {
+            clearTimeout(currentTimeEditTimer);
+            currentTimeEditTimer = setTimeout(() => applyEditedCurrentTime(false), 350);
+        }
+
+        function fillTimeEditorFromText(text, startIndex = 0) {
+            const inputs = getTimeDigitInputs();
+            const digits = text.replace(/\D/g, '').slice(0, 6);
+            if (!digits) return;
+
+            digits.split('').forEach((digit, offset) => {
+                const target = inputs[startIndex + offset];
+                if (target) target.value = digit;
+            });
+
+            const nextIndex = Math.min(startIndex + digits.length, inputs.length - 1);
+            inputs[nextIndex]?.focus();
+            inputs[nextIndex]?.select();
+            scheduleEditedCurrentTimeApply();
+        }
+
+        function initCurrentTimeEditor() {
+            const inputs = getTimeDigitInputs();
+            inputs.forEach((input, index) => {
+                input.addEventListener('focus', () => {
+                    isEditingCurrentTime = true;
+                    input.select();
+                });
+
+                input.addEventListener('input', () => {
+                    fillTimeEditorFromText(input.value, index);
+                });
+
+                input.addEventListener('paste', event => {
+                    event.preventDefault();
+                    fillTimeEditorFromText(event.clipboardData.getData('text'), index);
+                });
+
+                input.addEventListener('keydown', event => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        applyEditedCurrentTime(true);
+                        input.blur();
+                    } else if (event.key === 'ArrowLeft') {
+                        event.preventDefault();
+                        inputs[Math.max(0, index - 1)]?.focus();
+                    } else if (event.key === 'ArrowRight') {
+                        event.preventDefault();
+                        inputs[Math.min(inputs.length - 1, index + 1)]?.focus();
+                    } else if (event.key === 'Backspace' && !input.value && index > 0) {
+                        event.preventDefault();
+                        inputs[index - 1].value = '0';
+                        inputs[index - 1].focus();
+                        scheduleEditedCurrentTimeApply();
+                    }
+                });
+
+                input.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        if (document.activeElement?.closest('#currentTime')) return;
+                        isEditingCurrentTime = false;
+                        applyEditedCurrentTime(false);
+                    }, 0);
+                });
+            });
+
+            setCurrentTimeEditorValue(currentTime);
+        }
         
         function parseSubtitleContent(content) {
             // 解析字幕內容，轉換成需要的格式
@@ -1141,9 +1251,8 @@
         }
         
         function updateTimeDisplay() {
-            const timeEl = document.getElementById('currentTime');
-            if (timeEl) {
-                timeEl.textContent = formatTime(currentTime);
+            if (!isEditingCurrentTime) {
+                setCurrentTimeEditorValue(currentTime);
             }
         }
         
@@ -1740,6 +1849,8 @@
             initPanelDivider();
             // 初始化上下分隔線
             initVerticalDivider();
+            // 初始化可編輯時間
+            initCurrentTimeEditor();
             // 還原 localStorage 狀態
             loadState();
             

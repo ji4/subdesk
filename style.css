@@ -444,6 +444,34 @@ body {
   color: var(--primary);
   border: 1px solid var(--border);
   letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.time-digit {
+  width: 1ch;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+  text-align: center;
+  outline: none;
+  caret-color: transparent;
+}
+
+.time-digit:focus {
+  background: rgba(20, 184, 166, 0.16);
+}
+
+.time-separator {
+  color: var(--text-muted);
+  line-height: 1;
+  letter-spacing: inherit;
 }
 
 .toggle-controls-btn {
