@@ -1367,6 +1367,17 @@ body {
     font-size: 14px;
   }
 
+  .subtitle-overlay {
+    bottom: 44px;
+  }
+
+  .subtitle-overlay-text {
+    font-size: clamp(20px, 5.4vw, 24px);
+    line-height: 1.35;
+    padding: 5px 10px;
+    max-width: 88%;
+  }
+
   .subtitle-upload-btn,
   .filter-btn {
     min-width: 0;
