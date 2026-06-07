@@ -1681,20 +1681,23 @@
             }
             
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
-            if (targetIndex !== currentHighlightedYouTube) {
+            const item = document.querySelector(`.youtube-subtitle-item[data-index="${targetIndex}"]`);
+            if (!item) {
+                clearYouTubeHighlight();
+                return;
+            }
+
+            if (targetIndex !== currentHighlightedYouTube || !item.classList.contains('current-playing')) {
                 // 清除舊的高亮
                 clearYouTubeHighlight(false);
                 
                 // 設置新的高亮
                 currentHighlightedYouTube = targetIndex;
-                const items = document.querySelectorAll('.youtube-subtitle-item');
-                if (items[targetIndex]) {
-                    items[targetIndex].classList.add('current-playing');
-                    console.log('設置新的YouTube字幕高亮:', targetIndex);
-                    
-                    // 確保元素在視圖中可見
-                    scrollToElement(items[targetIndex], 'youtubeSubtitlesPanel');
-                }
+                item.classList.add('current-playing');
+                console.log('設置新的YouTube字幕高亮:', targetIndex);
+
+                // 確保元素在視圖中可見
+                scrollToElement(item, 'youtubeSubtitlesPanel');
             }
         }
         
@@ -1732,14 +1735,17 @@
             if (container && element) {
                 const containerRect = container.getBoundingClientRect();
                 const elementRect = element.getBoundingClientRect();
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
                 
                 // 計算是否需要滾動
                 const isVisible = elementRect.top >= containerRect.top && 
                                 elementRect.bottom <= containerRect.bottom;
                 
-                if (!isVisible) {
-                    const scrollTop = element.offsetTop - container.offsetTop - 
-                                    (container.clientHeight / 2) + (element.clientHeight / 2);
+                if (!isVisible || isMobile) {
+                    const anchorOffset = isMobile
+                        ? element.clientHeight
+                        : (container.clientHeight / 2) - (element.clientHeight / 2);
+                    const scrollTop = element.offsetTop - container.offsetTop - anchorOffset;
                     
                     container.scrollTo({
                         top: Math.max(0, scrollTop),
