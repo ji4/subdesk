@@ -65,6 +65,12 @@ body {
   position: relative;
 }
 
+.header-logo {
+  height: 26px;
+  width: auto;
+  display: block;
+}
+
 .header h1 {
   font-size: 1rem;
   font-weight: 600;
@@ -1096,6 +1102,10 @@ body {
     align-items: flex-start;
     flex-wrap: wrap;
     padding: 12px 14px;
+  }
+
+  .header-logo {
+    height: 22px;
   }
 
   .header h1 {
