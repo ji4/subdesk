@@ -71,17 +71,35 @@ body {
   display: block;
 }
 
+.header-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.header-brand-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 .header h1 {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text);
   letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .header p {
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   color: var(--text-muted);
-  margin-left: auto;
+  line-height: 1;
+  white-space: nowrap;
+  padding-left: 36px;
 }
 
 .header-shortcuts {
@@ -1108,9 +1126,19 @@ body {
     height: 22px;
   }
 
-  .header h1 {
+  .header-brand {
     flex: 1 1 auto;
     min-width: 0;
+  }
+
+  .header h1 {
+    font-size: 0.95rem;
+  }
+
+  .header p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 32px;
   }
 
   .header-reset-btn {
