@@ -1254,8 +1254,13 @@ body {
   }
 
   .subtitle-display-panel {
-    min-height: min(460px, 60vh);
+    min-height: 0;
+    max-height: 260px;
     border-top: 1px solid var(--border);
+  }
+
+  .youtube-subtitles-section .youtube-subtitles-panel {
+    max-height: 184px;
   }
 
   .subtitle-controls { display: none; }
