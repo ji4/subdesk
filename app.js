@@ -13,7 +13,9 @@
             cwHeight:         'yte_cwHeight'
         };
 
-        const API_BASE_URL = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
+        const configuredApiBase = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
+        const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+        const API_BASE_URL = isLocalHost ? '' : configuredApiBase;
 
         function apiUrl(path) {
             return `${API_BASE_URL}${path}`;
