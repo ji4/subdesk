@@ -855,6 +855,7 @@
         function applyEditedCurrentTime(showNotification = false) {
             const targetTime = getCurrentTimeEditorSeconds();
             currentTime = Math.max(0, targetTime);
+            isEditingCurrentTime = false;
 
             if (isLocalVideo && localVideo) {
                 localVideo.currentTime = currentTime;
@@ -871,6 +872,7 @@
         }
 
         function scheduleEditedCurrentTimeApply() {
+            isEditingCurrentTime = true;
             clearTimeout(currentTimeEditTimer);
             currentTimeEditTimer = setTimeout(() => applyEditedCurrentTime(false), 350);
         }
@@ -895,11 +897,17 @@
             const inputs = getTimeDigitInputs();
             inputs.forEach((input, index) => {
                 input.addEventListener('focus', () => {
-                    isEditingCurrentTime = true;
                     input.select();
                 });
 
+                input.addEventListener('beforeinput', event => {
+                    if (event.data && /\D/.test(event.data)) {
+                        event.preventDefault();
+                    }
+                });
+
                 input.addEventListener('input', () => {
+                    input.value = input.value.replace(/\D/g, '').slice(-1);
                     fillTimeEditorFromText(input.value, index);
                 });
 
@@ -921,6 +929,7 @@
                         inputs[Math.min(inputs.length - 1, index + 1)]?.focus();
                     } else if (event.key === 'Backspace' && !input.value && index > 0) {
                         event.preventDefault();
+                        isEditingCurrentTime = true;
                         inputs[index - 1].value = '0';
                         inputs[index - 1].focus();
                         scheduleEditedCurrentTimeApply();
