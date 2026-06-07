@@ -1690,9 +1690,9 @@
             }
             
             // 只有當找到新的字幕且與當前高亮不同時，才切換高亮
-            const item = document.querySelector(`.youtube-subtitle-item[data-index="${targetIndex}"]`);
+            const panel = document.getElementById('youtubeSubtitlesPanel');
+            const item = panel?.querySelector(`.youtube-subtitle-item[data-index="${targetIndex}"]`);
             if (!item) {
-                clearYouTubeHighlight();
                 return;
             }
 
