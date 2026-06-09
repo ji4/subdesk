@@ -1218,7 +1218,7 @@ body {
 
   .video-controls {
     display: grid;
-    grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto;
+    grid-template-columns: 1fr 1fr 1fr auto;
     gap: 8px 6px;
     align-items: center;
     padding: 8px 10px;
@@ -1232,8 +1232,6 @@ body {
 
   #playToggleBtn {
     order: 1;
-    width: auto;
-    padding-inline: 14px;
     font-size: 16px;
   }
 
@@ -1354,7 +1352,7 @@ body {
   }
 
   .video-controls {
-    grid-template-columns: minmax(62px, 1fr) minmax(62px, 1fr) auto;
+    grid-template-columns: 1fr 1fr 1fr auto;
   }
 
   .video-controls button {
