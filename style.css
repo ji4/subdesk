@@ -1407,3 +1407,103 @@ body {
     flex: 1;
   }
 }
+
+/* ── 小螢幕警告介面 ── */
+.narrow-screen-gate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #ffffff;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.narrow-screen-gate.is-visible {
+  display: flex;
+}
+
+.narrow-screen-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 420px;
+  gap: 0;
+}
+
+.narrow-screen-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.narrow-screen-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #555;
+  margin: 0 0 12px;
+}
+
+.narrow-screen-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1.2;
+  margin: 0 0 16px;
+}
+
+.narrow-screen-desc {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.65;
+  margin: 0 0 16px;
+}
+
+.narrow-screen-hint {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 28px;
+}
+
+.narrow-screen-btn-primary {
+  width: 100%;
+  padding: 14px 0;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.narrow-screen-btn-primary:active {
+  background: #333;
+}
+
+.narrow-screen-btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 13px 0;
+  background: transparent;
+  color: #111;
+  border: 1.5px solid #bbb;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.narrow-screen-btn-secondary:active {
+  background: #f5f5f5;
+}

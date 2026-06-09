@@ -1,3 +1,29 @@
+        // ── 小螢幕警告介面 ──
+        const NARROW_DISMISSED_KEY = 'subdesk_narrow_dismissed';
+        const NARROW_THRESHOLD = 1024;
+
+        function checkNarrowScreen() {
+            const gate = document.getElementById('narrowScreenGate');
+            if (!gate) return;
+            const dismissed = sessionStorage.getItem(NARROW_DISMISSED_KEY);
+            if (!dismissed && window.innerWidth < NARROW_THRESHOLD) {
+                gate.classList.add('is-visible');
+            } else {
+                gate.classList.remove('is-visible');
+            }
+        }
+
+        function dismissNarrowScreenGate() {
+            sessionStorage.setItem(NARROW_DISMISSED_KEY, '1');
+            const gate = document.getElementById('narrowScreenGate');
+            if (gate) gate.classList.remove('is-visible');
+        }
+
+        window.dismissNarrowScreenGate = dismissNarrowScreenGate;
+
+        document.addEventListener('DOMContentLoaded', checkNarrowScreen);
+        window.addEventListener('resize', checkNarrowScreen);
+
         // localStorage 持久化
         const LS_KEYS = {
             subtitles:        'yte_subtitles',
