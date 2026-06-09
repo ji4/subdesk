@@ -428,7 +428,9 @@ body {
   min-width: 72px;
 }
 
-.video-controls button:hover { background: var(--primary); color: #0F172A; border-color: var(--primary); }
+@media (hover: hover) {
+  .video-controls button:hover { background: var(--primary); color: #0F172A; border-color: var(--primary); }
+}
 .video-controls button:active { transform: scale(0.96); }
 .video-controls button:disabled { opacity: 0.38; cursor: not-allowed; }
 .video-controls.collapsed { display: none !important; }
@@ -1387,6 +1389,16 @@ body {
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 4px 6px;
+  }
+
+  .youtube-subtitle-content.modified-content {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .youtube-subtitle-content.modified-content .subtitle-correct {
+    width: 100%;
+    flex: 0 0 auto;
   }
 
   .youtube-subtitle-text {
