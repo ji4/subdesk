@@ -1435,10 +1435,11 @@ body {
 }
 
 .narrow-screen-logo {
-  width: 72px;
-  height: 72px;
+  width: 200px;
+  height: auto;
+  max-width: 75%;
   object-fit: contain;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .narrow-screen-label {
@@ -1451,7 +1452,7 @@ body {
 }
 
 .narrow-screen-title {
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 800;
   color: #F1F5F9;
   line-height: 1.2;
@@ -1462,18 +1463,11 @@ body {
   font-size: 15px;
   color: #94A3B8;
   line-height: 1.65;
-  margin: 0 0 16px;
-}
-
-.narrow-screen-hint {
-  font-size: 13px;
-  color: #94A3B8;
   margin: 0 0 28px;
 }
 
 .narrow-screen-btn-primary {
-  width: 100%;
-  padding: 14px 0;
+  padding: 14px 32px;
   background: #F97316;
   color: #fff;
   border: none;
