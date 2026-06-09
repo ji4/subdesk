@@ -1414,7 +1414,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #ffffff;
+  background: #0F172A;
   align-items: center;
   justify-content: center;
   padding: 32px 24px;
@@ -1435,10 +1435,10 @@ body {
 }
 
 .narrow-screen-logo {
-  width: 48px;
-  height: 48px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .narrow-screen-label {
@@ -1446,35 +1446,35 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #555;
+  color: #94A3B8;
   margin: 0 0 12px;
 }
 
 .narrow-screen-title {
   font-size: 32px;
   font-weight: 800;
-  color: #111;
+  color: #F1F5F9;
   line-height: 1.2;
   margin: 0 0 16px;
 }
 
 .narrow-screen-desc {
   font-size: 15px;
-  color: #444;
+  color: #94A3B8;
   line-height: 1.65;
   margin: 0 0 16px;
 }
 
 .narrow-screen-hint {
   font-size: 13px;
-  color: #888;
+  color: #94A3B8;
   margin: 0 0 28px;
 }
 
 .narrow-screen-btn-primary {
   width: 100%;
   padding: 14px 0;
-  background: #111;
+  background: #F97316;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -1482,28 +1482,10 @@ body {
   font-weight: 700;
   font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
-  margin-bottom: 12px;
+  transition: transform 50ms;
 }
 
 .narrow-screen-btn-primary:active {
-  background: #333;
-}
-
-.narrow-screen-btn-secondary {
-  display: block;
-  width: 100%;
-  padding: 13px 0;
-  background: transparent;
-  color: #111;
-  border: 1.5px solid #bbb;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  text-decoration: none;
-  box-sizing: border-box;
-}
-
-.narrow-screen-btn-secondary:active {
-  background: #f5f5f5;
+  background: #EA6D0A;
+  transform: scale(0.97);
 }
