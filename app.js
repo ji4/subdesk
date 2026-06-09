@@ -490,13 +490,15 @@
                 isPlaying = true;
                 startTimeTracking();
                 startSubtitleSync();
+                updatePlayToggleBtn();
             });
-            
+
             // 暫停事件
             localVideo.addEventListener('pause', function() {
                 isPlaying = false;
                 stopTimeTracking();
                 stopSubtitleSync();
+                updatePlayToggleBtn();
             });
             
             // 時間更新事件
@@ -511,6 +513,7 @@
                 isPlaying = false;
                 stopTimeTracking();
                 stopSubtitleSync();
+                updatePlayToggleBtn();
             });
         }
 
@@ -651,6 +654,13 @@
             showDeleteNotification(msg, 'error');
         }
 
+        function updatePlayToggleBtn() {
+            const btn = document.getElementById('playToggleBtn');
+            if (!btn) return;
+            btn.textContent = isPlaying ? '⏸' : '▶';
+            btn.title = isPlaying ? '暫停' : '播放';
+        }
+
         function onPlayerStateChange(event) {
             console.log('播放器狀態改變:', event.data);
             if (event.data === YT.PlayerState.PLAYING) {
@@ -662,6 +672,7 @@
                 stopTimeTracking();
                 stopSubtitleSync(); // 停止字幕同步
             }
+            updatePlayToggleBtn();
         }
         
         async function fetchYouTubeSubtitles(videoId) {
@@ -987,6 +998,12 @@
                     }
                 });
 
+                input.addEventListener('compositionend', event => {
+                    const digit = (event.data || input.value).replace(/\D/g, '').slice(-1);
+                    input.value = digit || '0';
+                    if (digit) fillTimeEditorFromText(digit, index);
+                });
+
                 input.addEventListener('blur', () => {
                     setTimeout(() => {
                         if (document.activeElement?.closest('#currentTime')) return;
@@ -1176,7 +1193,13 @@
                     return;
                 }
                 
-                if (action === 'play') {
+                if (action === 'toggle') {
+                    if (localVideo.paused) {
+                        localVideo.play();
+                    } else {
+                        localVideo.pause();
+                    }
+                } else if (action === 'play') {
                     if (localVideo.paused) {
                         localVideo.play();
                         showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
@@ -1210,7 +1233,15 @@
                     return;
                 }
                 
-                if (action === 'play') {
+                if (action === 'toggle') {
+                    try {
+                        if (isPlaying) {
+                            player.pauseVideo();
+                        } else {
+                            player.playVideo();
+                        }
+                    } catch(e) { console.warn('播放控制失敗:', e); }
+                } else if (action === 'play') {
                     if (!isPlaying) {
                         player.playVideo();
                         showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
@@ -1958,11 +1989,7 @@
                 switch(e.key) {
                     case ' ': // 空格鍵
                         e.preventDefault();
-                        if (isPlaying) {
-                            controlVideo('pause');
-                        } else {
-                            controlVideo('play');
-                        }
+                        controlVideo('toggle');
                         break;
                     case 'ArrowLeft': // 左方向鍵
                         e.preventDefault();
