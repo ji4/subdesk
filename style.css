@@ -959,6 +959,7 @@ body {
   flex: 1;
   margin-right: 0;
   font-size: 15px;
+  color: #F87171;
 }
 
 .subtitle-index {
@@ -1409,12 +1410,10 @@ body {
     flex-basis: 38px;
   }
 
-  .output-format-btns,
   .output-action-btns {
     width: 100%;
   }
 
-  .output-format-btns .view-mode-toggle,
   .output-action-btns .copy-btn {
     flex: 1;
   }
