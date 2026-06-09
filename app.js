@@ -891,6 +891,20 @@
 
         function applyEditedCurrentTime(showNotification = false) {
             const targetTime = getCurrentTimeEditorSeconds();
+
+            let duration = Infinity;
+            if (isLocalVideo && localVideo) {
+                duration = localVideo.duration || Infinity;
+            } else if (player && isPlayerReady) {
+                try { duration = player.getDuration() || Infinity; } catch(e) {}
+            }
+
+            if (isFinite(duration) && targetTime > duration) {
+                setCurrentTimeEditorValue(currentTime);
+                isEditingCurrentTime = false;
+                return;
+            }
+
             currentTime = Math.max(0, targetTime);
             isEditingCurrentTime = false;
 
