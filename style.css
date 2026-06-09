@@ -1100,6 +1100,11 @@ body {
   .copy-btn:hover { background: var(--primary-dk); }
 }
 .copy-btn:active { transform: scale(0.97); }
+.copy-btn.copied {
+  background: var(--success);
+  color: #0F172A;
+  pointer-events: none;
+}
 
 /* Messages */
 .error-message {

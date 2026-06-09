@@ -1625,7 +1625,14 @@
                 return;
             }
             navigator.clipboard.writeText(text).then(() => {
-                showDeleteNotification('📋 已複製到剪貼簿');
+                const btn = document.getElementById('copyOutputBtn');
+                if (!btn) return;
+                btn.textContent = '✓ 已複製';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '複製';
+                    btn.classList.remove('copied');
+                }, 1500);
             });
         }
 
