@@ -959,7 +959,7 @@ body {
   flex: 1;
   margin-right: 0;
   font-size: 15px;
-  color: #F87171;
+  color: #FCA5A5;
 }
 
 .subtitle-index {
@@ -1218,7 +1218,7 @@ body {
 
   .video-controls {
     display: grid;
-    grid-template-columns: minmax(68px, 1fr) minmax(68px, 1fr) auto;
+    grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto;
     gap: 8px 6px;
     align-items: center;
     padding: 8px 10px;
@@ -1230,27 +1230,26 @@ body {
     padding-inline: 8px;
   }
 
-  #playBtn,
-  #pauseBtn {
-    display: none;
+  #playToggleBtn {
+    order: 1;
+    width: auto;
+    padding-inline: 14px;
+    font-size: 16px;
   }
 
   #backBtn {
-    order: 1;
-  }
-
-  .current-time {
-    order: 3;
-    min-height: 34px;
-    display: flex;
-    align-items: center;
-  }
-
-  #forwardBtn {
     order: 2;
   }
 
+  #forwardBtn {
+    order: 3;
+  }
+
   .current-time {
+    order: 4;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
     justify-self: center;
   }
 
