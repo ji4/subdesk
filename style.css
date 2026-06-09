@@ -415,6 +415,9 @@ body {
 }
 
 .video-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 7px 13px;
   border: 1px solid var(--border);
   background: var(--surface-2);
