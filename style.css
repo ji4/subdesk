@@ -1101,7 +1101,7 @@ body {
 }
 .copy-btn:active { transform: scale(0.97); }
 .copy-btn.copied {
-  background: var(--success);
+  background: var(--primary-dk);
   color: #0F172A;
   pointer-events: none;
 }

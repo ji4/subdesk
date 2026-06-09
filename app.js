@@ -1624,7 +1624,7 @@
                 showDeleteNotification('⚠️ 尚無內容可複製', 'error');
                 return;
             }
-            navigator.clipboard.writeText(text).then(() => {
+            function showCopied() {
                 const btn = document.getElementById('copyOutputBtn');
                 if (!btn) return;
                 btn.textContent = '✓ 已複製';
@@ -1633,7 +1633,23 @@
                     btn.textContent = '複製';
                     btn.classList.remove('copied');
                 }, 1500);
-            });
+            }
+            function fallbackCopy() {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+                document.body.appendChild(ta);
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                try { document.execCommand('copy'); showCopied(); }
+                catch (e) { showDeleteNotification('⚠️ 複製失敗，請手動複製', 'error'); }
+                document.body.removeChild(ta);
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showCopied).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
         }
 
         function downloadOutput() {
