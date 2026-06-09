@@ -40,7 +40,9 @@
         };
 
         const configuredApiBase = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
-        const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+        const _hn = window.location.hostname;
+        const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(_hn)
+            || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_hn);
         const API_BASE_URL = isLocalHost ? '' : configuredApiBase;
 
         function apiUrl(path) {
@@ -637,7 +639,16 @@
             console.error('YouTube Player 錯誤:', event.data);
             isPlayerReady = false;
             isVideoLoaded = false;
-            showDeleteNotification('影片播放器發生錯誤', 'error');
+            const code = event.data;
+            let msg;
+            if (code === 101 || code === 150) {
+                msg = '此影片已停用嵌入播放，請直接在 YouTube 觀看';
+            } else if (code === 100) {
+                msg = '找不到此影片，可能已被刪除或設為私人';
+            } else {
+                msg = `影片播放器發生錯誤（代碼 ${code}）`;
+            }
+            showDeleteNotification(msg, 'error');
         }
 
         function onPlayerStateChange(event) {
