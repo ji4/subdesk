@@ -1176,6 +1176,7 @@
                     const newTime = Math.max(0, localVideo.currentTime - SKIP_TIME);
                     localVideo.currentTime = newTime;
                     currentTime = newTime;
+                    if (localVideo.paused) localVideo.play();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
                     showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
@@ -1183,6 +1184,7 @@
                     const newTime = localVideo.currentTime + SKIP_TIME;
                     localVideo.currentTime = newTime;
                     currentTime = newTime;
+                    if (localVideo.paused) localVideo.play();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
                     showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
@@ -1207,12 +1209,14 @@
                 } else if (action === 'back') {
                     currentTime = Math.max(0, currentTime - SKIP_TIME);
                     player.seekTo(currentTime, true);
+                    if (!isPlaying) player.playVideo();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
                     showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
                 } else if (action === 'forward') {
                     currentTime += SKIP_TIME;
                     player.seekTo(currentTime, true);
+                    if (!isPlaying) player.playVideo();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
                     showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
