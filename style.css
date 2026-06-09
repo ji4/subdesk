@@ -1096,7 +1096,9 @@ body {
   transition: all var(--dur-normal) var(--ease);
 }
 
-.copy-btn:hover { background: var(--primary-dk); }
+@media (hover: hover) {
+  .copy-btn:hover { background: var(--primary-dk); }
+}
 .copy-btn:active { transform: scale(0.97); }
 
 /* Messages */
