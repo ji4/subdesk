@@ -98,7 +98,7 @@
     'msg.localVideoLoadSuccess': { 'zh-TW': '本機影片載入成功！如果已上傳字幕檔案，字幕將自動顯示。', 'en': "Local video loaded! If you've uploaded subtitles, they will appear automatically." },
     'msg.localVideoError':       { 'zh-TW': '載入本機影片時發生錯誤，請重試。', 'en': 'Failed to load local video, please try again.' },
     'msg.resetConfirm':          { 'zh-TW': '確定要重置頁面嗎？所有未下載的修改將會遺失。', 'en': 'Reset page? All unsaved changes will be lost.' },
-    'msg.overwriteConfirm':      { 'zh-TW': '目前有已修改但尚未下載的字幕，載入新字幕將會覆蓋這些修改。確定要繼續嗎？', 'en': 'You have modified subtitles that are not downloaded yet. Loading new subtitles will overwrite them. Continue?' },
+    'msg.overwriteConfirm':      { 'zh-TW': '目前有已修改的字幕，載入新字幕將會覆蓋這些修改。確定要繼續嗎？', 'en': 'You have modified subtitles. Loading new subtitles will overwrite them. Continue?' },
     'msg.restoredWithFile': {
       'zh-TW': function (n, f) { return '✅ 已還原 ' + n + ' 條字幕，請重新選取影片：' + f + '。'; },
       'en':    function (n, f) { return '✅ Restored ' + n + ' subtitles. Please re-select the video: ' + f; }
