@@ -55,7 +55,10 @@
             _saveStateTimer = setTimeout(saveState, 600);
         }
 
+        let _isRestoringState = false;
         function saveState() {
+            // 還原過程中（字幕尚未載回）禁止寫入，避免誤清已儲存的字幕
+            if (_isRestoringState) return;
             try {
                 if (youtubeSubtitles && youtubeSubtitles.length > 0) {
                     localStorage.setItem(LS_KEYS.subtitles, JSON.stringify(youtubeSubtitles));
@@ -92,6 +95,7 @@
         }
 
         function loadState() {
+            _isRestoringState = true;
             try {
                 const savedSubtitles        = localStorage.getItem(LS_KEYS.subtitles);
                 const savedUrl              = localStorage.getItem(LS_KEYS.youtubeUrl);
@@ -166,6 +170,14 @@
                 }
             } catch (e) {
                 console.warn('載入 localStorage 失敗:', e);
+            } finally {
+                _isRestoringState = false;
+            }
+            // YT API 回呼可能比 DOMContentLoaded 早觸發而錯過 _pendingAutoLoad，
+            // 還原完成後若 API 已就緒則立即補載入
+            if (_pendingAutoLoad && window.YT && typeof YT.Player === 'function') {
+                _pendingAutoLoad = false;
+                loadVideo(_autoLoadSkipSubtitles);
             }
         }
 
