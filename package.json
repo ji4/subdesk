@@ -1,16 +1,9 @@
 {
-  "name": "youtube-subtitle-editor",
+  "name": "subdesk",
   "version": "1.0.0",
-  "description": "YouTube 字幕校正工具",
-  "main": "server.js",
+  "description": "YouTube 字幕校正工具（前端）",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "get-port": "^7.1.0",
-    "youtube-transcript": "^1.3.1"
+    "start": "npx -y serve -l 3000 ."
   }
 }
