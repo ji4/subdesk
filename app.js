@@ -286,6 +286,10 @@
             YT.ready(onYouTubeIframeAPIReady);
         }
 
+        function hasModifiedSubtitles() {
+            return Array.isArray(youtubeSubtitles) && youtubeSubtitles.some(s => s.modified);
+        }
+
         // onReady 偶爾不觸發（在已載入的 iframe 上掛 player 會錯過握手），輪詢補救
         let _readyPollTimer = null;
         function startPlayerReadyFallback() {
@@ -324,6 +328,9 @@
 
             // 僅在非自動重載時清除字幕（自動重載時保留已儲存的編輯）
             if (!skipSubtitleFetch) {
+                if (hasModifiedSubtitles() && !confirm(t('msg.overwriteConfirm'))) {
+                    return;
+                }
                 youtubeSubtitles = [];
                 updateOutputTextarea();
             }
@@ -2120,6 +2127,9 @@
                 showDeleteNotification(t('msg.unsupportedFormat'), 'error');
                 return;
             }
+            if (hasModifiedSubtitles() && !confirm(t('msg.overwriteConfirm'))) {
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
@@ -2152,6 +2162,8 @@
             const file = e.target.files[0];
             if (!file) return;
             loadSubtitleFromFile(file);
+            // 清空以便取消覆蓋後仍可重選同一檔案
+            e.target.value = '';
         });
 
         // 新增：解析字幕檔案
