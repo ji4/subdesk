@@ -238,7 +238,7 @@
 
     // Update dropdown: current language label + active option
     var labelEl = document.getElementById('langCurrentLabel');
-    if (labelEl) labelEl.textContent = currentLang === 'zh-TW' ? '繁體中文' : 'English';
+    if (labelEl) labelEl.textContent = currentLang === 'zh-TW' ? '中文' : 'EN';
 
     document.querySelectorAll('.lang-option[data-lang]').forEach(function (opt) {
       opt.classList.toggle('active', opt.getAttribute('data-lang') === currentLang);
