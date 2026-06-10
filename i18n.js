@@ -236,16 +236,13 @@
     if (enLink) enLink.href = origin + path + '?lang=en';
     if (defLink) defLink.href = origin + path;
 
-    // Update language toggle: highlight the active language
-    var enOpt = document.getElementById('langOptEn');
-    var zhOpt = document.getElementById('langOptZh');
-    if (enOpt) enOpt.classList.toggle('active', currentLang === 'en');
-    if (zhOpt) zhOpt.classList.toggle('active', currentLang === 'zh-TW');
+    // Update dropdown: current language label + active option
+    var labelEl = document.getElementById('langCurrentLabel');
+    if (labelEl) labelEl.textContent = currentLang === 'zh-TW' ? '繁體中文' : 'English';
 
-    var langBtn = document.getElementById('langToggleBtn');
-    if (langBtn) {
-      langBtn.setAttribute('aria-label', currentLang === 'zh-TW' ? 'Switch to English' : '切換為繁體中文');
-    }
+    document.querySelectorAll('.lang-option[data-lang]').forEach(function (opt) {
+      opt.classList.toggle('active', opt.getAttribute('data-lang') === currentLang);
+    });
   }
 
   function setLanguage(lang) {
@@ -265,14 +262,38 @@
     setLanguage(currentLang === 'zh-TW' ? 'en' : 'zh-TW');
   }
 
+  function toggleLangDropdown() {
+    var sel = document.getElementById('langSelector');
+    if (sel) sel.classList.toggle('open');
+  }
+
+  function selectLang(lang) {
+    var sel = document.getElementById('langSelector');
+    if (sel) sel.classList.remove('open');
+    setLanguage(lang);
+  }
+
+  function initDropdownClickOutside() {
+    document.addEventListener('click', function (e) {
+      var sel = document.getElementById('langSelector');
+      if (sel && !sel.contains(e.target)) sel.classList.remove('open');
+    });
+  }
+
   window.t = t;
   window.setLanguage = setLanguage;
   window.toggleLanguage = toggleLanguage;
+  window.toggleLangDropdown = toggleLangDropdown;
+  window.selectLang = selectLang;
   window.getCurrentLang = function () { return currentLang; };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyTranslations);
+    document.addEventListener('DOMContentLoaded', function () {
+      applyTranslations();
+      initDropdownClickOutside();
+    });
   } else {
     applyTranslations();
+    initDropdownClickOutside();
   }
 })();
