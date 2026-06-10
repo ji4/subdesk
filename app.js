@@ -279,6 +279,33 @@
                 loadVideo(_autoLoadSkipSubtitles);
             }
         }
+        // iframe_api 比 app.js 先載入，API 就緒時可能找不到全域回呼；
+        // 明確掛上 window，並用 YT.ready 涵蓋「API 已就緒」的時序
+        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+        if (window.YT && typeof YT.ready === 'function') {
+            YT.ready(onYouTubeIframeAPIReady);
+        }
+
+        // onReady 偶爾不觸發（在已載入的 iframe 上掛 player 會錯過握手），輪詢補救
+        let _readyPollTimer = null;
+        function startPlayerReadyFallback() {
+            if (_readyPollTimer) clearInterval(_readyPollTimer);
+            let attempts = 0;
+            _readyPollTimer = setInterval(() => {
+                attempts++;
+                if (isPlayerReady || attempts > 20) {
+                    clearInterval(_readyPollTimer);
+                    _readyPollTimer = null;
+                    return;
+                }
+                if (player && typeof player.getPlayerState === 'function'
+                    && player.getPlayerState() !== undefined) {
+                    clearInterval(_readyPollTimer);
+                    _readyPollTimer = null;
+                    onPlayerReady({ target: player });
+                }
+            }, 500);
+        }
 
         async function loadVideo(skipSubtitleFetch = false) {
             if (isLocalVideo) {
@@ -301,42 +328,49 @@
                 updateOutputTextarea();
             }
 
+            // YT API 尚未就緒時先排入待載，API 就緒後由 onYouTubeIframeAPIReady 重新呼叫
+            if (!window.YT || typeof YT.Player !== 'function') {
+                _pendingAutoLoad = true;
+                _autoLoadSkipSubtitles = skipSubtitleFetch;
+                return;
+            }
+
             loadBtn.textContent = t('video.loadingBtn');
             loadBtn.disabled = true;
 
             updateProgress(25, t('msg.progressLoadingVideo'));
-            
+
             try {
-                isPlayerReady = false;
-                isVideoLoaded = false;
                 captionsFetched = false;
                 currentVideoId = videoId;
-                
-                // 設置 iframe（確保 iframe 可見、本機影片隱藏）
+
+                // 確保 iframe 可見、本機影片隱藏
                 const iframe = document.getElementById('youtubeIframe');
                 iframe.style.display = '';
                 if (localVideo) { localVideo.style.display = 'none'; }
-                const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
-                iframe.src = embedUrl;
-                
-                // 等待 iframe 載入
-                await new Promise((resolve, reject) => {
-                    iframe.onload = resolve;
-                    iframe.onerror = reject;
-                });
-                
+
                 updateProgress(50, t('msg.progressVideoParams'));
 
-                // 創建播放器
-                player = new YT.Player('youtubeIframe', {
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange,
-                        'onError': onPlayerError,
-                        'onApiChange': onApiChange
-                    }
-                });
-                
+                if (player && isPlayerReady && typeof player.loadVideoById === 'function') {
+                    // 已有就緒的播放器：直接換片，不重建（onReady 只會觸發一次）
+                    player.loadVideoById(videoId);
+                } else {
+                    // 由 YT API 自行建立 iframe（標準流程，onReady 才會可靠觸發）
+                    isPlayerReady = false;
+                    isVideoLoaded = false;
+                    player = new YT.Player('youtubeIframe', {
+                        videoId: videoId,
+                        playerVars: { rel: 0, modestbranding: 1 },
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange': onPlayerStateChange,
+                            'onError': onPlayerError,
+                            'onApiChange': onApiChange
+                        }
+                    });
+                    startPlayerReadyFallback();
+                }
+
                 // 獲取字幕（自動重載且已有儲存字幕時略過）
                 if (skipSubtitleFetch) {
                     updateProgress(75, t('msg.progressUsingSaved'));
@@ -527,6 +561,7 @@
         }
 
         function onPlayerReady(event) {
+            if (isPlayerReady) return; // 輪詢備援與原生 onReady 可能各觸發一次
             console.log('YouTube Player 已準備就緒');
             isPlayerReady = true;
             isVideoLoaded = true;

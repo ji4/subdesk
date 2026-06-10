@@ -145,7 +145,8 @@
                 </div>
 
                 <div id="videoContainer" class="video-container" style="display: none;">
-                    <iframe id="youtubeIframe" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                    <!-- 佔位元素：YT IFrame API 建立播放器時會以同 id 的 iframe 取代 -->
+                    <div id="youtubeIframe"></div>
                     <video id="localVideo" controls preload="metadata" style="display: none;">
                         <span data-i18n="video.notSupported">您的瀏覽器不支援影片播放。</span>
                     </video>
