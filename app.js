@@ -110,7 +110,7 @@
                     document.getElementById('localVideoBtn').click();
                     if (savedFileName) {
                         const display = document.getElementById('fileNameDisplay');
-                        if (display) display.textContent = `${savedFileName}（請重新選取）`;
+                        if (display) display.textContent = t('msg.fileRestored', savedFileName);
                     }
                 }
                 if (savedUrl && savedIsLocal !== 'true') {
@@ -157,12 +157,12 @@
                         youtubeSubtitles = parsed;
                         updateYouTubeSubtitlesDisplay();
                         const msg = isLocalVideo && currentFileName
-                            ? `✅ 已還原 ${parsed.length} 條字幕，請重新選取影片：${currentFileName}`
-                            : `✅ 已還原上次編輯（${parsed.length} 條字幕）`;
+                            ? t('msg.restoredWithFile', parsed.length, currentFileName)
+                            : t('msg.restored', parsed.length);
                         showDeleteNotification(msg, 'success');
                     }
                 } else if (isLocalVideo && currentFileName) {
-                    showDeleteNotification(`⚠️ 上次的影片：${currentFileName}，請重新選取`, 'error');
+                    showDeleteNotification(t('msg.lastFile', currentFileName), 'error');
                 }
             } catch (e) {
                 console.warn('載入 localStorage 失敗:', e);
@@ -170,7 +170,7 @@
         }
 
         function resetPage() {
-            if (!confirm('確定要重置頁面嗎？所有未下載的修改將會遺失。')) return;
+            if (!confirm(t('msg.resetConfirm'))) return;
             try { Object.values(LS_KEYS).forEach(k => localStorage.removeItem(k)); } catch (e) {}
             window.location.reload();
         }
@@ -291,7 +291,7 @@
             const loadBtn = document.getElementById('loadVideoBtn');
 
             if (!videoId) {
-                showMessage('請輸入有效的YouTube網址', 'error');
+                showMessage(t('msg.invalidUrl'), 'error');
                 return;
             }
 
@@ -301,10 +301,10 @@
                 updateOutputTextarea();
             }
 
-            loadBtn.textContent = '載入中...';
+            loadBtn.textContent = t('video.loadingBtn');
             loadBtn.disabled = true;
-            
-            updateProgress(25, '正在載入影片...');
+
+            updateProgress(25, t('msg.progressLoadingVideo'));
             
             try {
                 isPlayerReady = false;
@@ -325,8 +325,8 @@
                     iframe.onerror = reject;
                 });
                 
-                updateProgress(50, '設定影片參數...');
-                
+                updateProgress(50, t('msg.progressVideoParams'));
+
                 // 創建播放器
                 player = new YT.Player('youtubeIframe', {
                     events: {
@@ -339,14 +339,14 @@
                 
                 // 獲取字幕（自動重載且已有儲存字幕時略過）
                 if (skipSubtitleFetch) {
-                    updateProgress(75, '使用已儲存的字幕');
+                    updateProgress(75, t('msg.progressUsingSaved'));
                 } else {
                     try {
                         await fetchYouTubeSubtitles(videoId);
-                        updateProgress(75, '字幕載入完成');
+                        updateProgress(75, t('msg.progressSubtitlesDone'));
                     } catch (error) {
                         console.warn('獲取字幕失敗:', error);
-                        showDeleteNotification('無法獲取字幕，但影片仍可播放', 'error');
+                        showDeleteNotification(t('msg.noSubtitlesPlayable'), 'error');
                     }
                 }
                 
@@ -354,12 +354,12 @@
                 document.getElementById('videoContainer').style.display = 'block';
                 document.getElementById('videoControls').style.display = '';
                 
-                updateProgress(100, '影片載入完成！');
-                
-                loadBtn.textContent = '重新載入';
+                updateProgress(100, t('msg.progressVideoDone'));
+
+                loadBtn.textContent = t('video.reloadBtn');
                 loadBtn.disabled = false;
-                
-                showStatus('影片載入成功！現在可以點擊字幕進行跳轉。', 'success');
+
+                showStatus(t('msg.videoLoadSuccess'), 'success');
                 saveState();
                 
                 if (timeInterval) {
@@ -371,9 +371,9 @@
                 
             } catch (error) {
                 console.error('載入影片錯誤:', error);
-                loadBtn.textContent = '載入影片';
+                loadBtn.textContent = t('video.loadBtn');
                 loadBtn.disabled = false;
-                showMessage('載入影片時發生錯誤，請重試', 'error');
+                showMessage(t('msg.loadVideoError'), 'error');
                 document.getElementById('progressContainer').style.display = 'none';
             }
         }
@@ -381,7 +381,7 @@
         // 載入本機影片（核心邏輯，支援按鈕與拖曳兩種入口）
         function loadLocalVideoFromFile(file, loadBtn) {
             if (!file || (!file.type.startsWith('video/') && !file.type.startsWith('audio/'))) {
-                showMessage('請選擇有效的影片或音訊檔案', 'error');
+                showMessage(t('msg.invalidFile'), 'error');
                 return;
             }
 
@@ -391,9 +391,9 @@
             if (_display) _display.textContent = file.name;
             if (_zone) _zone.classList.add('has-file');
 
-            if (loadBtn) { loadBtn.textContent = '載入中...'; loadBtn.disabled = true; }
+            if (loadBtn) { loadBtn.textContent = t('video.loadingBtn'); loadBtn.disabled = true; }
 
-            updateProgress(25, '正在載入本機影片...');
+            updateProgress(25, t('msg.progressLoadingLocal'));
 
             try {
                 // 停止 YouTube 播放器但不 destroy，避免移除 iframe DOM 元素
@@ -425,10 +425,10 @@
                 document.getElementById('videoClickOverlay').style.display = isAudioOnly ? 'block' : 'none';
                 localVideo.style.display = 'block';
 
-                updateProgress(50, '設定影片參數...');
+                updateProgress(50, t('msg.progressLocalParams'));
 
                 localVideo.addEventListener('loadedmetadata', function() {
-                    updateProgress(75, '影片載入完成');
+                    updateProgress(75, t('msg.progressLocalMeta'));
                     isVideoLoaded = true;
                     isPlayerReady = true;
                     currentTime = 0;
@@ -440,11 +440,11 @@
                     }
                     updateYouTubeSubtitlesDisplay();
 
-                    updateProgress(100, '本機影片載入完成！');
+                    updateProgress(100, t('msg.progressLocalDone'));
 
-                    if (loadBtn) { loadBtn.textContent = '重新載入'; loadBtn.disabled = false; }
+                    if (loadBtn) { loadBtn.textContent = t('video.reloadBtn'); loadBtn.disabled = false; }
 
-                    showStatus('本機影片載入成功！如果已上傳字幕檔案，字幕將自動顯示。', 'success');
+                    showStatus(t('msg.localVideoLoadSuccess'), 'success');
                     saveState();
 
                     updateTimeDisplay();
@@ -453,15 +453,15 @@
 
                 localVideo.addEventListener('error', function(e) {
                     console.error('本機影片載入錯誤:', e.target.error);
-                    if (loadBtn) { loadBtn.textContent = '載入影片'; loadBtn.disabled = false; }
-                    showMessage('載入本機影片時發生錯誤，請重試', 'error');
+                    if (loadBtn) { loadBtn.textContent = t('video.loadBtn'); loadBtn.disabled = false; }
+                    showMessage(t('msg.localVideoError'), 'error');
                     document.getElementById('progressContainer').style.display = 'none';
                 });
 
             } catch (error) {
                 console.error('載入本機影片錯誤:', error);
-                if (loadBtn) { loadBtn.textContent = '載入影片'; loadBtn.disabled = false; }
-                showMessage('載入本機影片時發生錯誤，請重試', 'error');
+                if (loadBtn) { loadBtn.textContent = t('video.loadBtn'); loadBtn.disabled = false; }
+                showMessage(t('msg.localVideoError'), 'error');
                 document.getElementById('progressContainer').style.display = 'none';
             }
         }
@@ -470,7 +470,7 @@
             const fileInput = document.getElementById('localVideoFile');
             const loadBtn = document.getElementById('loadLocalVideoBtn');
             if (!fileInput.files || fileInput.files.length === 0) {
-                showMessage('請選擇影片檔案', 'error');
+                showMessage(t('msg.selectFile'), 'error');
                 return;
             }
             loadLocalVideoFromFile(fileInput.files[0], loadBtn);
@@ -536,7 +536,7 @@
             } catch(e) {}
             startSubtitleSync();
             updateYouTubeSubtitlesDisplay();
-            showDeleteNotification('影片播放器已準備就緒', 'success');
+            showDeleteNotification(t('msg.playerReady'), 'success');
             // onApiChange 是主要觸發點；這裡只做 3 秒後的備援
             setTimeout(() => {
                 if (!captionsFetched && currentVideoId && (!youtubeSubtitles || youtubeSubtitles.length === 0)) {
@@ -609,7 +609,7 @@
                     youtubeSubtitles = subtitles;
                     currentHighlightedYouTube = -1;
                     updateYouTubeSubtitlesDisplay();
-                    showDeleteNotification(`YouTube字幕載入完成 (共 ${subtitles.length} 條)`, 'success');
+                    showDeleteNotification(t('msg.ytSubtitlesLoaded', subtitles.length), 'success');
                     saveState();
                 }
             } catch (e) {
@@ -645,11 +645,11 @@
             const code = event.data;
             let msg;
             if (code === 101 || code === 150) {
-                msg = '此影片已停用嵌入播放，請直接在 YouTube 觀看';
+                msg = t('msg.videoDisabledEmbed');
             } else if (code === 100) {
-                msg = '找不到此影片，可能已被刪除或設為私人';
+                msg = t('msg.videoNotFound');
             } else {
-                msg = `影片播放器發生錯誤（代碼 ${code}）`;
+                msg = t('msg.playerError', code);
             }
             showDeleteNotification(msg, 'error');
         }
@@ -660,7 +660,7 @@
             btn.innerHTML = isPlaying
                 ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'
                 : '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-            btn.title = isPlaying ? '暫停' : '播放';
+            btn.title = isPlaying ? t('controls.pause') : t('controls.play');
         }
 
         function onPlayerStateChange(event) {
@@ -679,7 +679,7 @@
         
         async function fetchYouTubeSubtitles(videoId) {
             try {
-                showDeleteNotification('正在獲取YouTube字幕...', 'info');
+                showDeleteNotification(t('msg.fetchingSubtitles'), 'info');
                 
                 // 使用本地後端服務獲取字幕
                 const response = await fetch(apiUrl(`/api/subtitles?videoId=${videoId}`));
@@ -718,7 +718,7 @@
                 });
                 
                 console.log('解析後的字幕:', youtubeSubtitles.slice(0, 3));
-                showDeleteNotification(`YouTube字幕載入完成 (共 ${youtubeSubtitles.length} 條)`, 'success');
+                showDeleteNotification(t('msg.ytSubtitlesLoaded', youtubeSubtitles.length), 'success');
 
                 // 更新字幕顯示
                 currentHighlightedYouTube = -1;
@@ -728,7 +728,7 @@
                 return youtubeSubtitles;
             } catch (error) {
                 console.error('獲取字幕失敗:', error);
-                showDeleteNotification('無法獲取YouTube字幕，將使用校正檔案的時間', 'error');
+                showDeleteNotification(t('msg.noYTSubtitles'), 'error');
                 youtubeSubtitles = [];
                 updateYouTubeSubtitlesDisplay();
                 return [];
@@ -750,7 +750,7 @@
             if (subtitle.modified) classes.push('modified');
             const indexBadge = `<span class="subtitle-index">${idx + 1}</span>`;
             const timeBadge = `<span class="youtube-subtitle-time" title="${escapeHtml(time)}">${escapeHtml(time)}</span>`;
-            const seekZone = `<div class="subtitle-seek-zone" onclick="seekToTime(${subtitle.start})" title="跳轉到 ${escapeHtml(time)}"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--text-muted)"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg></div>`;
+            const seekZone = `<div class="subtitle-seek-zone" onclick="seekToTime(${subtitle.start})" title="${escapeHtml(t('subtitle.seekTitle', time))}"><svg width="13" height="13" viewBox="0 0 20 20" fill="var(--text-muted)"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg></div>`;
             const showComparison = subtitle.modified && subtitlePanelFilter === 'modified';
             let contentHTML;
             if (showComparison) {
@@ -791,13 +791,13 @@
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
                 let msg;
                 if (!isVideoLoaded && isLocalVideo) {
-                    msg = `請先載入本機影片<br>再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                    msg = t('subtitle.emptyLocalNotLoaded');
                 } else if (!isVideoLoaded) {
-                    msg = `請先載入影片<br>再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                    msg = t('subtitle.emptyDefault');
                 } else if (isLocalVideo) {
-                    msg = `本機影片不含自動字幕<br>請點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                    msg = t('subtitle.emptyLocalLoaded');
                 } else {
-                    msg = `未偵測到字幕<br>請點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此`;
+                    msg = t('subtitle.emptyYouTube');
                 }
                 panel.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">${msg}</div>`;
                 return;
@@ -931,7 +931,7 @@
             highlightCurrentSubtitles(currentTime);
 
             if (showNotification) {
-                showDeleteNotification(`🎯 已跳轉到 ${formatTime(currentTime)}`);
+                showDeleteNotification(t('msg.jumpedTo', formatTime(currentTime)));
             }
         }
 
@@ -1182,7 +1182,7 @@
         
         function controlVideo(action) {
             if (!isVideoLoaded) {
-                showDeleteNotification('請先載入影片', 'error');
+                showDeleteNotification(t('msg.loadVideoFirst'), 'error');
                 return;
             }
             
@@ -1191,7 +1191,7 @@
             if (isLocalVideo) {
                 // 本機影片控制
                 if (!localVideo) {
-                    showDeleteNotification('本機影片未載入', 'error');
+                    showDeleteNotification(t('msg.noLocalVideo'), 'error');
                     return;
                 }
                 
@@ -1204,12 +1204,12 @@
                 } else if (action === 'play') {
                     if (localVideo.paused) {
                         localVideo.play();
-                        showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+                        showDeleteNotification(t('msg.playingFrom', formatTime(currentTime)));
                     }
                 } else if (action === 'pause') {
                     if (!localVideo.paused) {
                         localVideo.pause();
-                        showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
+                        showDeleteNotification(t('msg.pausedAt', formatTime(currentTime)));
                     }
                 } else if (action === 'back') {
                     const newTime = Math.max(0, localVideo.currentTime - SKIP_TIME);
@@ -1218,7 +1218,7 @@
                     if (localVideo.paused) localVideo.play();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
-                    showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
+                    showDeleteNotification(t('msg.rewindTo', formatTime(currentTime)));
                 } else if (action === 'forward') {
                     const newTime = localVideo.currentTime + SKIP_TIME;
                     localVideo.currentTime = newTime;
@@ -1226,15 +1226,15 @@
                     if (localVideo.paused) localVideo.play();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
-                    showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
+                    showDeleteNotification(t('msg.forwardTo', formatTime(currentTime)));
                 }
             } else {
                 // YouTube影片控制
                 if (!player || !isPlayerReady) {
-                    showDeleteNotification('請先載入影片', 'error');
+                    showDeleteNotification(t('msg.loadVideoFirst'), 'error');
                     return;
                 }
-                
+
                 if (action === 'toggle') {
                     try {
                         if (isPlaying) {
@@ -1246,12 +1246,12 @@
                 } else if (action === 'play') {
                     if (!isPlaying) {
                         player.playVideo();
-                        showDeleteNotification(`▶️ 從 ${formatTime(currentTime)} 開始播放`);
+                        showDeleteNotification(t('msg.playingFrom', formatTime(currentTime)));
                     }
                 } else if (action === 'pause') {
                     if (isPlaying) {
                         player.pauseVideo();
-                        showDeleteNotification(`⏸️ 在 ${formatTime(currentTime)} 暫停`);
+                        showDeleteNotification(t('msg.pausedAt', formatTime(currentTime)));
                     }
                 } else if (action === 'back') {
                     currentTime = Math.max(0, currentTime - SKIP_TIME);
@@ -1259,14 +1259,14 @@
                     if (!isPlaying) player.playVideo();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
-                    showDeleteNotification(`⏪ 後退到 ${formatTime(currentTime)}`);
+                    showDeleteNotification(t('msg.rewindTo', formatTime(currentTime)));
                 } else if (action === 'forward') {
                     currentTime += SKIP_TIME;
                     player.seekTo(currentTime, true);
                     if (!isPlaying) player.playVideo();
                     updateTimeDisplay();
                     highlightCurrentSubtitles(currentTime);
-                    showDeleteNotification(`⏩ 前進到 ${formatTime(currentTime)}`);
+                    showDeleteNotification(t('msg.forwardTo', formatTime(currentTime)));
                 }
             }
         }
@@ -1298,7 +1298,7 @@
             } else {
                 player.setPlaybackRate(newRate);
             }
-            showDeleteNotification(`播放速率：${newRate}x`);
+            showDeleteNotification(t('msg.speed', newRate));
         }
 
         function jumpToSubtitle(dir) {
@@ -1368,7 +1368,7 @@
                 // 本機影片跳轉
                 if (!localVideo) {
                     console.error('本機影片未載入');
-                    showDeleteNotification('請先載入本機影片', 'error');
+                    showDeleteNotification(t('msg.loadLocalFirst'), 'error');
                     return;
                 }
 
@@ -1386,22 +1386,22 @@
                         localVideo.play();
                     }
                     
-                    showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
+                    showDeleteNotification(t('msg.jumpedTo', formatTime(targetTime)));
                 } catch (error) {
                     console.error('本機影片跳轉失敗:', error);
-                    showDeleteNotification('跳轉失敗，請重新載入影片', 'error');
+                    showDeleteNotification(t('msg.seekFailed'), 'error');
                 }
             } else {
                 // YouTube影片跳轉
                 if (!player) {
                     console.error('播放器未初始化');
-                    showDeleteNotification('請先載入影片', 'error');
+                    showDeleteNotification(t('msg.loadVideoFirst'), 'error');
                     return;
                 }
 
                 if (!isPlayerReady) {
                     console.error('播放器未準備就緒');
-                    showDeleteNotification('播放器未準備就緒，請稍候再試', 'error');
+                    showDeleteNotification(t('msg.playerNotReady'), 'error');
                     return;
                 }
 
@@ -1427,10 +1427,10 @@
                     isPlaying = true;
                     startTimeTracking();
                     
-                    showDeleteNotification(`🎯 已跳轉到 ${formatTime(targetTime)}`);
+                    showDeleteNotification(t('msg.jumpedTo', formatTime(targetTime)));
                 } catch (error) {
                     console.error('YouTube影片跳轉失敗:', error);
-                    showDeleteNotification('跳轉失敗，請重新載入影片', 'error');
+                    showDeleteNotification(t('msg.seekFailed'), 'error');
                 }
             }
         }
@@ -1621,16 +1621,16 @@
         function copyOutput() {
             const text = document.getElementById('subtitleOutput').value;
             if (!text) {
-                showDeleteNotification('⚠️ 尚無內容可複製', 'error');
+                showDeleteNotification(t('msg.noCopy'), 'error');
                 return;
             }
             function showCopied() {
                 const btn = document.getElementById('copyOutputBtn');
                 if (!btn) return;
-                btn.textContent = '✓ 已複製';
+                btn.textContent = t('msg.copied');
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.textContent = '複製';
+                    btn.textContent = t('msg.copyBtn');
                     btn.classList.remove('copied');
                 }, 1500);
             }
@@ -1642,7 +1642,7 @@
                 ta.select();
                 ta.setSelectionRange(0, ta.value.length);
                 try { document.execCommand('copy'); showCopied(); }
-                catch (e) { showDeleteNotification('⚠️ 複製失敗，請手動複製', 'error'); }
+                catch (e) { showDeleteNotification(t('msg.copyFailed'), 'error'); }
                 document.body.removeChild(ta);
             }
             if (navigator.clipboard && window.isSecureContext) {
@@ -1654,7 +1654,7 @@
 
         function downloadOutput() {
             if (!youtubeSubtitles?.length) {
-                showDeleteNotification('⚠️ 尚無字幕可下載', 'error');
+                showDeleteNotification(t('msg.noDownload'), 'error');
                 return;
             }
             const content = generateFullOutput();
@@ -1667,7 +1667,7 @@
             a.download = `${baseName}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
-            showDeleteNotification(`⬇️ 已下載完整校正後字幕 .${ext}`);
+            showDeleteNotification(t('msg.downloaded', ext));
         }
 
         function showMessage(text, type) {
@@ -1968,6 +1968,11 @@
         }
 
         // 初始化頁面時設置鍵盤事件監聽
+        window.addEventListener('i18n:change', function() {
+            updateYouTubeSubtitlesDisplay(true);
+            updatePlayToggleBtn();
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化影片載入選擇器
             initVideoLoadSelector();
@@ -2077,7 +2082,7 @@
         function loadSubtitleFromFile(file) {
             const name = file.name.toLowerCase();
             if (!name.endsWith('.srt') && !name.endsWith('.vtt')) {
-                showDeleteNotification('❌ 僅支援 .srt 和 .vtt 格式', 'error');
+                showDeleteNotification(t('msg.unsupportedFormat'), 'error');
                 return;
             }
             const reader = new FileReader();
@@ -2092,18 +2097,18 @@
                             document.getElementById('subtitleOverlay').style.display = 'block';
                             highlightCurrentSubtitles(localVideo.currentTime);
                         }
-                        showDeleteNotification(`✅ 成功載入 ${subtitles.length} 條字幕`, 'success');
+                        showDeleteNotification(t('msg.subtitlesLoaded', subtitles.length), 'success');
                         saveState();
                     } else {
                         throw new Error('無法解析字幕內容');
                     }
                 } catch (error) {
                     console.error('解析字幕檔案失敗:', error);
-                    showDeleteNotification('❌ 解析字幕檔案失敗: ' + error.message, 'error');
+                    showDeleteNotification(t('msg.parseSubtitleFailed', error.message), 'error');
                 }
             };
             reader.onerror = function() {
-                showDeleteNotification('❌ 讀取檔案失敗', 'error');
+                showDeleteNotification(t('msg.readFileFailed'), 'error');
             };
             reader.readAsText(file);
         }

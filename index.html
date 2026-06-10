@@ -4,6 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>影片字幕校正工具</title>
+    <meta name="description" content="影片字幕校正工具 — 支援 YouTube 與本機影片，輕鬆上傳 .srt / .vtt 字幕檔，即時編輯、同步校正，一鍵下載。">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:title" content="影片字幕校正工具">
+    <meta property="og:description" content="影片字幕校正工具 — 支援 YouTube 與本機影片，輕鬆上傳 .srt / .vtt 字幕檔，即時編輯、同步校正，一鍵下載。">
+    <meta property="og:image" content="/public/images/Logo.png">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:site_name" content="SubDesk">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="影片字幕校正工具">
+    <meta name="twitter:description" content="影片字幕校正工具 — 支援 YouTube 與本機影片，輕鬆上傳 .srt / .vtt 字幕檔，即時編輯、同步校正，一鍵下載。">
+    <meta name="twitter:image" content="/public/images/Logo.png">
+
+    <!-- hreflang for bilingual SEO -->
+    <link rel="alternate" id="hreflang-zh" hreflang="zh-TW" href="">
+    <link rel="alternate" id="hreflang-en" hreflang="en" href="">
+    <link rel="alternate" id="hreflang-default" hreflang="x-default" href="">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SubDesk",
+      "alternateName": "影片字幕校正工具",
+      "description": "Subtitle review tool for YouTube and local videos. Upload .srt / .vtt files, edit in real-time, and download corrected subtitles.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "inLanguage": ["zh-TW", "en"],
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +56,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- 後端 API 位址設定（config.js 不進版控，請參考 config.example.js） -->
     <script src="config.js" onerror="void 0"></script>
+    <!-- i18n must load before app.js -->
+    <script src="i18n.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TJNXR7NCT4"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -26,10 +72,10 @@
     <div class="narrow-screen-gate" id="narrowScreenGate">
         <div class="narrow-screen-inner">
             <img src="public/images/Logo.png" alt="SubDesk" class="narrow-screen-logo">
-            <p class="narrow-screen-label">影片字幕校正工具</p>
-            <h1 class="narrow-screen-title">建議在電腦上開啟</h1>
-            <p class="narrow-screen-desc">本工具專為寬螢幕桌面環境設計<br>在小螢幕裝置上操作會較為擁擠</p>
-            <button class="narrow-screen-btn-primary" onclick="dismissNarrowScreenGate()">繼續使用</button>
+            <p class="narrow-screen-label" data-i18n="narrow.label">影片字幕校正工具</p>
+            <h1 class="narrow-screen-title" data-i18n="narrow.title">建議在電腦上開啟</h1>
+            <p class="narrow-screen-desc" data-i18n="narrow.desc">本工具專為寬螢幕桌面環境設計<br>在小螢幕裝置上操作會較為擁擠。</p>
+            <button class="narrow-screen-btn-primary" onclick="dismissNarrowScreenGate()" data-i18n="narrow.continue">繼續使用</button>
         </div>
     </div>
 
@@ -38,17 +84,21 @@
             <div class="header-brand">
                 <div class="header-brand-main">
                     <img src="public/images/Logo.png" alt="SubDesk" class="header-logo">
-                    <h1>影片字幕校正工具</h1>
+                    <h1 data-i18n="page.title">影片字幕校正工具</h1>
                 </div>
-                <p>The Smoothest Way to Review Subtitles</p>
+                <p data-i18n="page.tagline">The Smoothest Way to Review Subtitles</p>
             </div>
-            <button class="header-reset-btn" onclick="resetPage()" title="清除所有資料並重置頁面">清除</button>
+            <button class="header-reset-btn" onclick="resetPage()"
+                data-i18n="header.reset"
+                data-i18n-title="header.resetTitle"
+                title="清除所有資料並重置頁面">清除</button>
             <div class="header-shortcuts">
-                <span class="hint-item"><kbd>Space</kbd> 播放 / 暫停</span>
-                <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> 跳 5 秒</span>
-                <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> 上 / 下一句</span>
-                <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> 降 / 升速率</span>
+                <span class="hint-item"><kbd>Space</kbd> <span data-i18n="shortcuts.playPause">播放 / 暫停</span></span>
+                <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="shortcuts.skip5s">跳 5 秒</span></span>
+                <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> <span data-i18n="shortcuts.prevNext">上 / 下一句</span></span>
+                <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> <span data-i18n="shortcuts.speed">降 / 升速率</span></span>
             </div>
+            <button id="langToggleBtn" class="header-lang-btn" onclick="toggleLanguage()" title="Switch to English">EN</button>
         </div>
 
         <div class="content-wrapper" id="contentWrapper">
@@ -56,20 +106,22 @@
             <div class="video-section" id="videoSection">
                 <div class="video-load-selector">
                     <button class="active" id="youtubeBtn">YouTube</button>
-                    <button id="localVideoBtn">本機影片</button>
+                    <button id="localVideoBtn" data-i18n="video.localVideo">本機影片</button>
                 </div>
 
                 <div class="youtube-input" id="youtubeInput">
-                    <input type="text" id="youtubeUrl" placeholder="請輸入YouTube影片網址 (如: https://www.youtube.com/watch?v=VIDEO_ID)">
-                    <button id="loadVideoBtn" onclick="loadVideo()">載入影片</button>
+                    <input type="text" id="youtubeUrl"
+                        data-i18n-placeholder="video.urlPlaceholder"
+                        placeholder="請輸入YouTube影片網址 (如: https://www.youtube.com/watch?v=VIDEO_ID)">
+                    <button id="loadVideoBtn" onclick="loadVideo()" data-i18n="video.loadBtn">載入影片</button>
                 </div>
 
                 <div class="local-video-input" id="localVideoInput" style="display: none;">
                     <label class="file-drop-zone" id="fileDropZone" for="localVideoFile">
-                        <span id="fileNameDisplay">選擇或拖曳影片至此</span>
+                        <span id="fileNameDisplay" data-i18n="video.fileDropZone">選擇或拖曳影片至此</span>
                     </label>
                     <input type="file" id="localVideoFile" accept="video/*,audio/*" style="display:none">
-                    <button id="loadLocalVideoBtn" onclick="loadLocalVideo()">載入影片</button>
+                    <button id="loadLocalVideoBtn" onclick="loadLocalVideo()" data-i18n="video.loadBtn">載入影片</button>
                 </div>
 
                 <div id="statusInfo" class="status-info"></div>
@@ -84,7 +136,7 @@
                 <div id="videoContainer" class="video-container" style="display: none;">
                     <iframe id="youtubeIframe" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
                     <video id="localVideo" controls preload="metadata" style="display: none;">
-                        您的瀏覽器不支援影片播放。
+                        <span data-i18n="video.notSupported">您的瀏覽器不支援影片播放。</span>
                     </video>
                     <div id="subtitleOverlay" class="subtitle-overlay">
                         <div id="subtitleOverlayText" class="subtitle-overlay-text"></div>
@@ -93,18 +145,18 @@
                 </div>
 
                 <div class="video-controls" id="videoControls" style="display: none;">
-                    <button id="playToggleBtn" onclick="controlVideo('toggle')" title="播放"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
-                    <button id="backBtn" onclick="controlVideo('back')" title="後退5秒">-5s</button>
-                    <button id="forwardBtn" onclick="controlVideo('forward')" title="前進5秒">+5s</button>
-                    <div class="current-time" id="currentTime" aria-label="目前播放時間，可輸入時間跳轉">
-                        <input class="time-digit" id="timeDigit0" inputmode="numeric" maxlength="1" aria-label="小時十位" value="0">
-                        <input class="time-digit" id="timeDigit1" inputmode="numeric" maxlength="1" aria-label="小時個位" value="0">
+                    <button id="playToggleBtn" onclick="controlVideo('toggle')" data-i18n-title="controls.play" title="播放"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+                    <button id="backBtn" onclick="controlVideo('back')" data-i18n-title="controls.backTitle" title="後退5秒">-5s</button>
+                    <button id="forwardBtn" onclick="controlVideo('forward')" data-i18n-title="controls.forwardTitle" title="前進5秒">+5s</button>
+                    <div class="current-time" id="currentTime" data-i18n-aria="aria.currentTime" aria-label="目前播放時間，可輸入時間跳轉">
+                        <input class="time-digit" id="timeDigit0" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour1" aria-label="小時十位" value="0">
+                        <input class="time-digit" id="timeDigit1" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour2" aria-label="小時個位" value="0">
                         <span class="time-separator">:</span>
-                        <input class="time-digit" id="timeDigit2" inputmode="numeric" maxlength="1" aria-label="分鐘十位" value="0">
-                        <input class="time-digit" id="timeDigit3" inputmode="numeric" maxlength="1" aria-label="分鐘個位" value="0">
+                        <input class="time-digit" id="timeDigit2" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeMin1" aria-label="分鐘十位" value="0">
+                        <input class="time-digit" id="timeDigit3" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeMin2" aria-label="分鐘個位" value="0">
                         <span class="time-separator">:</span>
-                        <input class="time-digit" id="timeDigit4" inputmode="numeric" maxlength="1" aria-label="秒數十位" value="0">
-                        <input class="time-digit" id="timeDigit5" inputmode="numeric" maxlength="1" aria-label="秒數個位" value="0">
+                        <input class="time-digit" id="timeDigit4" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeSec1" aria-label="秒數十位" value="0">
+                        <input class="time-digit" id="timeDigit5" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeSec2" aria-label="秒數個位" value="0">
                     </div>
                 </div>
 
@@ -117,22 +169,22 @@
             <!-- 字幕顯示區 -->
             <div class="subtitle-display-panel" id="subtitleDisplayPanel">
                 <div class="subtitle-controls">
-                    <h3>字幕列表</h3>
+                    <h3 data-i18n="subtitle.title">字幕列表</h3>
                     <div class="subtitle-control-buttons"></div>
                 </div>
                 <div class="subtitle-display-container" id="subtitleDisplayContainer">
                     <div class="youtube-subtitles-section" id="youtubeSubtitlesSection">
                         <div class="subtitle-upload-controls">
                             <input type="file" id="subtitleFileInput" accept=".srt,.vtt" style="display: none;">
-                            <button class="view-mode-toggle subtitle-upload-btn" onclick="document.getElementById('subtitleFileInput').click()">上傳字幕檔</button>
-                            <span>支援 .srt, .vtt 格式</span>
+                            <button class="view-mode-toggle subtitle-upload-btn" onclick="document.getElementById('subtitleFileInput').click()" data-i18n="subtitle.uploadBtn">上傳字幕檔</button>
+                            <span data-i18n="subtitle.formats">支援 .srt, .vtt 格式</span>
                             <div class="subtitle-filter-btns">
-                                <button class="filter-btn active" id="filterAll" onclick="filterSubtitlePanel('all')">全部</button>
-                                <button class="filter-btn" id="filterModified" onclick="filterSubtitlePanel('modified')">已修改</button>
+                                <button class="filter-btn active" id="filterAll" onclick="filterSubtitlePanel('all')" data-i18n="subtitle.filterAll">全部</button>
+                                <button class="filter-btn" id="filterModified" onclick="filterSubtitlePanel('modified')" data-i18n="subtitle.filterModified">已修改</button>
                             </div>
                         </div>
                         <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
-                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;">
+                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;" data-i18n="subtitle.emptyDefault">
                                 請先載入影片<br>
                                 再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此
                             </div>
@@ -149,28 +201,31 @@
         <div class="subtitle-section" id="subtitleOutputSection">
             <div class="subtitle-input-panel">
                 <div class="output-header">
-                    <h3>校正後字幕輸出</h3>
+                    <h3 data-i18n="output.title">校正後字幕輸出</h3>
                     <div class="output-format-btns">
                         <button class="view-mode-toggle" id="outputFormatSrt" onclick="switchOutputFormat('srt')" style="background: rgba(34,197,94,0.15); color: var(--success); border-color: rgba(34,197,94,0.3);">SRT</button>
                         <button class="view-mode-toggle" id="outputFormatVtt" onclick="switchOutputFormat('vtt')">VTT</button>
                         <button class="view-mode-toggle" id="outputFormatTxt" onclick="switchOutputFormat('txt')">TXT</button>
                     </div>
                     <div class="output-action-btns">
-                        <button class="copy-btn" id="copyOutputBtn" onclick="copyOutput()">複製</button>
-                        <button class="copy-btn" onclick="downloadOutput()">下載整份</button>
+                        <button class="copy-btn" id="copyOutputBtn" onclick="copyOutput()" data-i18n="output.copyBtn">複製</button>
+                        <button class="copy-btn" onclick="downloadOutput()" data-i18n="output.downloadBtn">下載整份</button>
                     </div>
                 </div>
                 <div class="output-options">
                     <label>
                         <input type="checkbox" id="chkOnlyModified" onchange="toggleShowOnlyModified()">
-                        僅顯示已修改字幕
+                        <span data-i18n="output.onlyModified">僅顯示已修改字幕</span>
                     </label>
                     <label id="chkComparisonLabel" style="display: none; align-items: center; gap: 6px; cursor: pointer;">
                         <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
-                        顯示校正前後對比
+                        <span data-i18n="output.showComparison">顯示校正前後對比</span>
                     </label>
                 </div>
-                <textarea id="subtitleOutput" placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出" oninput="onOutputInput()"></textarea>
+                <textarea id="subtitleOutput"
+                    data-i18n-placeholder="output.placeholder"
+                    placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出"
+                    oninput="onOutputInput()"></textarea>
             </div>
         </div>
     </div>
@@ -180,7 +235,7 @@
 
     <!-- 拖曳覆蓋層 -->
     <div id="dragOverlay">
-        <div class="drag-overlay-inner">拖曳影片、音訊或字幕檔（.srt .vtt）至此</div>
+        <div class="drag-overlay-inner" data-i18n="drag.overlay">拖曳影片、音訊或字幕檔（.srt .vtt）至此</div>
     </div>
 
     <script src="app.js"></script>

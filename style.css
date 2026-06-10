@@ -136,6 +136,29 @@ body {
 
 .header-reset-btn:active { transform: scale(0.96); }
 
+.header-lang-btn {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease);
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.header-lang-btn:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.header-lang-btn:active { transform: scale(0.96); }
+
 .header-shortcuts .hint-item {
   display: flex;
   align-items: center;
@@ -1182,6 +1205,11 @@ body {
 
   .header-reset-btn {
     flex: 0 0 auto;
+  }
+
+  .header-lang-btn {
+    flex: 0 0 auto;
+    margin-left: 0;
   }
 
   .header-shortcuts {
