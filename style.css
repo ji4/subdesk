@@ -143,21 +143,36 @@ body {
   font-family: var(--font-body);
   font-weight: 500;
   background: transparent;
-  color: var(--text-muted);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   cursor: pointer;
-  transition: color var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease);
+  transition: border-color var(--dur-normal) var(--ease);
   flex-shrink: 0;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0;
 }
 
-.header-lang-btn:hover {
-  color: var(--text);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
+.header-lang-btn:hover { border-color: rgba(255, 255, 255, 0.35); }
 .header-lang-btn:active { transform: scale(0.96); }
+
+.header-lang-btn .lang-opt {
+  color: var(--text-muted);
+  transition: color var(--dur-normal) var(--ease), font-weight var(--dur-normal) var(--ease);
+}
+.header-lang-btn .lang-opt.active {
+  color: var(--text);
+  font-weight: 600;
+}
+.header-lang-btn:hover .lang-opt { color: var(--text); }
+
+.header-lang-btn .lang-sep {
+  color: var(--text-muted);
+  opacity: 0.35;
+  font-weight: 400;
+  margin: 0 1px;
+}
 
 .header-shortcuts .hint-item {
   display: flex;

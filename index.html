@@ -98,7 +98,9 @@
                 <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> <span data-i18n="shortcuts.prevNext">上 / 下一句</span></span>
                 <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> <span data-i18n="shortcuts.speed">降 / 升速率</span></span>
             </div>
-            <button id="langToggleBtn" class="header-lang-btn" onclick="toggleLanguage()" title="Switch to English">EN</button>
+            <button id="langToggleBtn" class="header-lang-btn" onclick="toggleLanguage()" aria-label="Switch language">
+              <span class="lang-opt" id="langOptEn">EN</span><span class="lang-sep"> | </span><span class="lang-opt" id="langOptZh">中文</span>
+            </button>
         </div>
 
         <div class="content-wrapper" id="contentWrapper">
