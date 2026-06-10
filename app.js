@@ -409,7 +409,7 @@
                 
                 updateProgress(100, t('msg.progressVideoDone'));
 
-                loadBtn.textContent = t('video.reloadBtn');
+                loadBtn.textContent = t('video.loadBtn');
                 loadBtn.disabled = false;
 
                 showStatus(t('msg.videoLoadSuccess'), 'success');
@@ -495,7 +495,7 @@
 
                     updateProgress(100, t('msg.progressLocalDone'));
 
-                    if (loadBtn) { loadBtn.textContent = t('video.reloadBtn'); loadBtn.disabled = false; }
+                    if (loadBtn) { loadBtn.textContent = t('video.loadBtn'); loadBtn.disabled = false; }
 
                     showStatus(t('msg.localVideoLoadSuccess'), 'success');
                     saveState();

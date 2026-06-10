@@ -31,7 +31,6 @@
     'video.urlPlaceholder': { 'zh-TW': '請輸入YouTube影片網址 (如: https://www.youtube.com/watch?v=VIDEO_ID)', 'en': 'Enter YouTube URL (e.g. https://www.youtube.com/watch?v=VIDEO_ID)' },
     'video.loadBtn':        { 'zh-TW': '載入影片',  'en': 'Load Video' },
     'video.loadingBtn':     { 'zh-TW': '載入中...', 'en': 'Loading...' },
-    'video.reloadBtn':      { 'zh-TW': '重新載入',  'en': 'Reload' },
     'video.fileDropZone':   { 'zh-TW': '選擇或拖曳影片至此', 'en': 'Choose or drag a video here' },
     'video.notSupported':   { 'zh-TW': '您的瀏覽器不支援影片播放。', 'en': 'Your browser does not support video playback.' },
 
