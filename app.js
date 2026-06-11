@@ -199,6 +199,9 @@
         let showOnlyModified = false;
         let showComparison = false;
         let subtitlePanelFilter = 'all';
+        // 各篩選 tab 各自記住捲動位置，切換時直接還原
+        const panelScrollByFilter = { all: 0, modified: 0 };
+        let suppressHighlightAutoScroll = false;
         let youtubeSubtitles = [];
         let player = null;
         let isPlayerReady = false;
@@ -916,12 +919,20 @@
         }
 
         function filterSubtitlePanel(mode) {
+            const panel = document.getElementById('youtubeSubtitlesPanel');
+            if (panel) panelScrollByFilter[subtitlePanelFilter] = panel.scrollTop;
+
             subtitlePanelFilter = mode;
             ['all', 'modified'].forEach(m => {
                 const btn = document.getElementById(`filter${m.charAt(0).toUpperCase() + m.slice(1)}`);
                 if (btn) btn.classList.toggle('active', m === mode);
             });
+
+            suppressHighlightAutoScroll = true;
             updateYouTubeSubtitlesDisplay();
+            suppressHighlightAutoScroll = false;
+
+            if (panel) panel.scrollTop = panelScrollByFilter[mode] || 0;
             saveState();
         }
 
@@ -1879,8 +1890,10 @@
                 item.classList.add('current-playing');
                 console.log('設置新的YouTube字幕高亮:', targetIndex);
 
-                // 確保元素在視圖中可見
-                scrollToElement(item, 'youtubeSubtitlesPanel');
+                // 確保元素在視圖中可見（切換篩選 tab 時不自動捲動，保留原位置）
+                if (!suppressHighlightAutoScroll) {
+                    scrollToElement(item, 'youtubeSubtitlesPanel');
+                }
             }
         }
         
