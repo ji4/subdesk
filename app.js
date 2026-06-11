@@ -1453,10 +1453,10 @@
             const rates = getPlaybackRates();
             slider.max = String(rates.length - 1);
 
-            // 刻度點數量隨速率清單變動（本機 11 段、YouTube 8 段）
+            // 刻度點數量隨速率清單變動（本機 11 段、YouTube 8 段）；標籤上下交錯避免擁擠
             const dots = document.getElementById('speedSliderDots');
             if (dots && dots.childElementCount !== rates.length) {
-                dots.innerHTML = rates.map(() => '<span></span>').join('');
+                dots.innerHTML = rates.map(r => `<span data-label="${formatRateLabel(r)}"></span>`).join('');
             }
 
             let idx = rates.findIndex(r => Math.abs(r - rate) < 0.01);
@@ -2279,11 +2279,9 @@
             if (toggle) toggle.checked = directKeysWhileEditing;
             const note = document.getElementById('directEditingNote');
             if (note) {
-                const keyList = Object.keys(DEFAULT_KEY_BINDINGS)
-                    .map(name => codeToLabel(keyBindings[name])).join('、');
                 note.textContent = directKeysWhileEditing
-                    ? t('keys.directOnNote', keyList)
-                    : t('keys.directOffNote', keyList);
+                    ? t('keys.directOnNote')
+                    : t('keys.directOffNote');
                 note.classList.toggle('on', directKeysWhileEditing);
             }
         }

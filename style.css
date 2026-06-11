@@ -684,8 +684,9 @@ body {
   background: var(--surface-2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 10px 14px;
-  width: 200px;
+  /* 上下要留刻度標籤的空間 */
+  padding: 22px 16px;
+  width: 230px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   opacity: 0;
   pointer-events: none;
@@ -748,11 +749,27 @@ body {
 }
 
 .speed-slider-dots span {
+  position: relative;
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.35);
 }
+
+/* 刻度數值：上下交錯排列，避免擠在一起 */
+.speed-slider-dots span::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.speed-slider-dots span:nth-child(odd)::after { bottom: 8px; }
+.speed-slider-dots span:nth-child(even)::after { top: 8px; }
 
 .speed-control input[type="range"] {
   -webkit-appearance: none;
