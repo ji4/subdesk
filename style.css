@@ -213,6 +213,8 @@ body {
 .key-settings {
   position: relative;
   flex-shrink: 0;
+  /* .header-shortcuts 設了 pointer-events: none，這裡要恢復才能點擊 */
+  pointer-events: auto;
 }
 
 .key-settings-btn {
@@ -633,18 +635,60 @@ body {
 
 /* --- Playback Speed Slider --- */
 .speed-control {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  min-width: 180px;
-  padding: 0 6px;
+  align-items: center;
+}
+
+.speed-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-normal) var(--ease), transform var(--dur-normal) var(--ease);
+  z-index: 150;
+}
+
+/* 桌面 hover 或行動點擊（.open）時顯示 */
+@media (hover: hover) {
+  .speed-control:hover .speed-popover {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+}
+.speed-control.open .speed-popover {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.speed-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
+  min-width: 32px;
+  text-align: right;
 }
 
 .speed-control input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 4px;
   background: var(--surface-2);
   border-radius: 2px;
@@ -674,23 +718,6 @@ body {
   border: 2px solid var(--bg);
   cursor: pointer;
 }
-
-.speed-ticks {
-  display: flex;
-  justify-content: space-between;
-}
-
-.speed-tick {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-  cursor: pointer;
-  text-align: center;
-  transition: color var(--dur-normal) var(--ease);
-}
-
-.speed-tick:hover { color: var(--text); }
-.speed-tick.active { color: var(--primary); font-weight: 600; }
 
 .current-time {
   background: var(--bg);
@@ -1522,8 +1549,7 @@ body {
 
   .speed-control {
     order: 5;
-    grid-column: 1 / -1;
-    min-width: 0;
+    justify-self: center;
   }
 
   .subtitle-display-panel {

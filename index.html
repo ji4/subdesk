@@ -177,8 +177,11 @@
                     <button id="backBtn" onclick="controlVideo('back')" data-i18n-title="controls.backTitle" title="後退5秒">-5s</button>
                     <button id="forwardBtn" onclick="controlVideo('forward')" data-i18n-title="controls.forwardTitle" title="前進5秒">+5s</button>
                     <div class="speed-control" id="speedControl">
-                        <input type="range" id="speedSlider" min="0" max="7" step="1" value="3" data-i18n-aria="aria.speedSlider" aria-label="播放速率">
-                        <div class="speed-ticks" id="speedTicks"></div>
+                        <button class="speed-btn" id="speedBtn" onclick="toggleSpeedPopover()" data-i18n-title="aria.speedSlider" title="播放速率" aria-haspopup="true">1×</button>
+                        <div class="speed-popover" id="speedPopover">
+                            <input type="range" id="speedSlider" min="0" max="7" step="1" value="3" data-i18n-aria="aria.speedSlider" aria-label="播放速率">
+                            <span class="speed-value" id="speedValue">1×</span>
+                        </div>
                     </div>
                     <div class="current-time" id="currentTime" data-i18n-aria="aria.currentTime" aria-label="目前播放時間，可輸入時間跳轉">
                         <input class="time-digit" id="timeDigit0" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour1" aria-label="小時十位" value="0">

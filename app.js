@@ -1394,32 +1394,32 @@
             return isLocalVideo ? LOCAL_PLAYBACK_RATES : YOUTUBE_PLAYBACK_RATES;
         }
 
-        // 依目前模式（本機/YouTube）重建速率滑桿刻度
+        // 依目前模式（本機/YouTube）設定速率滑桿範圍
         function initSpeedSlider() {
             const slider = document.getElementById('speedSlider');
-            const ticks = document.getElementById('speedTicks');
-            if (!slider || !ticks) return;
+            if (!slider) return;
 
-            const rates = getPlaybackRates();
-            slider.max = String(rates.length - 1);
-            ticks.innerHTML = rates.map((r, i) =>
-                `<span class="speed-tick" data-rate-index="${i}">${formatRateLabel(r)}</span>`
-            ).join('');
-
-            ticks.querySelectorAll('.speed-tick').forEach(tick => {
-                tick.onclick = function() {
-                    const idx = Number(this.dataset.rateIndex);
-                    slider.value = String(idx);
-                    applyPlaybackRate(getPlaybackRates()[idx]);
-                };
-            });
+            slider.max = String(getPlaybackRates().length - 1);
 
             // 用屬性指派避免重建時重複綁定
             slider.oninput = function() {
                 applyPlaybackRate(getPlaybackRates()[Number(this.value)]);
             };
 
+            // 手機沒有 hover，點按鈕開關 popover；點外側關閉
+            document.addEventListener('click', function(e) {
+                const control = document.getElementById('speedControl');
+                if (control && control.classList.contains('open') && !control.contains(e.target)) {
+                    control.classList.remove('open');
+                }
+            });
+
             syncSpeedSlider(getCurrentPlaybackRate());
+        }
+
+        function toggleSpeedPopover() {
+            const control = document.getElementById('speedControl');
+            if (control) control.classList.toggle('open');
         }
 
         function formatRateLabel(rate) {
@@ -1434,23 +1434,24 @@
             return 1;
         }
 
-        // 鍵盤調速或載入影片後，同步滑桿位置與刻度高亮
+        // 鍵盤調速或載入影片後，同步滑桿位置與速率標籤
         function syncSpeedSlider(rate) {
             const slider = document.getElementById('speedSlider');
-            const ticks = document.getElementById('speedTicks');
-            if (!slider || !ticks) return;
+            if (!slider) return;
 
             const rates = getPlaybackRates();
-            if (Number(slider.max) !== rates.length - 1) {
-                initSpeedSlider();
-                return;
-            }
+            slider.max = String(rates.length - 1);
+
             let idx = rates.findIndex(r => Math.abs(r - rate) < 0.01);
             if (idx === -1) idx = rates.findIndex(r => r >= rate);
             if (idx === -1) idx = rates.length - 1;
             slider.value = String(idx);
-            ticks.querySelectorAll('.speed-tick').forEach((tick, i) =>
-                tick.classList.toggle('active', i === idx));
+
+            const label = formatRateLabel(rates[idx]);
+            const btn = document.getElementById('speedBtn');
+            const value = document.getElementById('speedValue');
+            if (btn) btn.textContent = label;
+            if (value) value.textContent = label;
         }
 
         function jumpToSubtitle(dir) {
