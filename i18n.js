@@ -34,7 +34,7 @@
     'keys.speedDown': { 'zh-TW': '降低速率', 'en': 'Slow down' },
     'keys.speedUp':   { 'zh-TW': '提高速率', 'en': 'Speed up' },
     'keys.pressKey':  { 'zh-TW': '請按新按鍵', 'en': 'Press new key' },
-    'keys.directEditing': { 'zh-TW': '編輯文字時不需 Alt，停用按鍵字元輸入。', 'en': 'No Alt while editing — suppress key character input.' },
+    'keys.directEditing': { 'zh-TW': '編輯文字時不需 Alt，<br>停用按鍵字元輸入。', 'en': 'No Alt while editing —<br>suppress key character input.' },
     'keys.directOnNote': {
       'zh-TW': '已啟用：編輯字幕時，單獨按快捷鍵即可觸發功能；若該鍵原本會輸入字元，啟用後不會輸入。',
       'en': 'Enabled: while editing, shortcut keys trigger their action directly; keys that would normally type a character will not.'

@@ -335,7 +335,7 @@ body {
 
 .key-direct-toggle {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
