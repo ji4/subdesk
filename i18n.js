@@ -102,6 +102,19 @@
 
     'drag.overlay': { 'zh-TW': '拖曳影片、音訊或字幕檔（.srt .vtt）至此', 'en': 'Drop video, audio or subtitle file (.srt .vtt) here' },
 
+    // ----- 頁尾：贊助與聯絡 -----
+    'footer.sponsorTitle': { 'zh-TW': '☕ 覺得這個工具好用嗎？', 'en': '☕ Finding this tool useful?' },
+    'footer.sponsorDesc': {
+      'zh-TW': '如果它幫你省下了不少時間，歡迎請站主喝杯咖啡，讓這個工具持續免費、持續進步。',
+      'en':    'If it saves you time, consider buying the site owner a coffee to keep this tool free and improving.'
+    },
+    'footer.sponsorBtn': { 'zh-TW': '贊助支持', 'en': 'Buy Me a Coffee' },
+    'footer.contactDesc': {
+      'zh-TW': '使用上有任何問題、建議或想法？',
+      'en':    'Questions, suggestions, or ideas?'
+    },
+    'footer.contactBtn': { 'zh-TW': '聯絡站主', 'en': 'Email the Site Owner' },
+
     'msg.invalidUrl':          { 'zh-TW': '請輸入有效的YouTube網址',           'en': 'Please enter a valid YouTube URL' },
     'msg.loadVideoError':      { 'zh-TW': '載入影片時發生錯誤，請重試。',       'en': 'Failed to load video, please try again.' },
     'msg.invalidFile':         { 'zh-TW': '請選擇有效的影片或音訊檔案',         'en': 'Please select a valid video or audio file' },

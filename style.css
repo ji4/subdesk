@@ -1917,3 +1917,100 @@ body {
   background: #EA6D0A;
   transform: scale(0.97);
 }
+/* --- 頁尾：贊助與聯絡 --- */
+.site-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 36px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.footer-card.sponsor-card {
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.10), rgba(20, 184, 166, 0.08)), var(--surface-2);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: 14px;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 0 24px rgba(249, 115, 22, 0.08);
+}
+
+.sponsor-card h4 {
+  color: var(--text);
+  font-size: 17px;
+}
+
+.sponsor-card p {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.footer-btn {
+  padding: 9px 26px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--dur-normal) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.footer-btn:active {
+  transform: scale(0.97);
+}
+
+.footer-btn-sponsor {
+  background: linear-gradient(135deg, #F97316, #F43F5E);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(249, 115, 22, 0.35);
+  transition: box-shadow var(--dur-normal) var(--ease), filter var(--dur-normal) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.footer-btn-sponsor:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 18px rgba(249, 115, 22, 0.5);
+}
+
+.footer-contact {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.footer-contact a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.footer-contact a:hover {
+  text-decoration: underline;
+}
+
+.footer-contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-btn-contact {
+  padding: 6px 16px;
+  font-size: 13px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.footer-btn-contact:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.35);
+}
