@@ -263,12 +263,12 @@ body {
   color: var(--text);
 }
 
-.key-settings-desc {
+/* 選擇器需兩層 class 才壓得過 .header p 的 nowrap */
+.key-settings-panel .key-settings-desc {
   margin: 0 0 12px;
   font-size: 12px;
   line-height: 1.6;
   color: var(--text-muted);
-  /* 覆寫 .header p 的 nowrap */
   white-space: normal;
 }
 
@@ -308,7 +308,7 @@ body {
   50% { box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.08); }
 }
 
-.key-settings-msg {
+.key-settings-panel .key-settings-msg {
   margin: 8px 0 0;
   min-height: 16px;
   font-size: 12px;
@@ -1229,6 +1229,10 @@ body {
   gap: 6px;
   padding: 2px 8px 2px 0;
 }
+
+/* 已修改 tab：整列（輸入框以外）可點擊播放 */
+.youtube-subtitle-content.modified-content { cursor: pointer; }
+.youtube-subtitle-content.modified-content [contenteditable="true"] { cursor: text; }
 
 /* Modified subtitle — two-line layout */
 .youtube-subtitle-content.modified-content {

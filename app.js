@@ -947,7 +947,16 @@
             updateYouTubeSubtitlesDisplay();
             suppressHighlightAutoScroll = false;
 
-            if (panel) panel.scrollTop = panelScrollByFilter[mode] || 0;
+            if (panel) {
+                // 有高亮列就直接瞬間置中（不播放捲動動畫），否則還原該 tab 先前的位置
+                const playing = panel.querySelector('.youtube-subtitle-item.current-playing');
+                if (playing) {
+                    panel.scrollTop = Math.max(0,
+                        playing.offsetTop - panel.offsetTop - (panel.clientHeight / 2 - playing.clientHeight / 2));
+                } else {
+                    panel.scrollTop = panelScrollByFilter[mode] || 0;
+                }
+            }
             saveState();
         }
 
@@ -2167,6 +2176,14 @@
 
                 const item = e.target.closest('.youtube-subtitle-item');
                 if (!item) return;
+
+                // 已修改 tab：點輸入框以外的任何區域直接播放該句
+                if (subtitlePanelFilter === 'modified') {
+                    const sub = youtubeSubtitles[Number(item.dataset.index)];
+                    if (sub) seekToTime(sub.start);
+                    return;
+                }
+
                 const editable = item.querySelector('.youtube-subtitle-text');
                 if (!editable) return;
 
