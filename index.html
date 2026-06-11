@@ -60,6 +60,12 @@
     <script src="i18n.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TJNXR7NCT4"></script>
     <script>
+        (function() {
+            var _hn = window.location.hostname;
+            var _isLocal = ['localhost', '127.0.0.1', '::1'].includes(_hn)
+                || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_hn);
+            if (_isLocal) window['ga-disable-G-TJNXR7NCT4'] = true;
+        })();
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
