@@ -34,6 +34,15 @@
     'keys.speedDown': { 'zh-TW': '降低速率', 'en': 'Slow down' },
     'keys.speedUp':   { 'zh-TW': '提高速率', 'en': 'Speed up' },
     'keys.pressKey':  { 'zh-TW': '請按新按鍵', 'en': 'Press new key' },
+    'keys.directEditing': { 'zh-TW': '編輯文字時不需 Alt', 'en': 'No Alt needed while editing' },
+    'keys.directOnNote': {
+      'zh-TW': function (k) { return '已啟用：編輯字幕時按 ' + k + ' 會直接執行對應功能，「不會」輸入這些字元。需要輸入這些字元時請取消勾選。'; },
+      'en':    function (k) { return 'Enabled: while editing, pressing ' + k + ' triggers the action and does NOT type the character. Uncheck if you need to type these characters.'; }
+    },
+    'keys.directOffNote': {
+      'zh-TW': function (k) { return '未啟用：編輯字幕時按 ' + k + ' 會正常輸入字元，調整功能請搭配 Alt。'; },
+      'en':    function (k) { return 'Disabled: while editing, pressing ' + k + ' types the character as usual; hold Alt to trigger the action.'; }
+    },
     'keys.reset':     { 'zh-TW': '回復預設', 'en': 'Reset to defaults' },
     'keys.resetDone': { 'zh-TW': '已回復預設按鍵', 'en': 'Defaults restored' },
     'keys.reserved': {

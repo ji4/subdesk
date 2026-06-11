@@ -109,6 +109,11 @@
                         <div class="key-binding-row"><span data-i18n="keys.nextSub">下一句</span><button class="key-bind-btn" id="bindNextSub" onclick="startKeyCapture('nextSub')">D</button></div>
                         <div class="key-binding-row"><span data-i18n="keys.speedDown">降低速率</span><button class="key-bind-btn" id="bindSpeedDown" onclick="startKeyCapture('speedDown')">[</button></div>
                         <div class="key-binding-row"><span data-i18n="keys.speedUp">提高速率</span><button class="key-bind-btn" id="bindSpeedUp" onclick="startKeyCapture('speedUp')">]</button></div>
+                        <label class="key-direct-toggle">
+                            <input type="checkbox" id="directEditingToggle" onchange="toggleDirectEditing(this.checked)">
+                            <span data-i18n="keys.directEditing">編輯文字時不需 Alt</span>
+                        </label>
+                        <p class="key-direct-note" id="directEditingNote"></p>
                         <p class="key-settings-msg" id="keySettingsMsg"></p>
                         <button class="key-reset-btn" onclick="resetKeyBindings()" data-i18n="keys.reset">回復預設</button>
                     </div>
@@ -179,7 +184,10 @@
                     <div class="speed-control" id="speedControl">
                         <button class="speed-btn" id="speedBtn" onclick="toggleSpeedPopover()" data-i18n-title="aria.speedSlider" title="播放速率" aria-haspopup="true">1×</button>
                         <div class="speed-popover" id="speedPopover">
-                            <input type="range" id="speedSlider" min="0" max="7" step="1" value="3" data-i18n-aria="aria.speedSlider" aria-label="播放速率">
+                            <div class="speed-slider-wrap">
+                                <div class="speed-slider-dots" id="speedSliderDots"></div>
+                                <input type="range" id="speedSlider" min="0" max="7" step="1" value="3" data-i18n-aria="aria.speedSlider" aria-label="播放速率">
+                            </div>
                             <span class="speed-value" id="speedValue">1×</span>
                         </div>
                     </div>

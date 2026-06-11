@@ -223,6 +223,8 @@
         let keyBindings = { ...DEFAULT_KEY_BINDINGS };
         let capturingBinding = null;
         let hintEditingMode = false;
+        // 編輯文字時是否免按 Alt 直接觸發快捷鍵（按下時不會輸入字元）
+        let directKeysWhileEditing = false;
 
         const YOUTUBE_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
         const LOCAL_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0];
@@ -1451,6 +1453,12 @@
             const rates = getPlaybackRates();
             slider.max = String(rates.length - 1);
 
+            // 刻度點數量隨速率清單變動（本機 11 段、YouTube 8 段）
+            const dots = document.getElementById('speedSliderDots');
+            if (dots && dots.childElementCount !== rates.length) {
+                dots.innerHTML = rates.map(() => '<span></span>').join('');
+            }
+
             let idx = rates.findIndex(r => Math.abs(r - rate) < 0.01);
             if (idx === -1) idx = rates.findIndex(r => r >= rate);
             if (idx === -1) idx = rates.length - 1;
@@ -2206,11 +2214,13 @@
                 Object.keys(DEFAULT_KEY_BINDINGS).forEach(name => {
                     if (typeof saved[name] === 'string' && saved[name]) keyBindings[name] = saved[name];
                 });
+                directKeysWhileEditing = saved.directEditing === true;
             } catch (e) {}
         }
 
         function saveKeyBindings() {
-            localStorage.setItem(LS_KEYS.keyBindings, JSON.stringify(keyBindings));
+            localStorage.setItem(LS_KEYS.keyBindings,
+                JSON.stringify({ ...keyBindings, directEditing: directKeysWhileEditing }));
         }
 
         function getBindingAction(code) {
@@ -2237,7 +2247,7 @@
 
         // 依目前綁定與編輯模式，更新 header 提示與設定面板按鈕文字
         function refreshShortcutHints() {
-            const prefix = hintEditingMode ? 'Alt + ' : '';
+            const prefix = hintEditingMode && !directKeysWhileEditing ? 'Alt + ' : '';
             const jumpKbds = document.querySelectorAll('#jumpHint kbd');
             if (jumpKbds.length >= 2) {
                 jumpKbds[0].textContent = prefix + codeToLabel(keyBindings.prevSub);
@@ -2254,6 +2264,28 @@
                 btn.textContent = capturingBinding === name ? t('keys.pressKey') : codeToLabel(keyBindings[name]);
                 btn.classList.toggle('capturing', capturingBinding === name);
             });
+            updateDirectEditingUI();
+        }
+
+        function toggleDirectEditing(checked) {
+            directKeysWhileEditing = checked;
+            saveKeyBindings();
+            refreshShortcutHints();
+        }
+
+        // 同步 checkbox 狀態與回饋文字（清楚說明按下後會不會輸入字元）
+        function updateDirectEditingUI() {
+            const toggle = document.getElementById('directEditingToggle');
+            if (toggle) toggle.checked = directKeysWhileEditing;
+            const note = document.getElementById('directEditingNote');
+            if (note) {
+                const keyList = Object.keys(DEFAULT_KEY_BINDINGS)
+                    .map(name => codeToLabel(keyBindings[name])).join('、');
+                note.textContent = directKeysWhileEditing
+                    ? t('keys.directOnNote', keyList)
+                    : t('keys.directOffNote', keyList);
+                note.classList.toggle('on', directKeysWhileEditing);
+            }
         }
 
         // 焦點在文字編輯處時，提示改顯示 Alt 組合
@@ -2285,6 +2317,7 @@
 
         function resetKeyBindings() {
             keyBindings = { ...DEFAULT_KEY_BINDINGS };
+            directKeysWhileEditing = false;
             capturingBinding = null;
             saveKeyBindings();
             setKeySettingsMsg(t('keys.resetDone'));
@@ -2381,6 +2414,14 @@
                     e.target.tagName === 'INPUT' ||
                     e.target.contentEditable === 'true' ||
                     e.target.closest('[contenteditable="true"]')) {
+                    // 使用者啟用「編輯時不需 Alt」：直接觸發功能且不輸入字元
+                    if (directKeysWhileEditing && !e.ctrlKey && !e.metaKey) {
+                        const directAction = getBindingAction(e.code);
+                        if (directAction) {
+                            e.preventDefault();
+                            directAction();
+                        }
+                    }
                     return;
                 }
 
