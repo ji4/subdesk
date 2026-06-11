@@ -14,8 +14,8 @@
     },
     'og.locale': { 'zh-TW': 'zh_TW', 'en': 'en_US' },
 
-    'header.reset':      { 'zh-TW': '清除',               'en': 'Reset' },
-    'header.resetTitle': { 'zh-TW': '清除所有資料並重置頁面', 'en': 'Clear all data and reset the page' },
+    'header.reset':      { 'zh-TW': '清除資料',             'en': 'Clear Data' },
+    'header.resetTitle': { 'zh-TW': '清除影片與字幕資料並重置頁面（快捷鍵設定不受影響）', 'en': 'Clear video and subtitle data and reset the page (shortcuts are not affected)' },
 
     'shortcuts.playPause': { 'zh-TW': '播放 / 暫停', 'en': 'Play / Pause' },
     'shortcuts.skip5s':    { 'zh-TW': '跳 5 秒',     'en': 'Skip 5s' },

@@ -180,7 +180,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   overflow: hidden;
-  min-width: 120px;
+  min-width: 68px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   opacity: 0;
   transform: translateY(-4px);
@@ -461,6 +461,18 @@ body {
   font-family: var(--font-body);
   transition: all var(--dur-normal) var(--ease);
 }
+
+/* 行內版清除按鈕（手機用）：靠右、不佔 flex:1 */
+.reset-btn-inline {
+  display: none;
+  flex: 0 0 auto !important;
+  margin-left: auto;
+  color: var(--text-muted) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  font-size: 12px !important;
+  padding: 5px 10px !important;
+}
+.reset-btn-inline:hover { color: var(--error) !important; border-color: var(--error) !important; }
 
 .video-load-selector button:hover { color: var(--text); background: var(--surface-2); }
 .video-load-selector button.active { background: var(--primary); color: #0F172A; font-weight: 600; }
@@ -1739,6 +1751,10 @@ body {
   .header-shortcuts {
     display: none;
   }
+
+  /* 小螢幕：header 清除按鈕隱藏，改用 tab 列右側的 inline 版 */
+  .reset-btn-header { display: none; }
+  .reset-btn-inline { display: flex; align-items: center; }
 
   .video-load-selector {
     gap: 4px;

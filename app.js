@@ -184,7 +184,11 @@
 
         function resetPage() {
             if (!confirm(t('msg.resetConfirm'))) return;
-            try { Object.values(LS_KEYS).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+            try {
+                Object.entries(LS_KEYS).forEach(([name, k]) => {
+                    if (name !== 'keyBindings') localStorage.removeItem(k);
+                });
+            } catch (e) {}
             window.location.reload();
         }
 

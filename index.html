@@ -88,10 +88,10 @@
                 </div>
                 <p data-i18n="page.tagline">The Smoothest Way to Review Subtitles</p>
             </div>
-            <button class="header-reset-btn" onclick="resetPage()"
+            <button class="header-reset-btn reset-btn-header" onclick="resetPage()"
                 data-i18n="header.reset"
                 data-i18n-title="header.resetTitle"
-                title="清除所有資料並重置頁面">清除</button>
+                title="清除所有資料並重置頁面">清除資料</button>
             <div class="header-shortcuts">
                 <span class="hint-item"><kbd>Space</kbd> <span data-i18n="shortcuts.playPause">播放 / 暫停</span></span>
                 <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="shortcuts.skip5s">跳 5 秒</span></span>
@@ -138,6 +138,10 @@
                 <div class="video-load-selector">
                     <button class="active" id="youtubeBtn">YouTube</button>
                     <button id="localVideoBtn" data-i18n="video.localVideo">本機影片</button>
+                    <button class="header-reset-btn reset-btn-inline" onclick="resetPage()"
+                        data-i18n="header.reset"
+                        data-i18n-title="header.resetTitle"
+                        title="清除所有資料並重置頁面">清除資料</button>
                 </div>
 
                 <div class="youtube-input" id="youtubeInput">
