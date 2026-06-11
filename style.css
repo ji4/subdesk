@@ -1546,8 +1546,16 @@ body {
   }
 
   .header-brand {
-    flex: 1 1 auto;
+    /* 強制可收縮，讓清除與語言按鈕留在第一列右側 */
+    flex: 1 1 0;
     min-width: 0;
+    overflow: hidden;
+  }
+
+  .header-brand-main h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .header h1 {
@@ -1561,6 +1569,7 @@ body {
 
   .header-reset-btn {
     flex: 0 0 auto;
+    margin-left: auto;
   }
 
   .lang-selector {
