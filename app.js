@@ -2062,6 +2062,10 @@
                 if (e.target.closest('.subtitle-seek-zone')) return;
                 if (e.target.closest('[contenteditable="true"]')) return;
 
+                // 拖曳選取文字後放開也會觸發 click，這時不可把游標移走，否則選取會被清掉
+                const currentSelection = window.getSelection();
+                if (currentSelection && !currentSelection.isCollapsed) return;
+
                 const item = e.target.closest('.youtube-subtitle-item');
                 if (!item) return;
                 const editable = item.querySelector('.youtube-subtitle-text');
