@@ -779,6 +779,9 @@
                 updateYouTubeSubtitlesDisplay();
                 saveState();
 
+                // 字幕可能比 player 事件晚就緒，補啟動同步以確保高亮
+                startSubtitleSync();
+
                 return youtubeSubtitles;
             } catch (error) {
                 console.error('獲取字幕失敗:', error);
@@ -1772,9 +1775,15 @@
                     currentPlayerTime = localVideo.currentTime;
                     isPlaying = !localVideo.paused && !localVideo.ended;
                 } else {
-                    if (!player || !isPlayerReady || typeof player.getCurrentTime !== 'function') return;
+                    // 不依賴 isPlayerReady：onReady 握手偶爾遺失，只要 player 可取得時間就同步
+                    if (!player || typeof player.getCurrentTime !== 'function') return;
                     try {
                         currentPlayerTime = player.getCurrentTime();
+                        if (!Number.isFinite(currentPlayerTime)) return;
+                        if (!isPlayerReady) {
+                            isPlayerReady = true;
+                            isVideoLoaded = true;
+                        }
                         if (typeof player.getPlayerState === 'function' && window.YT?.PlayerState) {
                             isPlaying = player.getPlayerState() === YT.PlayerState.PLAYING;
                         }
@@ -1911,11 +1920,12 @@
                 const elementRect = element.getBoundingClientRect();
                 const isMobile = window.matchMedia('(max-width: 768px)').matches;
                 
-                // 計算是否需要滾動
-                const isVisible = elementRect.top >= containerRect.top && 
-                                elementRect.bottom <= containerRect.bottom;
-                
-                if (!isVisible || isMobile) {
+                // 計算是否需要滾動：超出視野，或已進入容器底部三列範圍（提前回中）
+                const bottomThreshold = containerRect.bottom - element.clientHeight * 3;
+                const isComfortablyVisible = elementRect.top >= containerRect.top &&
+                                elementRect.bottom <= bottomThreshold;
+
+                if (!isComfortablyVisible || isMobile) {
                     const anchorOffset = isMobile
                         ? element.clientHeight
                         : (container.clientHeight / 2) - (element.clientHeight / 2);
@@ -2027,6 +2037,31 @@
             updatePlayToggleBtn();
         });
 
+        // 整列（Play 按鈕左側、含時間 Label 右側空白）點擊即聚焦該列的可編輯文字
+        function initSubtitleRowClickToEdit() {
+            const panel = document.getElementById('youtubeSubtitlesPanel');
+            if (!panel) return;
+
+            panel.addEventListener('click', function(e) {
+                if (e.target.closest('.subtitle-seek-zone')) return;
+                if (e.target.closest('[contenteditable="true"]')) return;
+
+                const item = e.target.closest('.youtube-subtitle-item');
+                if (!item) return;
+                const editable = item.querySelector('.youtube-subtitle-text');
+                if (!editable) return;
+
+                editable.focus();
+                // 游標移到文字末端
+                const range = document.createRange();
+                range.selectNodeContents(editable);
+                range.collapse(false);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化影片載入選擇器
             initVideoLoadSelector();
@@ -2036,6 +2071,8 @@
             initVerticalDivider();
             // 初始化可編輯時間
             initCurrentTimeEditor();
+            // 整列點擊即進入編輯
+            initSubtitleRowClickToEdit();
             // 還原 localStorage 狀態
             loadState();
             
