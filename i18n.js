@@ -26,14 +26,14 @@
     'keys.settingsTitle': { 'zh-TW': '自訂快捷鍵', 'en': 'Customize shortcuts' },
     'keys.title':         { 'zh-TW': '自訂快捷鍵', 'en': 'Customize Shortcuts' },
     'keys.desc': {
-      'zh-TW': '某些按鍵在編輯字幕文字時會直接輸入字元，或可能與你的輸入法、瀏覽器快捷鍵衝突，因此可以改成自己順手的按鍵。編輯文字時請搭配 Alt 使用。設定會儲存在這個瀏覽器中。',
-      'en': 'Some keys insert characters while you are editing subtitle text, or may conflict with your input method or browser shortcuts, so you can rebind them to keys that work for you. While editing text, combine them with Alt. Settings are saved in this browser.'
+      'zh-TW': '預設按鍵若與你的輸入法或瀏覽器快捷鍵衝突，可在此改鍵。編輯文字時請搭配 Alt 使用；設定只儲存在這個瀏覽器。',
+      'en': 'Rebind these keys if the defaults conflict with your input method or browser shortcuts. Combine with Alt while editing text. Saved in this browser only.'
     },
     'keys.prevSub':   { 'zh-TW': '上一句', 'en': 'Previous line' },
     'keys.nextSub':   { 'zh-TW': '下一句', 'en': 'Next line' },
     'keys.speedDown': { 'zh-TW': '降低速率', 'en': 'Slow down' },
     'keys.speedUp':   { 'zh-TW': '提高速率', 'en': 'Speed up' },
-    'keys.pressKey':  { 'zh-TW': '請按任意鍵…', 'en': 'Press a key…' },
+    'keys.pressKey':  { 'zh-TW': '請按新按鍵', 'en': 'Press new key' },
     'keys.reset':     { 'zh-TW': '回復預設', 'en': 'Reset to defaults' },
     'keys.resetDone': { 'zh-TW': '已回復預設按鍵', 'en': 'Defaults restored' },
     'keys.reserved': {

@@ -666,6 +666,16 @@ body {
   z-index: 150;
 }
 
+/* 透明橋接區：補起按鈕與 popover 之間 8px 的空隙，滑鼠移過去時 hover 不中斷 */
+.speed-popover::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
 /* 桌面 hover 或行動點擊（.open）時顯示 */
 @media (hover: hover) {
   .speed-control:hover .speed-popover {
