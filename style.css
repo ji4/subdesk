@@ -268,6 +268,8 @@ body {
   font-size: 12px;
   line-height: 1.6;
   color: var(--text-muted);
+  /* 覆寫 .header p 的 nowrap */
+  white-space: normal;
 }
 
 .key-binding-row {
@@ -311,6 +313,8 @@ body {
   min-height: 16px;
   font-size: 12px;
   color: var(--warning);
+  white-space: normal;
+  line-height: 1.5;
 }
 
 .key-reset-btn {
