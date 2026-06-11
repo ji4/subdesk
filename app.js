@@ -2302,11 +2302,16 @@
                 return el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT'
                     || el.closest?.('[contenteditable="true"]'));
             }
+            // 只有字幕列表內的 contenteditable（非 URL input / textarea）才切換 Alt 提示
+            function isSubtitleEditingTarget(el) {
+                return el && el.closest?.('[contenteditable="true"]')
+                    && el.closest?.('#subtitleDisplayPanel, .subtitle-display-panel');
+            }
             document.addEventListener('focusin', e => {
-                if (isEditingTarget(e.target)) { hintEditingMode = true; refreshShortcutHints(); }
+                if (isSubtitleEditingTarget(e.target)) { hintEditingMode = true; refreshShortcutHints(); }
             });
             document.addEventListener('focusout', e => {
-                if (isEditingTarget(e.target)) { hintEditingMode = false; refreshShortcutHints(); }
+                if (isSubtitleEditingTarget(e.target)) { hintEditingMode = false; refreshShortcutHints(); }
             });
         }
 
