@@ -462,11 +462,11 @@ body {
   transition: all var(--dur-normal) var(--ease);
 }
 
-/* 行內版清除按鈕（手機用）：靠右、不佔 flex:1 */
+/* 行內版清除按鈕（手機用）：靠右、不佔 flex:1，與 tab 保持間距 */
 .reset-btn-inline {
   display: none;
   flex: 0 0 auto !important;
-  margin-left: auto;
+  margin-left: 10px;
   color: var(--text-muted) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   font-size: 12px !important;
@@ -502,8 +502,8 @@ body {
 
 .youtube-input button {
   padding: 9px 16px;
-  background: var(--accent);
-  color: white;
+  background: var(--success);
+  color: #0F172A;
   border: none;
   border-radius: 8px;
   font-size: 13px;
