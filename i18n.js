@@ -40,6 +40,7 @@
     'controls.forwardTitle': { 'zh-TW': '前進5秒', 'en': 'Forward 5s' },
 
     'aria.currentTime': { 'zh-TW': '目前播放時間，可輸入時間跳轉', 'en': 'Current playback time, type to seek' },
+    'aria.speedSlider': { 'zh-TW': '播放速率', 'en': 'Playback speed' },
     'aria.timeHour1':   { 'zh-TW': '小時十位', 'en': 'Hour (tens)' },
     'aria.timeHour2':   { 'zh-TW': '小時個位', 'en': 'Hour (ones)' },
     'aria.timeMin1':    { 'zh-TW': '分鐘十位', 'en': 'Minute (tens)' },

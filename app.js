@@ -505,6 +505,7 @@
 
                     updateTimeDisplay();
                     setupLocalVideoEvents();
+                    syncSpeedSlider(getCurrentPlaybackRate());
                 });
 
                 localVideo.addEventListener('error', function(e) {
@@ -593,6 +594,7 @@
             } catch(e) {}
             startSubtitleSync();
             updateYouTubeSubtitlesDisplay();
+            syncSpeedSlider(getCurrentPlaybackRate());
             showDeleteNotification(t('msg.playerReady'), 'success');
             // onApiChange 是主要觸發點；這裡只做 3 秒後的備援
             setTimeout(() => {
@@ -1360,13 +1362,82 @@
             } else {
                 idx = Math.min(Math.max(idx + dir, 0), rates.length - 1);
             }
-            const newRate = rates[idx];
+            applyPlaybackRate(rates[idx]);
+        }
+
+        function applyPlaybackRate(newRate) {
             if (isLocalVideo) {
+                if (!localVideo) return;
                 localVideo.playbackRate = newRate;
             } else {
+                if (!player || !isPlayerReady) return;
                 player.setPlaybackRate(newRate);
             }
+            syncSpeedSlider(newRate);
             showDeleteNotification(t('msg.speed', newRate));
+        }
+
+        function getPlaybackRates() {
+            return isLocalVideo ? LOCAL_PLAYBACK_RATES : YOUTUBE_PLAYBACK_RATES;
+        }
+
+        // 依目前模式（本機/YouTube）重建速率滑桿刻度
+        function initSpeedSlider() {
+            const slider = document.getElementById('speedSlider');
+            const ticks = document.getElementById('speedTicks');
+            if (!slider || !ticks) return;
+
+            const rates = getPlaybackRates();
+            slider.max = String(rates.length - 1);
+            ticks.innerHTML = rates.map((r, i) =>
+                `<span class="speed-tick" data-rate-index="${i}">${formatRateLabel(r)}</span>`
+            ).join('');
+
+            ticks.querySelectorAll('.speed-tick').forEach(tick => {
+                tick.onclick = function() {
+                    const idx = Number(this.dataset.rateIndex);
+                    slider.value = String(idx);
+                    applyPlaybackRate(getPlaybackRates()[idx]);
+                };
+            });
+
+            // 用屬性指派避免重建時重複綁定
+            slider.oninput = function() {
+                applyPlaybackRate(getPlaybackRates()[Number(this.value)]);
+            };
+
+            syncSpeedSlider(getCurrentPlaybackRate());
+        }
+
+        function formatRateLabel(rate) {
+            return `${rate}×`.replace('0.', '.');
+        }
+
+        function getCurrentPlaybackRate() {
+            try {
+                if (isLocalVideo && localVideo) return localVideo.playbackRate;
+                if (player && typeof player.getPlaybackRate === 'function') return player.getPlaybackRate();
+            } catch (e) {}
+            return 1;
+        }
+
+        // 鍵盤調速或載入影片後，同步滑桿位置與刻度高亮
+        function syncSpeedSlider(rate) {
+            const slider = document.getElementById('speedSlider');
+            const ticks = document.getElementById('speedTicks');
+            if (!slider || !ticks) return;
+
+            const rates = getPlaybackRates();
+            if (Number(slider.max) !== rates.length - 1) {
+                initSpeedSlider();
+                return;
+            }
+            let idx = rates.findIndex(r => Math.abs(r - rate) < 0.01);
+            if (idx === -1) idx = rates.findIndex(r => r >= rate);
+            if (idx === -1) idx = rates.length - 1;
+            slider.value = String(idx);
+            ticks.querySelectorAll('.speed-tick').forEach((tick, i) =>
+                tick.classList.toggle('active', i === idx));
         }
 
         function jumpToSubtitle(dir) {
@@ -2095,6 +2166,25 @@
             });
         }
 
+        // 焦點在文字編輯處時，header 速率快捷鍵提示改顯示 Alt 組合
+        function initSpeedHintModeSwitch() {
+            const hint = document.getElementById('speedHint');
+            if (!hint) return;
+            const kbds = hint.querySelectorAll('kbd');
+            if (kbds.length < 2) return;
+
+            function isEditingTarget(el) {
+                return el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT'
+                    || el.closest?.('[contenteditable="true"]'));
+            }
+            function updateHint(editing) {
+                kbds[0].textContent = editing ? 'Alt + [' : '[';
+                kbds[1].textContent = editing ? 'Alt + ]' : ']';
+            }
+            document.addEventListener('focusin', e => { if (isEditingTarget(e.target)) updateHint(true); });
+            document.addEventListener('focusout', e => { if (isEditingTarget(e.target)) updateHint(false); });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化影片載入選擇器
             initVideoLoadSelector();
@@ -2106,14 +2196,25 @@
             initCurrentTimeEditor();
             // 整列點擊即進入編輯
             initSubtitleRowClickToEdit();
+            // 速率滑桿
+            initSpeedSlider();
+            // 編輯模式時動態切換速率快捷鍵提示
+            initSpeedHintModeSwitch();
             // 還原 localStorage 狀態
             loadState();
             
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
+                // Alt+[ / Alt+]：編輯文字時也能調速且不輸入字元
+                if (e.altKey && (e.code === 'BracketLeft' || e.code === 'BracketRight')) {
+                    e.preventDefault();
+                    changeSpeed(e.code === 'BracketLeft' ? -1 : 1);
+                    return;
+                }
+
                 // 如果正在輸入文字，不處理鍵盤控制
-                if (e.target.tagName === 'TEXTAREA' || 
-                    e.target.tagName === 'INPUT' || 
+                if (e.target.tagName === 'TEXTAREA' ||
+                    e.target.tagName === 'INPUT' ||
                     e.target.contentEditable === 'true' ||
                     e.target.closest('[contenteditable="true"]')) {
                     return;

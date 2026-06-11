@@ -512,6 +512,67 @@ body {
 .video-controls button:disabled { opacity: 0.38; cursor: not-allowed; }
 .video-controls.collapsed { display: none !important; }
 
+/* --- Playback Speed Slider --- */
+.speed-control {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 180px;
+  padding: 0 6px;
+}
+
+.speed-control input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--surface-2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.speed-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  transition: transform var(--dur-normal) var(--ease);
+}
+
+.speed-control input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+.speed-control input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+}
+
+.speed-ticks {
+  display: flex;
+  justify-content: space-between;
+}
+
+.speed-tick {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: color var(--dur-normal) var(--ease);
+}
+
+.speed-tick:hover { color: var(--text); }
+.speed-tick.active { color: var(--primary); font-weight: 600; }
+
 .current-time {
   background: var(--bg);
   padding: 7px 14px;
@@ -1338,6 +1399,12 @@ body {
     display: flex;
     align-items: center;
     justify-self: center;
+  }
+
+  .speed-control {
+    order: 5;
+    grid-column: 1 / -1;
+    min-width: 0;
   }
 
   .subtitle-display-panel {

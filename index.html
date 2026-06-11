@@ -96,7 +96,7 @@
                 <span class="hint-item"><kbd>Space</kbd> <span data-i18n="shortcuts.playPause">播放 / 暫停</span></span>
                 <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="shortcuts.skip5s">跳 5 秒</span></span>
                 <span class="hint-item"><kbd>A</kbd><kbd>D</kbd> <span data-i18n="shortcuts.prevNext">上 / 下一句</span></span>
-                <span class="hint-item"><kbd>[</kbd><kbd>]</kbd> <span data-i18n="shortcuts.speed">降 / 升速率</span></span>
+                <span class="hint-item" id="speedHint"><kbd>[</kbd><kbd>]</kbd> <span data-i18n="shortcuts.speed">降 / 升速率</span></span>
             </div>
             <div class="lang-selector" id="langSelector">
               <button class="lang-selector-btn" id="langToggleBtn" onclick="toggleLangDropdown()" aria-haspopup="listbox">
@@ -160,6 +160,10 @@
                     <button id="playToggleBtn" onclick="controlVideo('toggle')" data-i18n-title="controls.play" title="播放"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
                     <button id="backBtn" onclick="controlVideo('back')" data-i18n-title="controls.backTitle" title="後退5秒">-5s</button>
                     <button id="forwardBtn" onclick="controlVideo('forward')" data-i18n-title="controls.forwardTitle" title="前進5秒">+5s</button>
+                    <div class="speed-control" id="speedControl">
+                        <input type="range" id="speedSlider" min="0" max="7" step="1" value="3" data-i18n-aria="aria.speedSlider" aria-label="播放速率">
+                        <div class="speed-ticks" id="speedTicks"></div>
+                    </div>
                     <div class="current-time" id="currentTime" data-i18n-aria="aria.currentTime" aria-label="目前播放時間，可輸入時間跳轉">
                         <input class="time-digit" id="timeDigit0" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour1" aria-label="小時十位" value="0">
                         <input class="time-digit" id="timeDigit1" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour2" aria-label="小時個位" value="0">
