@@ -1456,7 +1456,8 @@
             // 刻度點數量隨速率清單變動（本機 11 段、YouTube 8 段）；標籤上下交錯避免擁擠
             const dots = document.getElementById('speedSliderDots');
             if (dots && dots.childElementCount !== rates.length) {
-                dots.innerHTML = rates.map(r => `<span data-label="${formatRateLabel(r)}"></span>`).join('');
+                // 刻度標籤不帶 ×，視覺較乾淨；按鈕與目前值仍顯示 ×
+                dots.innerHTML = rates.map(r => `<span data-label="${String(r).replace('0.', '.')}"></span>`).join('');
             }
 
             let idx = rates.findIndex(r => Math.abs(r - rate) < 0.01);
@@ -2313,6 +2314,11 @@
         }
 
         function startKeyCapture(name) {
+            // 擷取中再點同一顆按鈕 → 取消擷取並回復該鍵預設
+            if (capturingBinding === name) {
+                resetKeyBinding(name);
+                return;
+            }
             capturingBinding = name;
             setKeySettingsMsg('');
             refreshShortcutHints();
