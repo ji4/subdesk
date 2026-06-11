@@ -348,6 +348,8 @@ body {
 .key-direct-toggle input[type="checkbox"] {
   accent-color: var(--primary);
   cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .key-settings-panel .key-direct-note {
