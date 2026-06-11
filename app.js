@@ -1885,23 +1885,39 @@
         }
         
         function findActiveSubtitleIndex(subtitles, currentPlayerTime, timeKey, fallbackDuration, durationKey = null) {
-            for (let i = 0; i < subtitles.length; i++) {
+            const EPS = 0.001;
+            let i = 0;
+            while (i < subtitles.length) {
                 const startTime = Number(subtitles[i][timeKey]);
-                if (!Number.isFinite(startTime)) continue;
-                
-                const nextStartTime = i < subtitles.length - 1 ? Number(subtitles[i + 1][timeKey]) : NaN;
-                const ownDuration = durationKey ? Number(subtitles[i][durationKey]) : NaN;
+                if (!Number.isFinite(startTime)) { i++; continue; }
+
+                // 收集起始時間相同的群組（player 擷取的字幕常出現重複時間戳）
+                let j = i;
+                while (j + 1 < subtitles.length) {
+                    const tiedStart = Number(subtitles[j + 1][timeKey]);
+                    if (!Number.isFinite(tiedStart) || Math.abs(tiedStart - startTime) > EPS) break;
+                    j++;
+                }
+
+                const nextStartTime = j < subtitles.length - 1 ? Number(subtitles[j + 1][timeKey]) : NaN;
+                const ownDuration = durationKey ? Number(subtitles[j][durationKey]) : NaN;
                 const endTime = Number.isFinite(ownDuration) && ownDuration > 0
                     ? startTime + Math.max(ownDuration, 0.25)
                     : Number.isFinite(nextStartTime) && nextStartTime > startTime
                     ? nextStartTime
                     : startTime + fallbackDuration;
-                
+
                 if (currentPlayerTime >= startTime && currentPlayerTime < endTime) {
-                    return i;
+                    const groupSize = j - i + 1;
+                    if (groupSize === 1) return i;
+                    // 重複時間戳：把區間均分，讓高亮依序輪到群組內每一句，不卡住也不跳過
+                    const slice = (endTime - startTime) / groupSize;
+                    const offset = Math.min(groupSize - 1, Math.floor((currentPlayerTime - startTime) / slice));
+                    return i + offset;
                 }
+                i = j + 1;
             }
-            
+
             return -1;
         }
         
