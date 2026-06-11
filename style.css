@@ -110,6 +110,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
+  /* transform 會建立堆疊層，需墊高 z-index 否則設定面板會被影片區蓋住 */
+  z-index: 300;
 }
 
 /* 拖曳時讓 iframe / video 不攔截滑鼠事件，保持 drag overlay 可見 */
