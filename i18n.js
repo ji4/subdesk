@@ -113,7 +113,7 @@
       'zh-TW': '使用上有任何問題、建議或想法？',
       'en':    'Questions, suggestions, or ideas?'
     },
-    'footer.contactBtn': { 'zh-TW': '聯絡站主', 'en': 'Email the Site Owner' },
+    'footer.contactBtn': { 'zh-TW': '聯絡站主', 'en': 'Contact the Site Owner' },
 
     'msg.invalidUrl':          { 'zh-TW': '請輸入有效的YouTube網址',           'en': 'Please enter a valid YouTube URL' },
     'msg.loadVideoError':      { 'zh-TW': '載入影片時發生錯誤，請重試。',       'en': 'Failed to load video, please try again.' },
