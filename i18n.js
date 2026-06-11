@@ -43,8 +43,7 @@
       'zh-TW': '未啟用：編輯字幕時，快捷鍵需搭配 Alt 觸發。',
       'en': 'Disabled: while editing, hold Alt with a shortcut key to trigger it.'
     },
-    'keys.reset':     { 'zh-TW': '回復預設', 'en': 'Reset to defaults' },
-    'keys.resetDone': { 'zh-TW': '已回復預設按鍵', 'en': 'Defaults restored' },
+    'keys.undoTitle': { 'zh-TW': '回復預設按鍵', 'en': 'Restore default key' },
     'keys.reserved': {
       'zh-TW': function (k) { return '「' + k + '」為固定功能鍵，無法使用'; },
       'en':    function (k) { return '"' + k + '" is reserved and cannot be used'; }

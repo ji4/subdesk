@@ -2259,10 +2259,15 @@
                 speedKbds[1].textContent = prefix + codeToLabel(keyBindings.speedUp);
             }
             Object.keys(DEFAULT_KEY_BINDINGS).forEach(name => {
-                const btn = document.getElementById(`bind${name.charAt(0).toUpperCase()}${name.slice(1)}`);
-                if (!btn) return;
-                btn.textContent = capturingBinding === name ? t('keys.pressKey') : codeToLabel(keyBindings[name]);
-                btn.classList.toggle('capturing', capturingBinding === name);
+                const cap = `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+                const btn = document.getElementById(`bind${cap}`);
+                if (btn) {
+                    btn.textContent = capturingBinding === name ? t('keys.pressKey') : codeToLabel(keyBindings[name]);
+                    btn.classList.toggle('capturing', capturingBinding === name);
+                }
+                // 改過的按鍵才顯示 Undo icon
+                const undo = document.getElementById(`undo${cap}`);
+                if (undo) undo.classList.toggle('visible', keyBindings[name] !== DEFAULT_KEY_BINDINGS[name]);
             });
             updateDirectEditingUI();
         }
@@ -2313,12 +2318,13 @@
             refreshShortcutHints();
         }
 
-        function resetKeyBindings() {
-            keyBindings = { ...DEFAULT_KEY_BINDINGS };
-            directKeysWhileEditing = false;
-            capturingBinding = null;
+        // 單一按鍵回復預設（各列的 Undo icon）
+        function resetKeyBinding(name) {
+            if (!(name in DEFAULT_KEY_BINDINGS)) return;
+            keyBindings[name] = DEFAULT_KEY_BINDINGS[name];
+            if (capturingBinding === name) capturingBinding = null;
             saveKeyBindings();
-            setKeySettingsMsg(t('keys.resetDone'));
+            setKeySettingsMsg('');
             refreshShortcutHints();
         }
 

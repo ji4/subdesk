@@ -284,6 +284,29 @@ body {
   color: var(--text);
 }
 
+.key-binding-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 有改過按鍵才顯示的單列 Undo */
+.key-undo-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color var(--dur-normal) var(--ease);
+}
+
+.key-undo-btn.visible { display: flex; }
+.key-undo-btn:hover { color: var(--primary); }
+
 .key-bind-btn {
   min-width: 64px;
   padding: 4px 10px;
@@ -345,23 +368,6 @@ body {
   white-space: normal;
   line-height: 1.5;
 }
-
-.key-reset-btn {
-  margin-top: 10px;
-  width: 100%;
-  padding: 7px 0;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--font-body);
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: border-color var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
-}
-
-.key-reset-btn:hover { border-color: var(--primary); color: var(--text); }
 
 .header-shortcuts .hint-item {
   display: flex;
