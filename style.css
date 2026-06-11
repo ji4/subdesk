@@ -209,6 +209,125 @@ body {
 .lang-option:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
 .lang-option.active { color: var(--text); font-weight: 500; }
 
+/* --- Key Settings (自訂快捷鍵) --- */
+.key-settings {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.key-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 7px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+}
+
+.key-settings-btn:hover { border-color: rgba(255, 255, 255, 0.35); color: var(--text); }
+.key-settings-btn:active { transform: scale(0.96); }
+
+.key-settings-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 14px;
+  width: 280px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity var(--dur-normal) var(--ease), transform var(--dur-normal) var(--ease);
+  z-index: 200;
+}
+
+.key-settings.open .key-settings-panel {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.key-settings-panel h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.key-settings-desc {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.key-binding-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.key-bind-btn {
+  min-width: 64px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+}
+
+.key-bind-btn:hover { border-color: var(--primary); }
+.key-bind-btn.capturing {
+  border-color: var(--primary);
+  color: var(--primary);
+  animation: pulse-border 1s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.08); }
+}
+
+.key-settings-msg {
+  margin: 8px 0 0;
+  min-height: 16px;
+  font-size: 12px;
+  color: var(--warning);
+}
+
+.key-reset-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+}
+
+.key-reset-btn:hover { border-color: var(--primary); color: var(--text); }
+
 .header-shortcuts .hint-item {
   display: flex;
   align-items: center;

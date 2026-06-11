@@ -36,7 +36,8 @@
             showComparison:   'yte_showComparison',
             dividerCols:      'yte_dividerCols',
             outputHeight:     'yte_outputHeight',
-            cwHeight:         'yte_cwHeight'
+            cwHeight:         'yte_cwHeight',
+            keyBindings:      'yte_keyBindings'
         };
 
         const configuredApiBase = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
@@ -211,6 +212,18 @@
         let currentFileName = ''; // 下載時的檔名（YouTube 標題或本機檔名）
         let isEditingCurrentTime = false;
         let currentTimeEditTimer = null;
+        // 可自訂快捷鍵（以 e.code 儲存）；Space／方向鍵為固定鍵不可自訂
+        const DEFAULT_KEY_BINDINGS = {
+            prevSub: 'KeyA',
+            nextSub: 'KeyD',
+            speedDown: 'BracketLeft',
+            speedUp: 'BracketRight'
+        };
+        const RESERVED_KEY_CODES = ['Space', 'ArrowLeft', 'ArrowRight', 'Escape', 'Enter', 'Tab'];
+        let keyBindings = { ...DEFAULT_KEY_BINDINGS };
+        let capturingBinding = null;
+        let hintEditingMode = false;
+
         const YOUTUBE_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
         const LOCAL_PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0];
         
@@ -2135,6 +2148,7 @@
         window.addEventListener('i18n:change', function() {
             updateYouTubeSubtitlesDisplay(true);
             updatePlayToggleBtn();
+            refreshShortcutHints();
         });
 
         // 整列（Play 按鈕左側、含時間 Label 右側空白）點擊即聚焦該列的可編輯文字
@@ -2166,23 +2180,147 @@
             });
         }
 
-        // 焦點在文字編輯處時，header 速率快捷鍵提示改顯示 Alt 組合
-        function initSpeedHintModeSwitch() {
-            const hint = document.getElementById('speedHint');
-            if (!hint) return;
-            const kbds = hint.querySelectorAll('kbd');
-            if (kbds.length < 2) return;
+        // ===== 可自訂快捷鍵 =====
 
+        function loadKeyBindings() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(LS_KEYS.keyBindings) || '{}');
+                Object.keys(DEFAULT_KEY_BINDINGS).forEach(name => {
+                    if (typeof saved[name] === 'string' && saved[name]) keyBindings[name] = saved[name];
+                });
+            } catch (e) {}
+        }
+
+        function saveKeyBindings() {
+            localStorage.setItem(LS_KEYS.keyBindings, JSON.stringify(keyBindings));
+        }
+
+        function getBindingAction(code) {
+            if (code === keyBindings.speedDown) return () => changeSpeed(-1);
+            if (code === keyBindings.speedUp) return () => changeSpeed(1);
+            if (code === keyBindings.prevSub) return () => jumpToSubtitle(-1);
+            if (code === keyBindings.nextSub) return () => jumpToSubtitle(1);
+            return null;
+        }
+
+        // e.code → 顯示用符號
+        function codeToLabel(code) {
+            const special = {
+                BracketLeft: '[', BracketRight: ']', Comma: ',', Period: '.', Slash: '/',
+                Semicolon: ';', Quote: "'", Backquote: '`', Minus: '-', Equal: '=', Backslash: '\\',
+                ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→', Space: 'Space'
+            };
+            if (special[code]) return special[code];
+            if (code.startsWith('Key')) return code.slice(3);
+            if (code.startsWith('Digit')) return code.slice(5);
+            if (code.startsWith('Numpad')) return `Num ${code.slice(6)}`;
+            return code;
+        }
+
+        // 依目前綁定與編輯模式，更新 header 提示與設定面板按鈕文字
+        function refreshShortcutHints() {
+            const prefix = hintEditingMode ? 'Alt + ' : '';
+            const jumpKbds = document.querySelectorAll('#jumpHint kbd');
+            if (jumpKbds.length >= 2) {
+                jumpKbds[0].textContent = prefix + codeToLabel(keyBindings.prevSub);
+                jumpKbds[1].textContent = prefix + codeToLabel(keyBindings.nextSub);
+            }
+            const speedKbds = document.querySelectorAll('#speedHint kbd');
+            if (speedKbds.length >= 2) {
+                speedKbds[0].textContent = prefix + codeToLabel(keyBindings.speedDown);
+                speedKbds[1].textContent = prefix + codeToLabel(keyBindings.speedUp);
+            }
+            Object.keys(DEFAULT_KEY_BINDINGS).forEach(name => {
+                const btn = document.getElementById(`bind${name.charAt(0).toUpperCase()}${name.slice(1)}`);
+                if (!btn) return;
+                btn.textContent = capturingBinding === name ? t('keys.pressKey') : codeToLabel(keyBindings[name]);
+                btn.classList.toggle('capturing', capturingBinding === name);
+            });
+        }
+
+        // 焦點在文字編輯處時，提示改顯示 Alt 組合
+        function initShortcutHintModeSwitch() {
             function isEditingTarget(el) {
                 return el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT'
                     || el.closest?.('[contenteditable="true"]'));
             }
-            function updateHint(editing) {
-                kbds[0].textContent = editing ? 'Alt + [' : '[';
-                kbds[1].textContent = editing ? 'Alt + ]' : ']';
+            document.addEventListener('focusin', e => {
+                if (isEditingTarget(e.target)) { hintEditingMode = true; refreshShortcutHints(); }
+            });
+            document.addEventListener('focusout', e => {
+                if (isEditingTarget(e.target)) { hintEditingMode = false; refreshShortcutHints(); }
+            });
+        }
+
+        function toggleKeySettings() {
+            const wrap = document.getElementById('keySettings');
+            if (wrap) wrap.classList.toggle('open');
+            if (capturingBinding) { capturingBinding = null; refreshShortcutHints(); }
+            setKeySettingsMsg('');
+        }
+
+        function startKeyCapture(name) {
+            capturingBinding = name;
+            setKeySettingsMsg('');
+            refreshShortcutHints();
+        }
+
+        function resetKeyBindings() {
+            keyBindings = { ...DEFAULT_KEY_BINDINGS };
+            capturingBinding = null;
+            saveKeyBindings();
+            setKeySettingsMsg(t('keys.resetDone'));
+            refreshShortcutHints();
+        }
+
+        function setKeySettingsMsg(msg) {
+            const el = document.getElementById('keySettingsMsg');
+            if (el) el.textContent = msg;
+        }
+
+        // 回傳 true 表示此 keydown 已被「按鍵擷取」流程消化
+        function handleKeyCapture(e) {
+            if (!capturingBinding) return false;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const code = e.code;
+            if (/^(Alt|Shift|Control|Meta)/.test(code)) return true; // 等待非修飾鍵
+            if (code === 'Escape') {
+                capturingBinding = null;
+                refreshShortcutHints();
+                return true;
             }
-            document.addEventListener('focusin', e => { if (isEditingTarget(e.target)) updateHint(true); });
-            document.addEventListener('focusout', e => { if (isEditingTarget(e.target)) updateHint(false); });
+            if (RESERVED_KEY_CODES.includes(code)) {
+                setKeySettingsMsg(t('keys.reserved', codeToLabel(code)));
+                return true;
+            }
+            const conflict = Object.keys(keyBindings)
+                .find(n => n !== capturingBinding && keyBindings[n] === code);
+            if (conflict) {
+                setKeySettingsMsg(t('keys.conflict', codeToLabel(code)));
+                return true;
+            }
+            keyBindings[capturingBinding] = code;
+            capturingBinding = null;
+            saveKeyBindings();
+            setKeySettingsMsg('');
+            refreshShortcutHints();
+            return true;
+        }
+
+        function initKeySettings() {
+            loadKeyBindings();
+            refreshShortcutHints();
+            // 點擊面板外側關閉
+            document.addEventListener('click', function(e) {
+                const wrap = document.getElementById('keySettings');
+                if (wrap && wrap.classList.contains('open') && !wrap.contains(e.target)) {
+                    wrap.classList.remove('open');
+                    capturingBinding = null;
+                    refreshShortcutHints();
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -2198,18 +2336,26 @@
             initSubtitleRowClickToEdit();
             // 速率滑桿
             initSpeedSlider();
-            // 編輯模式時動態切換速率快捷鍵提示
-            initSpeedHintModeSwitch();
+            // 編輯模式時動態切換快捷鍵提示
+            initShortcutHintModeSwitch();
+            // 自訂快捷鍵
+            initKeySettings();
             // 還原 localStorage 狀態
             loadState();
             
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
-                // Alt+[ / Alt+]：編輯文字時也能調速且不輸入字元
-                if (e.altKey && (e.code === 'BracketLeft' || e.code === 'BracketRight')) {
-                    e.preventDefault();
-                    changeSpeed(e.code === 'BracketLeft' ? -1 : 1);
-                    return;
+                // 自訂快捷鍵擷取模式優先
+                if (handleKeyCapture(e)) return;
+
+                // Alt+綁定鍵：編輯文字時也能操作且不輸入字元
+                if (e.altKey && !e.ctrlKey && !e.metaKey) {
+                    const altAction = getBindingAction(e.code);
+                    if (altAction) {
+                        e.preventDefault();
+                        altAction();
+                        return;
+                    }
                 }
 
                 // 如果正在輸入文字，不處理鍵盤控制
@@ -2219,25 +2365,11 @@
                     e.target.closest('[contenteditable="true"]')) {
                     return;
                 }
-                
-                if (e.code === 'BracketLeft') {
+
+                const action = getBindingAction(e.code);
+                if (action) {
                     e.preventDefault();
-                    changeSpeed(-1);
-                    return;
-                }
-                if (e.code === 'BracketRight') {
-                    e.preventDefault();
-                    changeSpeed(1);
-                    return;
-                }
-                if (e.code === 'KeyA') {
-                    e.preventDefault();
-                    jumpToSubtitle(-1);
-                    return;
-                }
-                if (e.code === 'KeyD') {
-                    e.preventDefault();
-                    jumpToSubtitle(1);
+                    action();
                     return;
                 }
 

@@ -22,6 +22,29 @@
     'shortcuts.prevNext':  { 'zh-TW': '上 / 下一句', 'en': 'Prev / Next' },
     'shortcuts.speed':     { 'zh-TW': '降 / 升速率', 'en': 'Speed -/+' },
 
+    // ----- 自訂快捷鍵設定面板 -----
+    'keys.settingsTitle': { 'zh-TW': '自訂快捷鍵', 'en': 'Customize shortcuts' },
+    'keys.title':         { 'zh-TW': '自訂快捷鍵', 'en': 'Customize Shortcuts' },
+    'keys.desc': {
+      'zh-TW': '某些按鍵在編輯字幕文字時會直接輸入字元，或可能與你的輸入法、瀏覽器快捷鍵衝突，因此可以改成自己順手的按鍵。編輯文字時請搭配 Alt 使用。設定會儲存在這個瀏覽器中。',
+      'en': 'Some keys insert characters while you are editing subtitle text, or may conflict with your input method or browser shortcuts, so you can rebind them to keys that work for you. While editing text, combine them with Alt. Settings are saved in this browser.'
+    },
+    'keys.prevSub':   { 'zh-TW': '上一句', 'en': 'Previous line' },
+    'keys.nextSub':   { 'zh-TW': '下一句', 'en': 'Next line' },
+    'keys.speedDown': { 'zh-TW': '降低速率', 'en': 'Slow down' },
+    'keys.speedUp':   { 'zh-TW': '提高速率', 'en': 'Speed up' },
+    'keys.pressKey':  { 'zh-TW': '請按任意鍵…', 'en': 'Press a key…' },
+    'keys.reset':     { 'zh-TW': '回復預設', 'en': 'Reset to defaults' },
+    'keys.resetDone': { 'zh-TW': '已回復預設按鍵', 'en': 'Defaults restored' },
+    'keys.reserved': {
+      'zh-TW': function (k) { return '「' + k + '」為固定功能鍵，無法使用'; },
+      'en':    function (k) { return '"' + k + '" is reserved and cannot be used'; }
+    },
+    'keys.conflict': {
+      'zh-TW': function (k) { return '「' + k + '」已被其他快捷鍵使用'; },
+      'en':    function (k) { return '"' + k + '" is already assigned to another shortcut'; }
+    },
+
     'narrow.label':    { 'zh-TW': '影片字幕校正工具', 'en': 'Video Subtitle Editor' },
     'narrow.title':    { 'zh-TW': '建議在電腦上開啟', 'en': 'Best Viewed on Desktop' },
     'narrow.desc':     { 'zh-TW': '本工具專為寬螢幕桌面環境設計<br>在小螢幕裝置上操作會較為擁擠。', 'en': 'This tool is designed for widescreen desktop environments.<br>It may feel cramped on smaller screens.' },
