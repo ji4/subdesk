@@ -8,9 +8,13 @@
     'page.title':    { 'zh-TW': '影片字幕校正工具',               'en': 'Video Subtitle Editor' },
     'page.tagline':  { 'zh-TW': 'The Smoothest Way to Refine Subtitles', 'en': 'The Smoothest Way to Refine Subtitles' },
 
+    'meta.ogTitle': {
+      'zh-TW': 'SubDesk — 順暢的影片字幕校正工具',
+      'en':    'SubDesk — Smooth Subtitle Refinement'
+    },
     'meta.description': {
-      'zh-TW': '影片字幕校正工具 — 支援 YouTube 與本機影片，輕鬆上傳 .srt / .vtt 字幕檔，即時編輯、同步校正，一鍵下載。',
-      'en':    'SubDesk — Subtitle refinement tool for YouTube and local videos. Upload .srt / .vtt files, edit in real-time, and download corrected subtitles in one click.'
+      'zh-TW': '把 AI 修正過的字幕貼進來，自動標記修改處，點擊時間戳跳轉播放、逐句核對。支援 YouTube 與本機影片、.srt / .vtt，免費免註冊。',
+      'en':    'Paste subtitle fixes from your AI, see every change marked, then click to jump and verify against the video. Works with YouTube and local files, .srt / .vtt. Free, no sign-up.'
     },
     'og.locale': { 'zh-TW': 'zh_TW', 'en': 'en_US' },
 
@@ -314,11 +318,11 @@
     });
 
     setMeta('meta[name="description"]', t('meta.description'));
-    setMeta('meta[property="og:title"]', t('page.title'));
+    setMeta('meta[property="og:title"]', t('meta.ogTitle'));
     setMeta('meta[property="og:description"]', t('meta.description'));
     setMeta('meta[property="og:locale"]', t('og.locale'));
     setMeta('meta[property="og:url"]', window.location.href);
-    setMeta('meta[name="twitter:title"]', t('page.title'));
+    setMeta('meta[name="twitter:title"]', t('meta.ogTitle'));
     setMeta('meta[name="twitter:description"]', t('meta.description'));
 
     var origin = window.location.origin;
