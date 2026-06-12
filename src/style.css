@@ -2396,6 +2396,7 @@ body {
 }
 
 .ai-demo-app-list {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -2553,7 +2554,7 @@ body {
 }
 
 .ai-demo-scene.active .ai-demo-progress-fill {
-  animation: ai-demo-progress 3s 0.5s both;
+  animation: ai-demo-progress 2.4s 1.5s both;
 }
 
 @keyframes ai-demo-progress {
@@ -2562,10 +2563,45 @@ body {
   100% { width: 78%; }
 }
 
+/* 第三幕：滑鼠移到字幕上點擊 → 該句亮起 → 影片跳轉播放 */
+.ai-demo-cursor {
+  position: absolute;
+  top: 32px;
+  left: 52%;
+  width: 15px;
+  height: 15px;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-demo-scene.active .ai-demo-cursor {
+  animation: ai-demo-cursor 3s 0.2s both;
+}
+
+@keyframes ai-demo-cursor {
+  0% { opacity: 0; transform: translate(30px, 28px); }
+  28% { opacity: 1; transform: translate(0, 0) scale(1); }
+  36% { transform: translate(0, 0) scale(0.8); }
+  44%, 100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+.ai-demo-scene.active .ai-demo-click-target {
+  animation: ai-demo-rowclick 3s 0.2s both;
+}
+
+@keyframes ai-demo-rowclick {
+  0%, 34% { background: var(--bg); }
+  42%, 60% { background: rgba(20, 184, 166, 0.3); }
+  100% { background: rgba(20, 184, 166, 0.12); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ai-demo-scene.active .spotlight-output .ai-demo-app-output,
   .ai-demo-scene.active .ai-demo-badge,
-  .ai-demo-scene.active .ai-demo-progress-fill {
+  .ai-demo-scene.active .ai-demo-progress-fill,
+  .ai-demo-scene.active .ai-demo-cursor,
+  .ai-demo-scene.active .ai-demo-click-target {
     animation: none;
   }
   .ai-demo-scene { transition: none; }
