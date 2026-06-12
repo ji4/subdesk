@@ -2296,13 +2296,12 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
-  transition: border-color var(--dur-normal) var(--ease), box-shadow var(--dur-normal) var(--ease);
+  transition: background var(--dur-normal) var(--ease);
 }
 
-/* hover 暫停的提示：邊框亮起，讓人感覺到「動畫停在這裡了」 */
+/* hover 暫停的提示：底色微微反白，讓人感覺到「動畫停在這裡了」 */
 .ai-demo:hover {
-  border-color: rgba(20, 184, 166, 0.55);
-  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.35);
+  background: #1D1F24;
 }
 
 .ai-demo-scene {
@@ -2461,20 +2460,24 @@ body {
   display: flex;
   gap: 4px;
   margin-bottom: 2px;
+  justify-content: flex-end;
 }
 
 .ai-demo-tab {
   padding: 1px 8px;
   font-size: 10px;
+  font-weight: 500;
   color: var(--text-muted);
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 5px;
 }
 
 .ai-demo-tab.active {
-  color: var(--accent);
-  background: rgba(249, 115, 22, 0.12);
-  border-color: rgba(249, 115, 22, 0.4);
+  background: var(--primary);
+  color: #0F172A;
+  border-color: var(--primary);
+  font-weight: 600;
 }
 
 .ai-demo-row {
