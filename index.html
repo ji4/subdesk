@@ -276,7 +276,10 @@
                     <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 搭配 AI 使用教學</button>
                 </div>
                 <div class="unmatched-panel" id="unmatchedPanel" style="display: none;">
-                    <div class="unmatched-panel-title" id="unmatchedPanelTitle"></div>
+                    <button class="unmatched-panel-header" onclick="toggleUnmatchedPanel()" aria-expanded="true">
+                        <span class="unmatched-panel-title" id="unmatchedPanelTitle"></span>
+                        <svg class="unmatched-panel-chevron" width="12" height="8" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
                     <div class="unmatched-panel-lines" id="unmatchedPanelLines"></div>
                 </div>
                 <textarea id="subtitleOutput"
@@ -343,13 +346,13 @@
                                 <span class="ai-demo-progress"><span class="ai-demo-progress-fill"></span></span>
                             </div>
                             <div class="ai-demo-app-list">
-                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width: 58%"></span></div>
-                                <div class="ai-demo-row ai-demo-row-modified">
-                                    <span class="ai-demo-timestamp">00:03:45</span>
-                                    <span class="ai-demo-bar" style="width: 36%"></span>
-                                    <span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span>
+                                <div class="ai-demo-tabs">
+                                    <span class="ai-demo-tab" data-i18n="subtitle.filterAll">全部</span>
+                                    <span class="ai-demo-tab active" data-i18n="subtitle.filterModified">已修改</span>
                                 </div>
-                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 66%"></span></div>
+                                <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width: 44%"></span></div>
+                                <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 36%"></span></div>
+                                <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:15:30</span><span class="ai-demo-bar" style="width: 52%"></span></div>
                             </div>
                         </div>
                         <div class="ai-demo-app-output ai-demo-output-static">

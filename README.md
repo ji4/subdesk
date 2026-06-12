@@ -20,6 +20,14 @@ No `config.js` needed. The dev-server serves both the frontend and subtitle API 
 
 ---
 
+## 文件 / Documentation
+
+- [docs/COMPARISON_MATCHING.md](docs/COMPARISON_MATCHING.md) — 「校正前後對比」模式的配對與雙向同步邏輯（編號優先 → 全文搜尋退回、片段替換、刪除同步）。
+
+- [docs/COMPARISON_MATCHING.md](docs/COMPARISON_MATCHING.md) — Matching and two-way sync logic for the before/after comparison mode (number-first → full-text fallback, fragment replacement, deletion sync).
+
+---
+
 ## 貢獻 / Contributing
 
 歡迎針對前端 UI/UX 發 PR。

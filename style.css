@@ -2207,6 +2207,11 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+.ai-prompt-header .copy-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .ai-prompt-text {
   margin: 0;
   padding: 12px;
@@ -2243,13 +2248,35 @@ body {
   border-radius: 8px;
 }
 
+.unmatched-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
 .unmatched-panel-title {
   font-size: 13px;
   color: var(--error);
-  margin-bottom: 4px;
 }
 
+.unmatched-panel-chevron {
+  flex-shrink: 0;
+  color: var(--error);
+  transition: transform var(--dur-normal) var(--ease);
+}
+
+.unmatched-panel.collapsed .unmatched-panel-chevron { transform: rotate(-90deg); }
+.unmatched-panel.collapsed .unmatched-panel-lines { display: none; }
+
 .unmatched-panel-lines {
+  margin-top: 4px;
   max-height: 96px;
   overflow-y: auto;
   font-family: var(--font-mono);
@@ -2269,6 +2296,13 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
+  transition: border-color var(--dur-normal) var(--ease), box-shadow var(--dur-normal) var(--ease);
+}
+
+/* hover 暫停的提示：邊框亮起，讓人感覺到「動畫停在這裡了」 */
+.ai-demo:hover {
+  border-color: rgba(20, 184, 166, 0.55);
+  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.35);
 }
 
 .ai-demo-scene {
@@ -2422,6 +2456,27 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* 第三幕：字幕列表上方的「全部／已修改」迷你 Tab */
+.ai-demo-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.ai-demo-tab {
+  padding: 1px 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.ai-demo-tab.active {
+  color: var(--accent);
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
 .ai-demo-row {
   display: flex;
   align-items: center;
@@ -2512,4 +2567,27 @@ body {
   }
   .ai-demo-scene { transition: none; }
 }
+}
+
+/* --- AI 教學：手機版排版 --- */
+@media (max-width: 768px) {
+  /* 數字與標題同列；說明文字換到下一行並對齊數字左緣，避免欄寬過窄 */
+  .ai-tutorial-step {
+    position: relative;
+    display: block;
+  }
+
+  .ai-tutorial-step .ai-step-num {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .ai-tutorial-step .ai-step-body h4 {
+    min-height: 26px;
+    display: flex;
+    align-items: center;
+    padding-left: 36px;
+    margin-bottom: 6px;
+  }
 }

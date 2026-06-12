@@ -1743,6 +1743,22 @@
         }
 
         // 常駐警告面板：逐行列出無法對應的對比行（toast 會消失，使用者來不及看）
+        // 預設展開；行數太多時可收合只留標題
+        let _unmatchedCollapsed = false;
+
+        function toggleUnmatchedPanel() {
+            _unmatchedCollapsed = !_unmatchedCollapsed;
+            applyUnmatchedCollapsed();
+        }
+
+        function applyUnmatchedCollapsed() {
+            const panel = document.getElementById('unmatchedPanel');
+            if (!panel) return;
+            panel.classList.toggle('collapsed', _unmatchedCollapsed);
+            const header = panel.querySelector('.unmatched-panel-header');
+            if (header) header.setAttribute('aria-expanded', String(!_unmatchedCollapsed));
+        }
+
         function updateUnmatchedPanel(unmatchedLines) {
             const panel = document.getElementById('unmatchedPanel');
             if (!panel) return;
@@ -1753,6 +1769,7 @@
             document.getElementById('unmatchedPanelTitle').textContent = t('output.unmatchedTitle', unmatchedLines.length);
             document.getElementById('unmatchedPanelLines').textContent = unmatchedLines.join('\n');
             panel.style.display = 'block';
+            applyUnmatchedCollapsed();
         }
 
         function syncComparisonToList(value) {
@@ -1898,7 +1915,7 @@
         }
 
         // 教學動畫輪播：每幕 5 秒自動播放，點擊指示點可手動切換，hover／按住時暫停
-        const AI_DEMO_INTERVAL = 5000;
+        const AI_DEMO_INTERVAL = 4000;
         let _aiDemoTimer = null;
         let _aiDemoIndex = 0;
         let _aiDemoPlaying = false; // Modal 開啟中（hover 暫停時計時器停但仍視為播放中）
