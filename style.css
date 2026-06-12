@@ -1358,6 +1358,26 @@ body {
   color: #FCA5A5;
 }
 
+/* 已修改清單的單句還原按鈕 */
+.subtitle-revert-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease);
+}
+
+.subtitle-revert-btn:hover {
+  color: var(--accent);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
 .subtitle-index {
   color: var(--text-muted);
   font-family: var(--font-mono);

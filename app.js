@@ -853,6 +853,7 @@
                         <div class="youtube-subtitle-original-row">
                             ${indexBadge}${timeBadge}
                             <span class="subtitle-wrong">${escapeHtml(subtitle.text)}</span>
+                            <button class="subtitle-revert-btn" onclick="revertSubtitle(${idx})" title="${escapeHtml(t('subtitle.revertTitle'))}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button>
                         </div>
                         <span class="youtube-subtitle-text subtitle-correct"
                               contenteditable="true"
@@ -904,6 +905,17 @@
 
             highlightCurrentSubtitles(currentTime);
             if (!skipOutput) updateOutputTextarea();
+        }
+
+        // 還原單句修改（從「已修改」清單移除）
+        function revertSubtitle(index) {
+            const s = youtubeSubtitles[index];
+            if (!s || !s.modified) return;
+            delete s.editedText;
+            s.modified = false;
+            updateYouTubeSubtitlesDisplay();
+            debouncedSaveState();
+            gaEvent('revert_subtitle');
         }
 
         // 即時同步：輸入時更新資料模型、amber border、輸出區
@@ -1697,35 +1709,96 @@
             _outputSyncTimer = setTimeout(syncOutputToList, 400);
         }
 
+        // 解析一行對比格式：`#編號 時間 | 原文 | 修正後`（編號與時間可缺漏或錯誤）
+        function parseComparisonLine(line) {
+            const pipe1 = line.indexOf(' | ');
+            const pipe2 = line.lastIndexOf(' | ');
+            if (pipe1 === -1 || pipe2 === pipe1) return null;
+            const numMatch = line.substring(0, pipe1).match(/#?(\d+)/);
+            return {
+                num: numMatch ? parseInt(numMatch[1]) : null,
+                original: line.substring(pipe1 + 3, pipe2).trim(),
+                corrected: line.substring(pipe2 + 3).trim()
+            };
+        }
+
+        // 找出對比行對應的字幕 index：編號優先；編號對不上時退回原文搜尋（精確優先，再子字串）
+        function findComparisonTarget(entry, matchedIndices) {
+            const { num, original } = entry;
+            if (num !== null) {
+                const byNum = youtubeSubtitles[num - 1];
+                if (byNum && original && (byNum.text === original || byNum.text.includes(original))) {
+                    return num - 1;
+                }
+            }
+            if (!original) return -1;
+            let substringHit = -1;
+            for (let i = 0; i < youtubeSubtitles.length; i++) {
+                if (matchedIndices.has(i)) continue;
+                const text = youtubeSubtitles[i].text;
+                if (text === original) return i;
+                if (substringHit === -1 && text.includes(original)) substringHit = i;
+            }
+            return substringHit;
+        }
+
+        let _lastUnmatchedCount = 0;
+        function syncComparisonToList(value) {
+            const lines = value.split('\n').filter(l => l.trim());
+            const matchedIndices = new Set();
+            let changed = false;
+            let unmatched = 0;
+
+            for (const line of lines) {
+                const entry = parseComparisonLine(line);
+                const idx = entry ? findComparisonTarget(entry, matchedIndices) : -1;
+                if (idx === -1) { unmatched++; continue; }
+                matchedIndices.add(idx);
+                const s = youtubeSubtitles[idx];
+                // 原文與整句相同就整句替換，否則視為片段替換
+                const newText = s.text === entry.original
+                    ? entry.corrected
+                    : s.text.split(entry.original).join(entry.corrected);
+                if (newText !== s.text) {
+                    if (s.editedText !== newText) {
+                        s.editedText = newText;
+                        s.modified = true;
+                        changed = true;
+                    }
+                } else if (s.modified) {
+                    delete s.editedText;
+                    s.modified = false;
+                    changed = true;
+                }
+            }
+
+            // 已從輸出區刪除的對比行：還原該句修改
+            youtubeSubtitles.forEach((s, i) => {
+                if (s.modified && !matchedIndices.has(i)) {
+                    delete s.editedText;
+                    s.modified = false;
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                updateYouTubeSubtitlesDisplay(true);
+                debouncedSaveState();
+            }
+            if (unmatched > 0 && unmatched !== _lastUnmatchedCount) {
+                showDeleteNotification(t('msg.syncUnmatched', unmatched), 'error');
+            }
+            _lastUnmatchedCount = unmatched;
+        }
+
         function syncOutputToList() {
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
             const ta = document.getElementById('subtitleOutput');
             if (!ta) return;
 
-            // 比對模式：解析 #num time | original | corrected 格式，依編號同步
+            // 比對模式：解析 #num time | original | corrected 格式同步（編號優先，原文搜尋退回）
             if (showOnlyModified && showComparison) {
-                const lines = ta.value.split('\n').filter(l => l.trim());
-                let changed = false;
-                for (const line of lines) {
-                    const numMatch = line.match(/^#(\d+)/);
-                    if (!numMatch) continue;
-                    const s = youtubeSubtitles[parseInt(numMatch[1]) - 1];
-                    if (!s) continue;
-                    const pipe1 = line.indexOf(' | ');
-                    const pipe2 = pipe1 !== -1 ? line.indexOf(' | ', pipe1 + 3) : -1;
-                    if (pipe2 === -1) continue;
-                    const corrected = line.substring(pipe2 + 3);
-                    if (corrected !== s.text) {
-                        s.editedText = corrected;
-                        s.modified = true;
-                        changed = true;
-                    } else if (s.modified) {
-                        delete s.editedText;
-                        s.modified = false;
-                        changed = true;
-                    }
-                }
-                if (changed) updateYouTubeSubtitlesDisplay(true);
+                syncComparisonToList(ta.value);
                 return;
             }
 

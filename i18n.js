@@ -88,6 +88,7 @@
     'subtitle.emptyLocalNotLoaded':{ 'zh-TW': '請先載入本機影片<br>再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此', 'en': 'Load a local video first<br>then click "Upload Subtitle"<br>or drag and drop a .srt / .vtt file here' },
     'subtitle.emptyLocalLoaded':   { 'zh-TW': '本機影片不含自動字幕<br>請點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此', 'en': 'Local video has no auto-captions.<br>Click "Upload Subtitle"<br>or drag and drop a .srt / .vtt file here' },
     'subtitle.emptyYouTube':       { 'zh-TW': '未偵測到字幕<br>請點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此', 'en': 'No subtitles detected.<br>Click "Upload Subtitle"<br>or drag and drop a .srt / .vtt file here' },
+    'subtitle.revertTitle': { 'zh-TW': '還原此句修改', 'en': 'Revert this change' },
     'subtitle.seekTitle': {
       'zh-TW': function (time) { return '跳轉到 ' + time; },
       'en':    function (time) { return 'Jump to ' + time; }
@@ -175,6 +176,10 @@
     'msg.subtitlesLoaded': {
       'zh-TW': function (n) { return '✅ 成功載入 ' + n + ' 條字幕'; },
       'en':    function (n) { return '✅ Loaded ' + n + ' subtitles'; }
+    },
+    'msg.syncUnmatched': {
+      'zh-TW': function (n) { return '⚠️ 有 ' + n + ' 行對比無法對應到任何字幕'; },
+      'en':    function (n) { return '⚠️ ' + n + ' comparison line(s) could not be matched to any subtitle'; }
     },
     'msg.copied':    { 'zh-TW': '✓ 已複製', 'en': '✓ Copied' },
     'msg.copyBtn':   { 'zh-TW': '複製',     'en': 'Copy' },
