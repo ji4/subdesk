@@ -5,11 +5,11 @@
 > The Smoothest Way to Refine Subtitles
 > **Live: https://ji4.github.io/subdesk/**
 
-SubDesk puts **AI-assisted typo hunting** and **human verification** on a single screen, so you stop bouncing between your AI chat window and your video editor while fixing subtitles.
+SubDesk puts **AI-assisted typo hunting** and **human verification** on a single screen, so you stop bouncing between your AI chat window, your video editor, and a separate player while fixing subtitles.
 
 ## The Problem
 
-Video editors can auto-transcribe subtitles with AI now — but the output still contains typos, so you verify by hand. You may then paste the subtitles into another AI (ChatGPT, Claude, …) to flag likely typos. The painful part is what comes next: for every flagged line you have to find its timestamp, go back to your editor, seek to that moment, listen, then fix the text. One window per step, dozens of switches per video.
+Video editors can auto-transcribe subtitles with AI now — but the output still contains typos, so you verify by hand. You may then paste the subtitles into another AI (ChatGPT, Claude, …) to flag likely typos. The painful part is what comes next: for every flagged line you have to find its timestamp, switch to a player, seek to that moment, listen, then switch back to fix the text. One window per step, dozens of switches per video.
 
 ## How SubDesk Solves It
 
@@ -45,7 +45,7 @@ Flag → jump → verify → fix. One screen, zero window switching.
 - 📝 **Export** — download or copy the corrected subtitles as `.srt` / `.vtt` / `.txt`
 - 💾 **Auto-persist** — progress is saved in the browser; close and resume anytime
 - 🌐 **Bilingual UI** — Traditional Chinese / English
-- 🆓 **Free, no sign-up** — front-end only; local files never leave the browser (YouTube subtitles are fetched via a small private API)
+- 🆓 **Free, no sign-up** — front-end only; local files never leave the browser (fetching YouTube subtitles is blocked by browser CORS and must run server-side, so it goes through a small private API)
 
 ## Local Development
 
