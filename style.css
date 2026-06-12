@@ -2018,7 +2018,6 @@ body {
 /* --- AI 校正教學 --- */
 .ai-tutorial-btn {
   position: relative;
-  margin-left: auto;
   padding: 4px 12px;
   font-size: 13px;
   font-family: var(--font-body);
@@ -2164,7 +2163,8 @@ body {
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow-x: auto;
-  white-space: nowrap;
+  white-space: pre-line;
+  line-height: 1.8;
 }
 
 .ai-prompt-box {
@@ -2213,3 +2213,180 @@ body {
 }
 
 .ai-tutorial-gotit:hover { background: var(--primary-dk); }
+
+/* --- AI 教學：操作流程動畫示意（9 秒循環，三幕輪播） --- */
+.ai-demo {
+  position: relative;
+  height: 132px;
+  margin-bottom: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ai-demo-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+  opacity: 0;
+}
+
+.ai-demo-scene1 { animation: ai-demo-scene1 9s infinite; }
+.ai-demo-scene2 { animation: ai-demo-scene2 9s infinite; }
+.ai-demo-scene3 { animation: ai-demo-scene3 9s infinite; }
+
+@keyframes ai-demo-scene1 {
+  0%, 28% { opacity: 1; }
+  33%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes ai-demo-scene2 {
+  0%, 33% { opacity: 0; }
+  38%, 61% { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+
+@keyframes ai-demo-scene3 {
+  0%, 66% { opacity: 0; }
+  71%, 95% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.ai-demo-caption {
+  font-size: 13px;
+  color: var(--text);
+  text-align: center;
+}
+
+.ai-demo-output {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.ai-demo-line {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--success);
+  opacity: 0;
+  animation: ai-demo-line 9s infinite;
+}
+
+.ai-demo-line:nth-child(2) { animation-delay: 0.5s; }
+.ai-demo-line:nth-child(3) { animation-delay: 1s; }
+
+@keyframes ai-demo-line {
+  0% { opacity: 0; transform: translateY(4px); }
+  5%, 24% { opacity: 1; transform: translateY(0); }
+  30%, 100% { opacity: 0; }
+}
+
+.ai-demo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-demo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.ai-demo-bar {
+  display: inline-block;
+  height: 7px;
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 4px;
+}
+
+.ai-demo-row-modified {
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+.ai-demo-badge {
+  margin-left: auto;
+  padding: 1px 8px;
+  font-size: 10.5px;
+  color: var(--accent);
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  border-radius: 999px;
+  animation: ai-demo-badge 9s infinite;
+}
+
+@keyframes ai-demo-badge {
+  0%, 38% { opacity: 0; transform: scale(0.6); }
+  43%, 63% { opacity: 1; transform: scale(1); }
+  66%, 100% { opacity: 0; }
+}
+
+.ai-demo-row-active {
+  border-color: rgba(20, 184, 166, 0.5);
+}
+
+.ai-demo-timestamp {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--primary);
+}
+
+.ai-demo-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+}
+
+.ai-demo-play {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ai-demo-progress {
+  flex: 1;
+  height: 5px;
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ai-demo-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--primary);
+  border-radius: 3px;
+  animation: ai-demo-progress 9s infinite;
+}
+
+@keyframes ai-demo-progress {
+  0%, 70% { width: 18%; }
+  73% { width: 42%; }
+  95%, 100% { width: 78%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-demo-scene,
+  .ai-demo-line,
+  .ai-demo-badge,
+  .ai-demo-progress-fill {
+    animation: none;
+  }
+  .ai-demo-scene1 { opacity: 1; }
+  .ai-demo-line { opacity: 1; }
+}

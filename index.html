@@ -265,6 +265,7 @@
                     </div>
                 </div>
                 <div class="output-options">
+                    <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 搭配 AI 使用教學</button>
                     <label>
                         <input type="checkbox" id="chkOnlyModified" onchange="toggleShowOnlyModified()">
                         <span data-i18n="output.onlyModified">僅顯示已修改字幕</span>
@@ -273,7 +274,6 @@
                         <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
                         <span data-i18n="output.showComparison">顯示校正前後對比</span>
                     </label>
-                    <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 AI 校正教學</button>
                 </div>
                 <textarea id="subtitleOutput"
                     data-i18n-placeholder="output.placeholder"
@@ -287,8 +287,51 @@
     <div class="ai-tutorial-overlay" id="aiTutorialOverlay" onclick="closeAiTutorial(event)">
         <div class="ai-tutorial-modal" role="dialog" aria-modal="true" data-i18n-aria="ai.title" aria-label="用 AI 加速字幕校正">
             <button class="ai-tutorial-close" onclick="closeAiTutorial()" data-i18n-title="ai.closeTitle" title="關閉教學" aria-label="Close">&times;</button>
-            <h3 class="ai-tutorial-title" data-i18n="ai.title">用 AI 加速字幕校正</h3>
-            <p class="ai-tutorial-intro" data-i18n="ai.intro">讓 AI 先幫你抓出錯字，再用本工具逐條跳轉播放、核對是否真的需要修改。四個步驟：</p>
+            <h3 class="ai-tutorial-title" data-i18n="ai.title">搭配 AI 加速字幕校正</h3>
+            <p class="ai-tutorial-intro" data-i18n="ai.intro">本工具不內建 AI，但可以搭配 ChatGPT、Claude 等外部 AI 使用：先讓 AI 幫你抓出錯字，再回到這裡逐條跳轉播放、核對是否真的需要修改。四個步驟：</p>
+
+            <!-- 操作流程動畫示意（純 CSS 循環動畫） -->
+            <div class="ai-demo" aria-hidden="true">
+                <div class="ai-demo-scene ai-demo-scene1">
+                    <div class="ai-demo-mock">
+                        <div class="ai-demo-output">
+                            <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
+                            <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
+                            <span class="ai-demo-line">#41 00:15:30 | 程式馬 | 程式碼</span>
+                        </div>
+                    </div>
+                    <p class="ai-demo-caption" data-i18n="ai.demo1">① 把 AI 回覆的對比清單貼到輸出區</p>
+                </div>
+                <div class="ai-demo-scene ai-demo-scene2">
+                    <div class="ai-demo-mock">
+                        <div class="ai-demo-list">
+                            <div class="ai-demo-row"><span class="ai-demo-bar" style="width: 62%"></span></div>
+                            <div class="ai-demo-row ai-demo-row-modified">
+                                <span class="ai-demo-bar" style="width: 48%"></span>
+                                <span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span>
+                            </div>
+                            <div class="ai-demo-row"><span class="ai-demo-bar" style="width: 70%"></span></div>
+                        </div>
+                    </div>
+                    <p class="ai-demo-caption" data-i18n="ai.demo2">② 工具自動標記已修改的字幕</p>
+                </div>
+                <div class="ai-demo-scene ai-demo-scene3">
+                    <div class="ai-demo-mock">
+                        <div class="ai-demo-list">
+                            <div class="ai-demo-row ai-demo-row-active">
+                                <span class="ai-demo-timestamp">00:03:45</span>
+                                <span class="ai-demo-bar" style="width: 44%"></span>
+                            </div>
+                            <div class="ai-demo-player">
+                                <span class="ai-demo-play">▶</span>
+                                <span class="ai-demo-progress"><span class="ai-demo-progress-fill"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="ai-demo-caption" data-i18n="ai.demo3">③ 點擊時間戳跳轉播放、核對修改</p>
+                </div>
+            </div>
+
             <ol class="ai-tutorial-steps">
                 <li class="ai-tutorial-step">
                     <span class="ai-step-num">1</span>
@@ -316,18 +359,20 @@
                     <div class="ai-step-body">
                         <h4 data-i18n="ai.step3Title">貼回 AI 的校正結果</h4>
                         <p data-i18n="ai.step3Desc">勾選「僅顯示已修改字幕」，再勾選「顯示校正前後對比」，然後把 AI 回覆的對比清單貼進下方輸出區——工具會自動比對，並在字幕列表標記修改處。</p>
-                        <code class="ai-step-example" data-i18n="ai.step3Example">#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數</code>
+                        <code class="ai-step-example" data-i18n="ai.step3Example">#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數
+#27 00:08:12 | 這個變數的職 | 這個變數的值
+#41 00:15:30 | 程式馬會報錯 | 程式碼會報錯</code>
                     </div>
                 </li>
                 <li class="ai-tutorial-step">
                     <span class="ai-step-num">4</span>
                     <div class="ai-step-body">
                         <h4 data-i18n="ai.step4Title">跳轉播放、逐條核對</h4>
-                        <p data-i18n="ai.step4Desc">字幕列表切到「已修改」，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。</p>
+                        <p data-i18n="ai.step4Desc">將「字幕列表」切換到「已修改」Tab，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。</p>
                     </div>
                 </li>
             </ol>
-            <button class="ai-tutorial-gotit" onclick="closeAiTutorial()" data-i18n="ai.gotIt">我知道了，開始使用</button>
+            <button class="ai-tutorial-gotit" onclick="closeAiTutorial()" data-i18n="ai.gotIt">我知道了，開始使用。</button>
         </div>
     </div>
 

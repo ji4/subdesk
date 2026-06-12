@@ -101,12 +101,15 @@
     'output.placeholder':    { 'zh-TW': '載入影片後，這裡會自動產生整份校正後的字幕輸出。', 'en': 'After loading a video, the corrected subtitle output will appear here' },
 
     // ----- AI 校正教學 -----
-    'ai.btn':   { 'zh-TW': '🤖 AI 校正教學', 'en': '🤖 AI Workflow Guide' },
-    'ai.title': { 'zh-TW': '用 AI 加速字幕校正', 'en': 'Speed Up Corrections with AI' },
+    'ai.btn':   { 'zh-TW': '🤖 搭配 AI 使用教學', 'en': '🤖 How to Use with AI' },
+    'ai.title': { 'zh-TW': '搭配 AI 加速字幕校正', 'en': 'Pair with AI to Speed Up Corrections' },
     'ai.intro': {
-      'zh-TW': '讓 AI 先幫你抓出錯字，再用本工具逐條跳轉播放、核對是否真的需要修改。四個步驟：',
-      'en':    'Let an AI catch typos first, then use this tool to jump to each line and verify the changes. Four steps:'
+      'zh-TW': '本工具不內建 AI，但可以搭配 ChatGPT、Claude 等外部 AI 使用：先讓 AI 幫你抓出錯字，再回到這裡逐條跳轉播放、核對是否真的需要修改。四個步驟：',
+      'en':    'This tool has no built-in AI, but works great alongside external AI like ChatGPT or Claude: let the AI catch typos first, then come back here to jump to each line and verify the changes. Four steps:'
     },
+    'ai.demo1': { 'zh-TW': '① 把 AI 回覆的對比清單貼到輸出區', 'en': '① Paste the AI\'s comparison list into the output area' },
+    'ai.demo2': { 'zh-TW': '② 工具自動標記已修改的字幕', 'en': '② Modified lines are marked automatically' },
+    'ai.demo3': { 'zh-TW': '③ 點擊時間戳跳轉播放、核對修改', 'en': '③ Click a timestamp to jump and verify' },
     'ai.step1Title': { 'zh-TW': '載入影片與字幕', 'en': 'Load video & subtitles' },
     'ai.step1Desc': {
       'zh-TW': '左側載入 YouTube 或本機影片，右側上傳 .srt / .vtt 字幕檔。',
@@ -123,13 +126,13 @@
       'en':    'Check "Show modified only", then "Show before/after comparison", and paste the AI\'s list into the output area below — the tool will sync it and mark the modified lines in the subtitle list.'
     },
     'ai.step3Example': {
-      'zh-TW': '#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數',
-      'en':    '#12 00:03:45 | Lets look at this | Let\'s look at this'
+      'zh-TW': '#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數\n#27 00:08:12 | 這個變數的職 | 這個變數的值\n#41 00:15:30 | 程式馬會報錯 | 程式碼會報錯',
+      'en':    '#12 00:03:45 | Lets look at this | Let\'s look at this\n#27 00:08:12 | the value of this varible | the value of this variable\n#41 00:15:30 | the code will thro an error | the code will throw an error'
     },
     'ai.step4Title': { 'zh-TW': '跳轉播放、逐條核對', 'en': 'Jump, play & verify' },
     'ai.step4Desc': {
-      'zh-TW': '字幕列表切到「已修改」，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。',
-      'en':    'Switch the subtitle list to "Modified", click a timestamp to jump and verify each change. When done, copy or download the full corrected subtitles.'
+      'zh-TW': '將「字幕列表」切換到「已修改」Tab，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。',
+      'en':    'Switch the "Subtitle List" to the "Modified" tab, then click a timestamp to jump and verify each change. When done, copy or download the full corrected subtitles.'
     },
     'ai.promptTitle': { 'zh-TW': '提示詞範本（貼給 AI 用）', 'en': 'Prompt template (paste to your AI)' },
     'ai.promptTemplate': {
@@ -138,7 +141,7 @@
     },
     'ai.promptCopy':   { 'zh-TW': '複製範本', 'en': 'Copy template' },
     'ai.promptCopied': { 'zh-TW': '✓ 已複製', 'en': '✓ Copied' },
-    'ai.gotIt':        { 'zh-TW': '我知道了，開始使用', 'en': 'Got it, let\'s go' },
+    'ai.gotIt':        { 'zh-TW': '我知道了，開始使用。', 'en': 'Got it, let\'s go' },
     'ai.closeTitle':   { 'zh-TW': '關閉教學', 'en': 'Close guide' },
 
     'drag.overlay': { 'zh-TW': '拖曳影片、音訊或字幕檔（.srt .vtt）至此', 'en': 'Drop video, audio or subtitle file (.srt .vtt) here' },
