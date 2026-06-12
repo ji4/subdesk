@@ -1,3 +1,9 @@
+        // ── GA 事件輔助 ──
+        let _appInitializing = true;
+        function gaEvent(name, params) {
+            if (typeof gtag === 'function') gtag('event', name, params);
+        }
+
         // ── 小螢幕警告介面 ──
         const NARROW_DISMISSED_KEY = 'subdesk_narrow_dismissed';
         const NARROW_THRESHOLD = 1024;
@@ -189,6 +195,7 @@
                     if (name !== 'keyBindings') localStorage.removeItem(k);
                 });
             } catch (e) {}
+            gaEvent('reset_page');
             window.location.reload();
         }
 
@@ -435,6 +442,7 @@
                 loadBtn.disabled = false;
 
                 showStatus(t('msg.videoLoadSuccess'), 'success');
+                gaEvent('load_video', { source: 'youtube' });
                 saveState();
                 
                 if (timeInterval) {
@@ -520,6 +528,7 @@
                     if (loadBtn) { loadBtn.textContent = t('video.loadBtn'); loadBtn.disabled = false; }
 
                     showStatus(t('msg.localVideoLoadSuccess'), 'success');
+                    gaEvent('load_video', { source: 'local' });
                     saveState();
 
                     updateTimeDisplay();
@@ -797,6 +806,7 @@
                 
                 console.log('解析後的字幕:', youtubeSubtitles.slice(0, 3));
                 showDeleteNotification(t('msg.ytSubtitlesLoaded', youtubeSubtitles.length), 'success');
+                gaEvent('fetch_subtitles_success', { subtitle_count: youtubeSubtitles.length });
 
                 // 更新字幕顯示
                 currentHighlightedYouTube = -1;
@@ -810,6 +820,7 @@
             } catch (error) {
                 console.error('獲取字幕失敗:', error);
                 showDeleteNotification(t('msg.noYTSubtitles'), 'error');
+                gaEvent('fetch_subtitles_fail');
                 youtubeSubtitles = [];
                 updateYouTubeSubtitlesDisplay();
                 return [];
@@ -1772,6 +1783,7 @@
             });
             updateOutputTextarea();
             saveState();
+            if (!_appInitializing) gaEvent('switch_output_format', { format });
         }
 
         function toggleShowOnlyModified() {
@@ -1800,6 +1812,7 @@
                 return;
             }
             function showCopied() {
+                gaEvent('copy_output');
                 const btn = document.getElementById('copyOutputBtn');
                 if (!btn) return;
                 btn.textContent = t('msg.copied');
@@ -1842,6 +1855,7 @@
             a.download = `${baseName}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
+            gaEvent('download_output', { format: ext });
             showDeleteNotification(t('msg.downloaded', ext));
         }
 
@@ -2169,6 +2183,7 @@
 
         // 初始化頁面時設置鍵盤事件監聽
         window.addEventListener('i18n:change', function() {
+            gaEvent('change_language', { lang: document.documentElement.lang });
             updateYouTubeSubtitlesDisplay(true);
             updatePlayToggleBtn();
             refreshShortcutHints();
@@ -2371,6 +2386,7 @@
                 setKeySettingsMsg(t('keys.conflict', codeToLabel(code)));
                 return true;
             }
+            gaEvent('customize_keybinding', { key: capturingBinding });
             keyBindings[capturingBinding] = code;
             capturingBinding = null;
             saveKeyBindings();
@@ -2412,6 +2428,13 @@
             initKeySettings();
             // 還原 localStorage 狀態
             loadState();
+            _appInitializing = false;
+
+            // GA：頁尾連結點擊
+            const sponsorBtn = document.querySelector('.footer-btn-sponsor');
+            if (sponsorBtn) sponsorBtn.addEventListener('click', () => gaEvent('sponsor_click'));
+            const contactBtn = document.querySelector('.footer-btn-contact');
+            if (contactBtn) contactBtn.addEventListener('click', () => gaEvent('contact_click'));
             
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
@@ -2536,6 +2559,7 @@
                             highlightCurrentSubtitles(localVideo.currentTime);
                         }
                         showDeleteNotification(t('msg.subtitlesLoaded', subtitles.length), 'success');
+                        gaEvent('upload_subtitle', { format: name.endsWith('.vtt') ? 'vtt' : 'srt' });
                         saveState();
                     } else {
                         throw new Error('無法解析字幕內容');
