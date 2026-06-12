@@ -5,11 +5,11 @@
 > The Smoothest Way to Refine Subtitles
 > **Live: https://ji4.github.io/subdesk/**
 
-SubDesk puts **AI-assisted typo hunting** and **human verification** on a single screen, so you stop bouncing between your AI chat window, your video editor, and a separate player while fixing subtitles.
+SubDesk puts **AI-assisted typo hunting** and **human verification** on a single screen, so you stop bouncing between your AI chat window and your video editor while fixing subtitles.
 
 ## The Problem
 
-Video editors can auto-transcribe subtitles with AI now — but the output still contains typos, so you verify by hand. You may then paste the subtitles into another AI (ChatGPT, Claude, …) to flag likely typos. The painful part is what comes next: for every flagged line you have to find its timestamp, switch to a player, seek to that moment, listen, then switch back to fix the text. One window per step, dozens of switches per video.
+Video editors can auto-transcribe subtitles with AI now — but the output still contains typos, so you verify by hand. You may then paste the subtitles into another AI (ChatGPT, Claude, …) to flag likely typos. The painful part is what comes next: for every flagged line you have to find its timestamp, go back to your editor, seek to that moment, listen, then fix the text. One window per step, dozens of switches per video.
 
 ## How SubDesk Solves It
 
@@ -56,21 +56,10 @@ npm run dev     # Starts local server with subtitle API at http://localhost:3000
 
 No `config.js` needed. The dev-server serves both the frontend and subtitle API locally.
 
-## Project Structure
-
-```
-index.html        App entry (single page)
-src/              app.js / i18n.js / style.css
-public/images/    Logo, icons, OG image
-dev-server/       Local dev server with subtitle API
-docs/             Design & logic docs (see below)
-```
-
 ## Documentation
 
 - [docs/comparison-matching.md](docs/comparison-matching.md) — Matching and two-way sync logic for the before/after comparison mode. [中文版](docs/comparison-matching.zh-TW.md)
 - [docs/design-system.md](docs/design-system.md) — Design tokens and UI conventions.
-- [docs/ga-tracking.md](docs/ga-tracking.md) / [docs/ga-events-proposal.md](docs/ga-events-proposal.md) — Analytics notes.
 
 ## Contributing
 
