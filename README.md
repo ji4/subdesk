@@ -64,3 +64,9 @@ No `config.js` needed. The dev-server serves both the frontend and subtitle API 
 ## Contributing
 
 PRs for frontend UI/UX improvements are welcome.
+
+## Support
+
+If SubDesk helps your workflow, consider supporting the project.
+
+[![Support the project](https://img.shields.io/badge/Support%20the%20project-Donate-ff6b35?style=for-the-badge&logo=buymeacoffee&logoColor=white)](https://p.ecpay.com.tw/4931F0A)

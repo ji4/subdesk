@@ -64,3 +64,9 @@ npm run dev     # 啟動本機伺服器（含字幕 API）http://localhost:3000
 ## 貢獻
 
 歡迎針對前端 UI/UX 發 PR。
+
+## 支持
+
+如果 SubDesk 幫助了你的工作流程，歡迎支持這個專案。
+
+[![支持這個專案](https://img.shields.io/badge/%E6%94%AF%E6%8C%81%E9%80%99%E5%80%8B%E5%B0%88%E6%A1%88-%E8%B4%8A%E5%8A%A9%E6%94%AF%E6%8C%81-ff6b35?style=for-the-badge&logo=buymeacoffee&logoColor=white)](https://p.ecpay.com.tw/4931F0A)
