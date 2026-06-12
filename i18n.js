@@ -100,6 +100,47 @@
     'output.showComparison': { 'zh-TW': '顯示校正前後對比', 'en': 'Show before/after comparison' },
     'output.placeholder':    { 'zh-TW': '載入影片後，這裡會自動產生整份校正後的字幕輸出。', 'en': 'After loading a video, the corrected subtitle output will appear here' },
 
+    // ----- AI 校正教學 -----
+    'ai.btn':   { 'zh-TW': '🤖 AI 校正教學', 'en': '🤖 AI Workflow Guide' },
+    'ai.title': { 'zh-TW': '用 AI 加速字幕校正', 'en': 'Speed Up Corrections with AI' },
+    'ai.intro': {
+      'zh-TW': '讓 AI 先幫你抓出錯字，再用本工具逐條跳轉播放、核對是否真的需要修改。四個步驟：',
+      'en':    'Let an AI catch typos first, then use this tool to jump to each line and verify the changes. Four steps:'
+    },
+    'ai.step1Title': { 'zh-TW': '載入影片與字幕', 'en': 'Load video & subtitles' },
+    'ai.step1Desc': {
+      'zh-TW': '左側載入 YouTube 或本機影片，右側上傳 .srt / .vtt 字幕檔。',
+      'en':    'Load a YouTube or local video on the left, then upload your .srt / .vtt file on the right.'
+    },
+    'ai.step2Title': { 'zh-TW': '把字幕交給 AI 校正', 'en': 'Send subtitles to an AI' },
+    'ai.step2Desc': {
+      'zh-TW': '點下方輸出區的「複製」取得整份字幕，連同下面的提示詞範本一起貼給 ChatGPT、Claude 等 AI。',
+      'en':    'Click "Copy" in the output area below to grab the full subtitles, then paste them to ChatGPT, Claude, etc. together with the prompt template below.'
+    },
+    'ai.step3Title': { 'zh-TW': '貼回 AI 的校正結果', 'en': 'Paste the AI result back' },
+    'ai.step3Desc': {
+      'zh-TW': '勾選「僅顯示已修改字幕」，再勾選「顯示校正前後對比」，然後把 AI 回覆的對比清單貼進下方輸出區——工具會自動比對，並在字幕列表標記修改處。',
+      'en':    'Check "Show modified only", then "Show before/after comparison", and paste the AI\'s list into the output area below — the tool will sync it and mark the modified lines in the subtitle list.'
+    },
+    'ai.step3Example': {
+      'zh-TW': '#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數',
+      'en':    '#12 00:03:45 | Lets look at this | Let\'s look at this'
+    },
+    'ai.step4Title': { 'zh-TW': '跳轉播放、逐條核對', 'en': 'Jump, play & verify' },
+    'ai.step4Desc': {
+      'zh-TW': '字幕列表切到「已修改」，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。',
+      'en':    'Switch the subtitle list to "Modified", click a timestamp to jump and verify each change. When done, copy or download the full corrected subtitles.'
+    },
+    'ai.promptTitle': { 'zh-TW': '提示詞範本（貼給 AI 用）', 'en': 'Prompt template (paste to your AI)' },
+    'ai.promptTemplate': {
+      'zh-TW': '請幫我校正以下字幕中的錯字（語音轉文字常見錯誤），不要改動語意與斷句。\n只回覆「有修改」的字幕，每行一條，嚴格使用以下格式：\n#編號 時間 | 原文 | 修正後\n\n範例：\n#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數\n\n以下是字幕內容：',
+      'en':    'Please correct typos in the subtitles below (common speech-to-text errors). Do not change the meaning or line breaks.\nReply ONLY with the modified lines, one per line, strictly in this format:\n#number time | original | corrected\n\nExample:\n#12 00:03:45 | Lets look at this | Let\'s look at this\n\nHere are the subtitles:'
+    },
+    'ai.promptCopy':   { 'zh-TW': '複製範本', 'en': 'Copy template' },
+    'ai.promptCopied': { 'zh-TW': '✓ 已複製', 'en': '✓ Copied' },
+    'ai.gotIt':        { 'zh-TW': '我知道了，開始使用', 'en': 'Got it, let\'s go' },
+    'ai.closeTitle':   { 'zh-TW': '關閉教學', 'en': 'Close guide' },
+
     'drag.overlay': { 'zh-TW': '拖曳影片、音訊或字幕檔（.srt .vtt）至此', 'en': 'Drop video, audio or subtitle file (.srt .vtt) here' },
 
     // ----- 頁尾：贊助與聯絡 -----

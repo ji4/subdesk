@@ -43,7 +43,8 @@
             dividerCols:      'yte_dividerCols',
             outputHeight:     'yte_outputHeight',
             cwHeight:         'yte_cwHeight',
-            keyBindings:      'yte_keyBindings'
+            keyBindings:      'yte_keyBindings',
+            aiTutorialSeen:   'yte_aiTutorialSeen'
         };
 
         const configuredApiBase = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
@@ -192,7 +193,7 @@
             if (!confirm(t('msg.resetConfirm'))) return;
             try {
                 Object.entries(LS_KEYS).forEach(([name, k]) => {
-                    if (name !== 'keyBindings') localStorage.removeItem(k);
+                    if (name !== 'keyBindings' && name !== 'aiTutorialSeen') localStorage.removeItem(k);
                 });
             } catch (e) {}
             gaEvent('reset_page');
@@ -1804,6 +1805,69 @@
             updateOutputTextarea();
             saveState();
         }
+
+        // --- AI 校正教學 ---
+        function initAiTutorialBadge() {
+            if (localStorage.getItem(LS_KEYS.aiTutorialSeen)) return;
+            const btn = document.getElementById('aiTutorialBtn');
+            if (btn) btn.classList.add('is-new');
+        }
+
+        function openAiTutorial() {
+            const overlay = document.getElementById('aiTutorialOverlay');
+            if (overlay) overlay.classList.add('open');
+            const btn = document.getElementById('aiTutorialBtn');
+            if (btn) btn.classList.remove('is-new');
+            try { localStorage.setItem(LS_KEYS.aiTutorialSeen, 'true'); } catch (e) {}
+            gaEvent('open_ai_tutorial');
+        }
+
+        function closeAiTutorial(event) {
+            // 點擊 Modal 內容不關閉，僅點背景或關閉按鈕時關閉
+            if (event && event.target !== event.currentTarget) return;
+            const overlay = document.getElementById('aiTutorialOverlay');
+            if (overlay) overlay.classList.remove('open');
+        }
+
+        function copyAiPrompt() {
+            const pre = document.getElementById('aiPromptText');
+            if (!pre) return;
+            const text = pre.textContent;
+            function showCopied() {
+                gaEvent('copy_ai_prompt');
+                const btn = document.getElementById('aiPromptCopyBtn');
+                if (!btn) return;
+                btn.textContent = t('ai.promptCopied');
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = t('ai.promptCopy');
+                    btn.classList.remove('copied');
+                }, 1500);
+            }
+            function fallbackCopy() {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); showCopied(); }
+                catch (e) { showDeleteNotification(t('msg.copyFailed'), 'error'); }
+                document.body.removeChild(ta);
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showCopied).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const overlay = document.getElementById('aiTutorialOverlay');
+            if (overlay && overlay.classList.contains('open')) overlay.classList.remove('open');
+        });
+
+        document.addEventListener('DOMContentLoaded', initAiTutorialBadge);
 
         function copyOutput() {
             const text = document.getElementById('subtitleOutput').value;

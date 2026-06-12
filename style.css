@@ -2014,3 +2014,202 @@ body {
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.35);
 }
+
+/* --- AI 校正教學 --- */
+.ai-tutorial-btn {
+  position: relative;
+  margin-left: auto;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--primary);
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease);
+}
+
+.ai-tutorial-btn:hover {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: var(--primary);
+}
+
+.ai-tutorial-btn.is-new::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: ai-pulse 1.6s ease infinite;
+}
+
+@keyframes ai-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.6); }
+  70%  { box-shadow: 0 0 0 7px rgba(249, 115, 22, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+}
+
+.ai-tutorial-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-tutorial-overlay.open { display: flex; }
+
+.ai-tutorial-modal {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px 28px;
+  animation: ai-modal-in var(--dur-slow) var(--ease);
+}
+
+@keyframes ai-modal-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ai-tutorial-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ai-tutorial-close:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.ai-tutorial-title {
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+
+.ai-tutorial-intro {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.ai-tutorial-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ai-tutorial-step {
+  display: flex;
+  gap: 12px;
+}
+
+.ai-step-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(20, 184, 166, 0.12);
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  border-radius: 50%;
+}
+
+.ai-step-body h4 {
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.ai-step-body p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.ai-step-example {
+  display: block;
+  margin-top: 8px;
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--success);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.ai-prompt-box {
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ai-prompt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-prompt-text {
+  margin: 0;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.ai-tutorial-gotit {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--dur-normal) var(--ease);
+}
+
+.ai-tutorial-gotit:hover { background: var(--primary-dk); }

@@ -273,12 +273,61 @@
                         <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
                         <span data-i18n="output.showComparison">顯示校正前後對比</span>
                     </label>
+                    <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 AI 校正教學</button>
                 </div>
                 <textarea id="subtitleOutput"
                     data-i18n-placeholder="output.placeholder"
                     placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出。"
                     oninput="onOutputInput()"></textarea>
             </div>
+        </div>
+    </div>
+
+    <!-- AI 校正教學 Modal -->
+    <div class="ai-tutorial-overlay" id="aiTutorialOverlay" onclick="closeAiTutorial(event)">
+        <div class="ai-tutorial-modal" role="dialog" aria-modal="true" data-i18n-aria="ai.title" aria-label="用 AI 加速字幕校正">
+            <button class="ai-tutorial-close" onclick="closeAiTutorial()" data-i18n-title="ai.closeTitle" title="關閉教學" aria-label="Close">&times;</button>
+            <h3 class="ai-tutorial-title" data-i18n="ai.title">用 AI 加速字幕校正</h3>
+            <p class="ai-tutorial-intro" data-i18n="ai.intro">讓 AI 先幫你抓出錯字，再用本工具逐條跳轉播放、核對是否真的需要修改。四個步驟：</p>
+            <ol class="ai-tutorial-steps">
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">1</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step1Title">載入影片與字幕</h4>
+                        <p data-i18n="ai.step1Desc">左側載入 YouTube 或本機影片，右側上傳 .srt / .vtt 字幕檔。</p>
+                    </div>
+                </li>
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">2</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step2Title">把字幕交給 AI 校正</h4>
+                        <p data-i18n="ai.step2Desc">點下方輸出區的「複製」取得整份字幕，連同下面的提示詞範本一起貼給 ChatGPT、Claude 等 AI。</p>
+                        <div class="ai-prompt-box">
+                            <div class="ai-prompt-header">
+                                <span data-i18n="ai.promptTitle">提示詞範本（貼給 AI 用）</span>
+                                <button class="copy-btn" id="aiPromptCopyBtn" onclick="copyAiPrompt()" data-i18n="ai.promptCopy">複製範本</button>
+                            </div>
+                            <pre class="ai-prompt-text" id="aiPromptText" data-i18n="ai.promptTemplate"></pre>
+                        </div>
+                    </div>
+                </li>
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">3</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step3Title">貼回 AI 的校正結果</h4>
+                        <p data-i18n="ai.step3Desc">勾選「僅顯示已修改字幕」，再勾選「顯示校正前後對比」，然後把 AI 回覆的對比清單貼進下方輸出區——工具會自動比對，並在字幕列表標記修改處。</p>
+                        <code class="ai-step-example" data-i18n="ai.step3Example">#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數</code>
+                    </div>
+                </li>
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">4</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step4Title">跳轉播放、逐條核對</h4>
+                        <p data-i18n="ai.step4Desc">字幕列表切到「已修改」，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。</p>
+                    </div>
+                </li>
+            </ol>
+            <button class="ai-tutorial-gotit" onclick="closeAiTutorial()" data-i18n="ai.gotIt">我知道了，開始使用</button>
         </div>
     </div>
 
