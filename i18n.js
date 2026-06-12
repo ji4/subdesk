@@ -98,7 +98,7 @@
     'output.downloadBtn':    { 'zh-TW': '下載整份',         'en': 'Download All' },
     'output.onlyModified':   { 'zh-TW': '僅顯示已修改字幕', 'en': 'Show modified only' },
     'output.showComparison': { 'zh-TW': '顯示校正前後對比', 'en': 'Show before/after comparison' },
-    'output.placeholder':    { 'zh-TW': '載入影片後，這裡會自動產生整份校正後的字幕輸出', 'en': 'After loading a video, the corrected subtitle output will appear here' },
+    'output.placeholder':    { 'zh-TW': '載入影片後，這裡會自動產生整份校正後的字幕輸出。', 'en': 'After loading a video, the corrected subtitle output will appear here' },
 
     'drag.overlay': { 'zh-TW': '拖曳影片、音訊或字幕檔（.srt .vtt）至此', 'en': 'Drop video, audio or subtitle file (.srt .vtt) here' },
 
