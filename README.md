@@ -1,4 +1,4 @@
-# SubDesk — Subtitle Review Tool
+# SubDesk — Subtitle Refinement Tool
 
 **[中文版說明 →](README.zh-TW.md)**
 
@@ -19,7 +19,7 @@ No `config.js` needed. The dev-server serves both the frontend and subtitle API 
 
 ## Documentation
 
-- [docs/COMPARISON_MATCHING.md](docs/COMPARISON_MATCHING.md) — Matching and two-way sync logic for the before/after comparison mode (number-first → full-text fallback, fragment replacement, deletion sync). [中文版](docs/COMPARISON_MATCHING.zh-TW.md)
+- [docs/comparison-matching.md](docs/comparison-matching.md) — Matching and two-way sync logic for the before/after comparison mode (number-first → full-text fallback, fragment replacement, deletion sync). [中文版](docs/comparison-matching.zh-TW.md)
 
 ---
 

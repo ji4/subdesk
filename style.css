@@ -2301,7 +2301,7 @@ body {
 
 /* hover 暫停的提示：底色微微反白，讓人感覺到「動畫停在這裡了」 */
 .ai-demo:hover {
-  background: #1D1F24;
+  background: #16181C;
 }
 
 .ai-demo-scene {
@@ -2569,7 +2569,6 @@ body {
     animation: none;
   }
   .ai-demo-scene { transition: none; }
-}
 }
 
 /* --- AI 教學：手機版排版 --- */

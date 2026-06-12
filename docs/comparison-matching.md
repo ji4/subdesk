@@ -1,6 +1,6 @@
 # Comparison Matching & Sync Logic
 
-**[中文版 →](COMPARISON_MATCHING.zh-TW.md)**
+**[中文版 →](comparison-matching.zh-TW.md)**
 
 This document describes the two-way sync between the output textarea and the subtitle list in "before/after comparison" mode, and how comparison lines are matched to subtitles. Code: `parseComparisonLine`, `findComparisonTarget`, and `syncComparisonToList` in `app.js`.
 

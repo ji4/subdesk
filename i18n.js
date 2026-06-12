@@ -6,11 +6,11 @@
   // Key-first: each key maps { 'zh-TW': ..., 'en': ... } — easy to compare translations side by side
   var translations = {
     'page.title':    { 'zh-TW': '影片字幕校正工具',               'en': 'Video Subtitle Editor' },
-    'page.tagline':  { 'zh-TW': 'The Smoothest Way to Review Subtitles', 'en': 'The Smoothest Way to Review Subtitles' },
+    'page.tagline':  { 'zh-TW': 'The Smoothest Way to Refine Subtitles', 'en': 'The Smoothest Way to Refine Subtitles' },
 
     'meta.description': {
       'zh-TW': '影片字幕校正工具 — 支援 YouTube 與本機影片，輕鬆上傳 .srt / .vtt 字幕檔，即時編輯、同步校正，一鍵下載。',
-      'en':    'SubDesk — Subtitle review tool for YouTube and local videos. Upload .srt / .vtt files, edit in real-time, and download corrected subtitles in one click.'
+      'en':    'SubDesk — Subtitle refinement tool for YouTube and local videos. Upload .srt / .vtt files, edit in real-time, and download corrected subtitles in one click.'
     },
     'og.locale': { 'zh-TW': 'zh_TW', 'en': 'en_US' },
 

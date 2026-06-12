@@ -19,7 +19,7 @@ npm run dev     # 啟動本機伺服器（含字幕 API）http://localhost:3000
 
 ## 文件
 
-- [docs/COMPARISON_MATCHING.zh-TW.md](docs/COMPARISON_MATCHING.zh-TW.md) — 「校正前後對比」模式的配對與雙向同步邏輯（編號優先 → 全文搜尋退回、片段替換、刪除同步）。[English](docs/COMPARISON_MATCHING.md)
+- [docs/comparison-matching.zh-TW.md](docs/comparison-matching.zh-TW.md) — 「校正前後對比」模式的配對與雙向同步邏輯（編號優先 → 全文搜尋退回、片段替換、刪除同步）。[English](docs/comparison-matching.md)
 
 ---
 

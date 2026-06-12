@@ -1,6 +1,6 @@
 # 校正前後對比：配對與同步邏輯
 
-**[English version →](COMPARISON_MATCHING.md)**
+**[English version →](comparison-matching.md)**
 
 本文件說明「顯示校正前後對比」模式下，輸出區（textarea）與字幕列表之間的雙向同步機制，以及對比行如何配對到字幕。對應程式碼：`app.js` 的 `parseComparisonLine`、`findComparisonTarget`、`syncComparisonToList`。
 
