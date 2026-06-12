@@ -2038,6 +2038,7 @@ body {
 /* --- AI 校正教學 --- */
 .ai-tutorial-btn {
   position: relative;
+  margin-left: auto;
   padding: 4px 12px;
   font-size: 13px;
   font-family: var(--font-body);
@@ -2234,10 +2235,36 @@ body {
 
 .ai-tutorial-gotit:hover { background: var(--primary-dk); }
 
-/* --- AI 教學：操作流程動畫示意（15 秒循環，三幕輪播，每幕約 5 秒） --- */
+/* --- 比對模式：無法對應的行（常駐警告面板） --- */
+.unmatched-panel {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+}
+
+.unmatched-panel-title {
+  font-size: 13px;
+  color: var(--error);
+  margin-bottom: 4px;
+}
+
+.unmatched-panel-lines {
+  max-height: 96px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* --- AI 教學：操作流程動畫示意（JS 輪播，每幕 5 秒，指示點可點擊切換） --- */
 .ai-demo {
   position: relative;
-  height: 152px;
+  height: 196px;
   margin-bottom: 20px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -2247,75 +2274,59 @@ body {
 
 .ai-demo-scene {
   position: absolute;
-  inset: 0 0 22px 0;
+  inset: 0 0 24px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
   padding: 14px 18px;
   opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease);
 }
 
-.ai-demo-scene1 { animation: ai-demo-scene1 15s infinite; }
-.ai-demo-scene2 { animation: ai-demo-scene2 15s infinite; }
-.ai-demo-scene3 { animation: ai-demo-scene3 15s infinite; }
-
-@keyframes ai-demo-scene1 {
-  0%, 30% { opacity: 1; }
-  33%, 97% { opacity: 0; }
-  100% { opacity: 1; }
+.ai-demo-scene.active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-@keyframes ai-demo-scene2 {
-  0%, 33% { opacity: 0; }
-  36%, 63% { opacity: 1; }
-  66%, 100% { opacity: 0; }
-}
-
-@keyframes ai-demo-scene3 {
-  0%, 66% { opacity: 0; }
-  69%, 97% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* 底部輪播指示點：與三幕同步亮起，呈現目前進度與全局關係 */
+/* 底部輪播指示點：標示目前幕次，可點擊切換 */
 .ai-demo-dots {
   position: absolute;
-  bottom: 8px;
+  bottom: 6px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ai-demo-dot {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-demo-dot::before {
+  content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: rgba(148, 163, 184, 0.3);
+  transition: background var(--dur-normal) var(--ease), transform var(--dur-normal) var(--ease);
 }
 
-.ai-demo-dot1 { animation: ai-demo-dot1 15s infinite; }
-.ai-demo-dot2 { animation: ai-demo-dot2 15s infinite; }
-.ai-demo-dot3 { animation: ai-demo-dot3 15s infinite; }
+.ai-demo-dot:hover::before { background: rgba(148, 163, 184, 0.6); }
 
-@keyframes ai-demo-dot1 {
-  0%, 30% { background: var(--primary); transform: scale(1.25); }
-  33%, 97% { background: rgba(148, 163, 184, 0.3); transform: scale(1); }
-  100% { background: var(--primary); transform: scale(1.25); }
-}
-
-@keyframes ai-demo-dot2 {
-  0%, 33% { background: rgba(148, 163, 184, 0.3); transform: scale(1); }
-  36%, 63% { background: var(--primary); transform: scale(1.25); }
-  66%, 100% { background: rgba(148, 163, 184, 0.3); transform: scale(1); }
-}
-
-@keyframes ai-demo-dot3 {
-  0%, 66% { background: rgba(148, 163, 184, 0.3); transform: scale(1); }
-  69%, 97% { background: var(--primary); transform: scale(1.25); }
-  100% { background: rgba(148, 163, 184, 0.3); transform: scale(1); }
+.ai-demo-dot.active::before {
+  background: var(--primary);
+  transform: scale(1.3);
 }
 
 .ai-demo-caption {
@@ -2338,17 +2349,16 @@ body {
   font-family: var(--font-mono);
   font-size: 11.5px;
   color: var(--success);
-  opacity: 0;
-  animation: ai-demo-line 15s infinite;
 }
 
-.ai-demo-line:nth-child(2) { animation-delay: 0.8s; }
-.ai-demo-line:nth-child(3) { animation-delay: 1.6s; }
+/* 貼上是一次性的動作：整批淡入，不逐行出現 */
+.ai-demo-scene.active .ai-demo-output {
+  animation: ai-demo-paste 0.5s 0.3s both;
+}
 
-@keyframes ai-demo-line {
-  0% { opacity: 0; transform: translateY(4px); }
-  3%, 26% { opacity: 1; transform: translateY(0); }
-  31%, 100% { opacity: 0; }
+@keyframes ai-demo-paste {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .ai-demo-list {
@@ -2386,13 +2396,15 @@ body {
   background: rgba(249, 115, 22, 0.12);
   border: 1px solid rgba(249, 115, 22, 0.4);
   border-radius: 999px;
-  animation: ai-demo-badge 15s infinite;
+}
+
+.ai-demo-scene.active .ai-demo-badge {
+  animation: ai-demo-badge 0.4s 0.5s both;
 }
 
 @keyframes ai-demo-badge {
-  0%, 38% { opacity: 0; transform: scale(0.6); }
-  42%, 63% { opacity: 1; transform: scale(1); }
-  66%, 100% { opacity: 0; }
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .ai-demo-row-active {
@@ -2428,27 +2440,26 @@ body {
 .ai-demo-progress-fill {
   display: block;
   height: 100%;
-  width: 0;
+  width: 18%;
   background: var(--primary);
   border-radius: 3px;
-  animation: ai-demo-progress 15s infinite;
+}
+
+.ai-demo-scene.active .ai-demo-progress-fill {
+  animation: ai-demo-progress 3s 0.5s both;
 }
 
 @keyframes ai-demo-progress {
-  0%, 72% { width: 18%; }
-  75% { width: 42%; }
-  97%, 100% { width: 78%; }
+  0% { width: 18%; }
+  20% { width: 42%; }
+  100% { width: 78%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ai-demo-scene,
-  .ai-demo-line,
-  .ai-demo-badge,
-  .ai-demo-progress-fill,
-  .ai-demo-dot {
+  .ai-demo-scene.active .ai-demo-output,
+  .ai-demo-scene.active .ai-demo-badge,
+  .ai-demo-scene.active .ai-demo-progress-fill {
     animation: none;
   }
-  .ai-demo-scene1 { opacity: 1; }
-  .ai-demo-line { opacity: 1; }
-  .ai-demo-dot1 { background: var(--primary); }
+  .ai-demo-scene { transition: none; }
 }

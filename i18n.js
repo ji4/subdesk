@@ -99,6 +99,10 @@
     'output.downloadBtn':    { 'zh-TW': '下載整份',         'en': 'Download All' },
     'output.onlyModified':   { 'zh-TW': '僅顯示已修改字幕', 'en': 'Show modified only' },
     'output.showComparison': { 'zh-TW': '顯示校正前後對比', 'en': 'Show before/after comparison' },
+    'output.unmatchedTitle': {
+      'zh-TW': function (n) { return '⚠️ 以下 ' + n + ' 行無法對應到任何字幕，請檢查原文是否正確：'; },
+      'en':    function (n) { return '⚠️ The following ' + n + ' line(s) could not be matched to any subtitle. Check the original text:'; }
+    },
     'output.placeholder':    { 'zh-TW': '載入影片後，這裡會自動產生整份校正後的字幕輸出。', 'en': 'After loading a video, the corrected subtitle output will appear here' },
 
     // ----- AI 校正教學 -----
@@ -176,10 +180,6 @@
     'msg.subtitlesLoaded': {
       'zh-TW': function (n) { return '✅ 成功載入 ' + n + ' 條字幕'; },
       'en':    function (n) { return '✅ Loaded ' + n + ' subtitles'; }
-    },
-    'msg.syncUnmatched': {
-      'zh-TW': function (n) { return '⚠️ 有 ' + n + ' 行對比無法對應到任何字幕'; },
-      'en':    function (n) { return '⚠️ ' + n + ' comparison line(s) could not be matched to any subtitle'; }
     },
     'msg.copied':    { 'zh-TW': '✓ 已複製', 'en': '✓ Copied' },
     'msg.copyBtn':   { 'zh-TW': '複製',     'en': 'Copy' },

@@ -1742,17 +1742,29 @@
             return substringHit;
         }
 
-        let _lastUnmatchedCount = 0;
+        // 常駐警告面板：逐行列出無法對應的對比行（toast 會消失，使用者來不及看）
+        function updateUnmatchedPanel(unmatchedLines) {
+            const panel = document.getElementById('unmatchedPanel');
+            if (!panel) return;
+            if (!unmatchedLines || unmatchedLines.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+            document.getElementById('unmatchedPanelTitle').textContent = t('output.unmatchedTitle', unmatchedLines.length);
+            document.getElementById('unmatchedPanelLines').textContent = unmatchedLines.join('\n');
+            panel.style.display = 'block';
+        }
+
         function syncComparisonToList(value) {
             const lines = value.split('\n').filter(l => l.trim());
             const matchedIndices = new Set();
             let changed = false;
-            let unmatched = 0;
+            const unmatchedLines = [];
 
             for (const line of lines) {
                 const entry = parseComparisonLine(line);
                 const idx = entry ? findComparisonTarget(entry, matchedIndices) : -1;
-                if (idx === -1) { unmatched++; continue; }
+                if (idx === -1) { unmatchedLines.push(line); continue; }
                 matchedIndices.add(idx);
                 const s = youtubeSubtitles[idx];
                 // 原文與整句相同就整句替換，否則視為片段替換
@@ -1785,10 +1797,7 @@
                 updateYouTubeSubtitlesDisplay(true);
                 debouncedSaveState();
             }
-            if (unmatched > 0 && unmatched !== _lastUnmatchedCount) {
-                showDeleteNotification(t('msg.syncUnmatched', unmatched), 'error');
-            }
-            _lastUnmatchedCount = unmatched;
+            updateUnmatchedPanel(unmatchedLines);
         }
 
         function syncOutputToList() {
@@ -1869,12 +1878,14 @@
                 const chk = document.getElementById('chkComparison');
                 if (chk) chk.checked = false;
             }
+            if (!showComparison) updateUnmatchedPanel([]);
             updateOutputTextarea();
             saveState();
         }
 
         function toggleShowComparison() {
             showComparison = document.getElementById('chkComparison').checked;
+            if (!showComparison) updateUnmatchedPanel([]);
             updateOutputTextarea();
             saveState();
         }
@@ -1886,12 +1897,48 @@
             if (btn) btn.classList.add('is-new');
         }
 
+        // 教學動畫輪播：每幕 5 秒自動播放，點擊指示點可手動切換
+        const AI_DEMO_INTERVAL = 5000;
+        let _aiDemoTimer = null;
+        let _aiDemoIndex = 0;
+
+        function aiDemoShow(index) {
+            _aiDemoIndex = index;
+            document.querySelectorAll('.ai-demo-scene').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.ai-demo-dot').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+        }
+
+        function aiDemoStart() {
+            aiDemoShow(0);
+            clearInterval(_aiDemoTimer);
+            _aiDemoTimer = setInterval(() => aiDemoShow((_aiDemoIndex + 1) % 3), AI_DEMO_INTERVAL);
+        }
+
+        function aiDemoStop() {
+            clearInterval(_aiDemoTimer);
+            _aiDemoTimer = null;
+        }
+
+        function aiDemoGoTo(index) {
+            aiDemoShow(index);
+            // 手動切換後重新計時，避免剛點完就被自動播放跳走
+            if (_aiDemoTimer) {
+                clearInterval(_aiDemoTimer);
+                _aiDemoTimer = setInterval(() => aiDemoShow((_aiDemoIndex + 1) % 3), AI_DEMO_INTERVAL);
+            }
+        }
+
         function openAiTutorial() {
             const overlay = document.getElementById('aiTutorialOverlay');
             if (overlay) overlay.classList.add('open');
             const btn = document.getElementById('aiTutorialBtn');
             if (btn) btn.classList.remove('is-new');
             try { localStorage.setItem(LS_KEYS.aiTutorialSeen, 'true'); } catch (e) {}
+            aiDemoStart();
             gaEvent('open_ai_tutorial');
         }
 
@@ -1900,6 +1947,7 @@
             if (event && event.target !== event.currentTarget) return;
             const overlay = document.getElementById('aiTutorialOverlay');
             if (overlay) overlay.classList.remove('open');
+            aiDemoStop();
         }
 
         function copyAiPrompt() {
@@ -1937,7 +1985,10 @@
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
             const overlay = document.getElementById('aiTutorialOverlay');
-            if (overlay && overlay.classList.contains('open')) overlay.classList.remove('open');
+            if (overlay && overlay.classList.contains('open')) {
+                overlay.classList.remove('open');
+                aiDemoStop();
+            }
         });
 
         document.addEventListener('DOMContentLoaded', initAiTutorialBadge);

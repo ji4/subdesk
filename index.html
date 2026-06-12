@@ -265,7 +265,6 @@
                     </div>
                 </div>
                 <div class="output-options">
-                    <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 搭配 AI 使用教學</button>
                     <label>
                         <input type="checkbox" id="chkOnlyModified" onchange="toggleShowOnlyModified()">
                         <span data-i18n="output.onlyModified">僅顯示已修改字幕</span>
@@ -274,6 +273,11 @@
                         <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
                         <span data-i18n="output.showComparison">顯示校正前後對比</span>
                     </label>
+                    <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 搭配 AI 使用教學</button>
+                </div>
+                <div class="unmatched-panel" id="unmatchedPanel" style="display: none;">
+                    <div class="unmatched-panel-title" id="unmatchedPanelTitle"></div>
+                    <div class="unmatched-panel-lines" id="unmatchedPanelLines"></div>
                 </div>
                 <textarea id="subtitleOutput"
                     data-i18n-placeholder="output.placeholder"
@@ -290,8 +294,8 @@
             <h3 class="ai-tutorial-title" data-i18n="ai.title">搭配 AI 加速字幕校正</h3>
             <p class="ai-tutorial-intro" data-i18n="ai.intro">本工具不內建 AI，但可以搭配 ChatGPT、Claude 等外部 AI 使用：先讓 AI 幫你抓出錯字，再回到這裡逐條跳轉播放、核對是否真的需要修改。四個步驟：</p>
 
-            <!-- 操作流程動畫示意（純 CSS 循環動畫） -->
-            <div class="ai-demo" aria-hidden="true">
+            <!-- 操作流程動畫示意（JS 控制的三幕輪播，指示點可點擊） -->
+            <div class="ai-demo">
                 <div class="ai-demo-scene ai-demo-scene1">
                     <div class="ai-demo-mock">
                         <div class="ai-demo-output">
@@ -318,9 +322,17 @@
                 <div class="ai-demo-scene ai-demo-scene3">
                     <div class="ai-demo-mock">
                         <div class="ai-demo-list">
+                            <div class="ai-demo-row">
+                                <span class="ai-demo-timestamp">00:01:12</span>
+                                <span class="ai-demo-bar" style="width: 56%"></span>
+                            </div>
                             <div class="ai-demo-row ai-demo-row-active">
                                 <span class="ai-demo-timestamp">00:03:45</span>
                                 <span class="ai-demo-bar" style="width: 44%"></span>
+                            </div>
+                            <div class="ai-demo-row">
+                                <span class="ai-demo-timestamp">00:08:12</span>
+                                <span class="ai-demo-bar" style="width: 63%"></span>
                             </div>
                             <div class="ai-demo-player">
                                 <span class="ai-demo-play">▶</span>
@@ -331,9 +343,9 @@
                     <p class="ai-demo-caption" data-i18n="ai.demo3">③ 點擊時間戳跳轉播放、核對修改</p>
                 </div>
                 <div class="ai-demo-dots">
-                    <span class="ai-demo-dot ai-demo-dot1"></span>
-                    <span class="ai-demo-dot ai-demo-dot2"></span>
-                    <span class="ai-demo-dot ai-demo-dot3"></span>
+                    <button class="ai-demo-dot" onclick="aiDemoGoTo(0)" aria-label="1"></button>
+                    <button class="ai-demo-dot" onclick="aiDemoGoTo(1)" aria-label="2"></button>
+                    <button class="ai-demo-dot" onclick="aiDemoGoTo(2)" aria-label="3"></button>
                 </div>
             </div>
 
