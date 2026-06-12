@@ -1897,10 +1897,11 @@
             if (btn) btn.classList.add('is-new');
         }
 
-        // 教學動畫輪播：每幕 5 秒自動播放，點擊指示點可手動切換
+        // 教學動畫輪播：每幕 5 秒自動播放，點擊指示點可手動切換，hover／按住時暫停
         const AI_DEMO_INTERVAL = 5000;
         let _aiDemoTimer = null;
         let _aiDemoIndex = 0;
+        let _aiDemoPlaying = false; // Modal 開啟中（hover 暫停時計時器停但仍視為播放中）
 
         function aiDemoShow(index) {
             _aiDemoIndex = index;
@@ -1912,24 +1913,47 @@
             });
         }
 
-        function aiDemoStart() {
-            aiDemoShow(0);
+        function aiDemoStartTimer() {
             clearInterval(_aiDemoTimer);
             _aiDemoTimer = setInterval(() => aiDemoShow((_aiDemoIndex + 1) % 3), AI_DEMO_INTERVAL);
+        }
+
+        function aiDemoStart() {
+            aiDemoShow(0);
+            _aiDemoPlaying = true;
+            aiDemoStartTimer();
         }
 
         function aiDemoStop() {
             clearInterval(_aiDemoTimer);
             _aiDemoTimer = null;
+            _aiDemoPlaying = false;
         }
 
         function aiDemoGoTo(index) {
             aiDemoShow(index);
             // 手動切換後重新計時，避免剛點完就被自動播放跳走
-            if (_aiDemoTimer) {
-                clearInterval(_aiDemoTimer);
-                _aiDemoTimer = setInterval(() => aiDemoShow((_aiDemoIndex + 1) % 3), AI_DEMO_INTERVAL);
-            }
+            if (_aiDemoTimer) aiDemoStartTimer();
+        }
+
+        function aiDemoPause() {
+            clearInterval(_aiDemoTimer);
+            _aiDemoTimer = null;
+        }
+
+        function aiDemoResume() {
+            if (_aiDemoPlaying && !_aiDemoTimer) aiDemoStartTimer();
+        }
+
+        function initAiDemoHoverPause() {
+            const demo = document.getElementById('aiDemo');
+            if (!demo) return;
+            demo.addEventListener('mouseenter', aiDemoPause);
+            demo.addEventListener('mouseleave', aiDemoResume);
+            // 觸控裝置沒有 hover：按住暫停、放開繼續
+            demo.addEventListener('touchstart', aiDemoPause, { passive: true });
+            demo.addEventListener('touchend', aiDemoResume);
+            demo.addEventListener('touchcancel', aiDemoResume);
         }
 
         function openAiTutorial() {
@@ -1991,7 +2015,10 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', initAiTutorialBadge);
+        document.addEventListener('DOMContentLoaded', () => {
+            initAiTutorialBadge();
+            initAiDemoHoverPause();
+        });
 
         function copyOutput() {
             const text = document.getElementById('subtitleOutput').value;

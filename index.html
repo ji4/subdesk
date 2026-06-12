@@ -294,11 +294,19 @@
             <h3 class="ai-tutorial-title" data-i18n="ai.title">搭配 AI 加速字幕校正</h3>
             <p class="ai-tutorial-intro" data-i18n="ai.intro">本工具不內建 AI，但可以搭配 ChatGPT、Claude 等外部 AI 使用：先讓 AI 幫你抓出錯字，再回到這裡逐條跳轉播放、核對是否真的需要修改。四個步驟：</p>
 
-            <!-- 操作流程動畫示意（JS 控制的三幕輪播，指示點可點擊） -->
-            <div class="ai-demo">
+            <!-- 操作流程動畫示意（JS 三幕輪播：全局 app 縮小畫面 + 聚光燈，hover 暫停，指示點可點擊） -->
+            <div class="ai-demo" id="aiDemo">
                 <div class="ai-demo-scene ai-demo-scene1">
-                    <div class="ai-demo-mock">
-                        <div class="ai-demo-output">
+                    <div class="ai-demo-app spotlight-output">
+                        <div class="ai-demo-app-main">
+                            <div class="ai-demo-app-video"><span class="ai-demo-play">▶</span></div>
+                            <div class="ai-demo-app-list">
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width: 58%"></span></div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width: 44%"></span></div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 66%"></span></div>
+                            </div>
+                        </div>
+                        <div class="ai-demo-app-output">
                             <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
                             <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
                             <span class="ai-demo-line">#41 00:15:30 | 程式馬 | 程式碼</span>
@@ -307,37 +315,46 @@
                     <p class="ai-demo-caption" data-i18n="ai.demo1">① 把 AI 回覆的對比清單貼到輸出區</p>
                 </div>
                 <div class="ai-demo-scene ai-demo-scene2">
-                    <div class="ai-demo-mock">
-                        <div class="ai-demo-list">
-                            <div class="ai-demo-row"><span class="ai-demo-bar" style="width: 62%"></span></div>
-                            <div class="ai-demo-row ai-demo-row-modified">
-                                <span class="ai-demo-bar" style="width: 48%"></span>
-                                <span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span>
+                    <div class="ai-demo-app spotlight-list">
+                        <div class="ai-demo-app-main">
+                            <div class="ai-demo-app-video"><span class="ai-demo-play">▶</span></div>
+                            <div class="ai-demo-app-list">
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width: 58%"></span></div>
+                                <div class="ai-demo-row ai-demo-row-modified">
+                                    <span class="ai-demo-timestamp">00:03:45</span>
+                                    <span class="ai-demo-bar" style="width: 36%"></span>
+                                    <span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span>
+                                </div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 66%"></span></div>
                             </div>
-                            <div class="ai-demo-row"><span class="ai-demo-bar" style="width: 70%"></span></div>
+                        </div>
+                        <div class="ai-demo-app-output ai-demo-output-static">
+                            <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
+                            <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
                         </div>
                     </div>
                     <p class="ai-demo-caption" data-i18n="ai.demo2">② 工具自動標記已修改的字幕</p>
                 </div>
                 <div class="ai-demo-scene ai-demo-scene3">
-                    <div class="ai-demo-mock">
-                        <div class="ai-demo-list">
-                            <div class="ai-demo-row">
-                                <span class="ai-demo-timestamp">00:01:12</span>
-                                <span class="ai-demo-bar" style="width: 56%"></span>
-                            </div>
-                            <div class="ai-demo-row ai-demo-row-active">
-                                <span class="ai-demo-timestamp">00:03:45</span>
-                                <span class="ai-demo-bar" style="width: 44%"></span>
-                            </div>
-                            <div class="ai-demo-row">
-                                <span class="ai-demo-timestamp">00:08:12</span>
-                                <span class="ai-demo-bar" style="width: 63%"></span>
-                            </div>
-                            <div class="ai-demo-player">
+                    <div class="ai-demo-app spotlight-video">
+                        <div class="ai-demo-app-main">
+                            <div class="ai-demo-app-video">
                                 <span class="ai-demo-play">▶</span>
                                 <span class="ai-demo-progress"><span class="ai-demo-progress-fill"></span></span>
                             </div>
+                            <div class="ai-demo-app-list">
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width: 58%"></span></div>
+                                <div class="ai-demo-row ai-demo-row-modified">
+                                    <span class="ai-demo-timestamp">00:03:45</span>
+                                    <span class="ai-demo-bar" style="width: 36%"></span>
+                                    <span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span>
+                                </div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 66%"></span></div>
+                            </div>
+                        </div>
+                        <div class="ai-demo-app-output ai-demo-output-static">
+                            <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
+                            <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
                         </div>
                     </div>
                     <p class="ai-demo-caption" data-i18n="ai.demo3">③ 點擊時間戳跳轉播放、核對修改</p>
