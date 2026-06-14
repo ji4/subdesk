@@ -64,7 +64,7 @@
             var _isLocal = ['localhost', '127.0.0.1', '::1'].includes(_hn)
                 || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_hn);
             var _params = new URLSearchParams(window.location.search);
-            var _noGa = _params.has('no_ga') || _params.get('ga') === 'off';
+            var _noGa = _params.has('notrack');
             if (_isLocal || _noGa) window['ga-disable-G-TJNXR7NCT4'] = true;
             window.SUBDESK_GA_DISABLED = _isLocal || _noGa;
         })();

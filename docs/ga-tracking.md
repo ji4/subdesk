@@ -26,4 +26,4 @@
 
 ## 手動排除設定
 
-網址加上 `?no_ga=1` 或 `?ga=off` 會停用 GA，且不載入 `gtag.js`。
+網址加上 `?notrack` 會停用 GA，且不載入 `gtag.js`。
