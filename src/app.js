@@ -429,8 +429,8 @@
                         await fetchYouTubeSubtitles(videoId);
                         updateProgress(75, t('msg.progressSubtitlesDone'));
                     } catch (error) {
-                        console.warn('獲取字幕失敗:', error);
-                        showDeleteNotification(t('msg.noSubtitlesPlayable'), 'error');
+                        console.warn('API 字幕失敗，等待播放器備援:', error);
+                        // 不立即顯示錯誤，讓 fetchSubtitlesFromPlayer 接手
                     }
                 }
                 
@@ -626,12 +626,17 @@
             updateYouTubeSubtitlesDisplay();
             syncSpeedSlider(getCurrentPlaybackRate());
             showDeleteNotification(t('msg.playerReady'), 'success');
-            // onApiChange 是主要觸發點；這裡只做 3 秒後的備援
+            // 主動觸發 captions 模組載入，讓 onApiChange 盡快觸發
+            if (player && typeof player.loadModule === 'function') {
+                try { player.loadModule('captions'); } catch(e) {}
+            }
+            // 備援：若 onApiChange 未在 1.5 秒內觸發，主動嘗試
             setTimeout(() => {
                 if (!captionsFetched && currentVideoId && (!youtubeSubtitles || youtubeSubtitles.length === 0)) {
+                    captionsFetched = true;
                     fetchSubtitlesFromPlayer(currentVideoId);
                 }
-            }, 3000);
+            }, 1500);
         }
 
         function onApiChange(event) {
@@ -658,7 +663,10 @@
                 }
                 const tracklist = player.getOption('captions', 'tracklist');
                 console.log('播放器字幕軌道:', tracklist);
-                if (!tracklist || tracklist.length === 0) return;
+                if (!tracklist || tracklist.length === 0) {
+                    showDeleteNotification(t('msg.noSubtitlesPlayable'), 'error');
+                    return;
+                }
 
                 const track = tracklist.find(t =>
                     t.languageCode?.startsWith('zh') || t.vssId?.includes('zh')
@@ -670,13 +678,17 @@
                     const lang = track.languageCode || 'zh-TW';
                     const timedTextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${encodeURIComponent(lang)}&fmt=json3`;
                     await tryProxyCaptions(timedTextUrl);
-                    return;
+                } else {
+                    const captionUrl = baseUrl.includes('fmt=') ? baseUrl : baseUrl + '&fmt=json3';
+                    await tryProxyCaptions(captionUrl);
                 }
 
-                const captionUrl = baseUrl.includes('fmt=') ? baseUrl : baseUrl + '&fmt=json3';
-                await tryProxyCaptions(captionUrl);
+                if (!youtubeSubtitles || youtubeSubtitles.length === 0) {
+                    showDeleteNotification(t('msg.noSubtitlesPlayable'), 'error');
+                }
             } catch (e) {
                 console.warn('播放器字幕 API 獲取失敗:', e);
+                showDeleteNotification(t('msg.noSubtitlesPlayable'), 'error');
             }
         }
 
