@@ -47,6 +47,23 @@ Flag → jump → verify → fix. One screen, zero window switching.
 - 🌐 **Bilingual UI** — Traditional Chinese / English
 - 🆓 **Free, no sign-up** — front-end only; local files never leave the browser (fetching YouTube subtitles is blocked by browser CORS and must run server-side, so it goes through a small private API)
 
+## YouTube Subtitle Limitation
+
+When using the hosted version at [ji4.github.io/subdesk](https://ji4.github.io/subdesk/), automatic YouTube subtitle fetching may not work reliably. Browser CORS restrictions require subtitles to be fetched server-side, and YouTube blocks bulk subtitle requests from cloud hosts such as Vercel.
+
+**Recommendation**: For reliable YouTube subtitle auto-fetching, clone the project and run it locally:
+
+```bash
+git clone https://github.com/ji4/subdesk.git
+cd subdesk
+npm install
+npm run dev
+```
+
+When running locally, subtitle requests originate from your own IP and are not subject to this restriction.
+
+Manually uploading a `.srt` / `.vtt` file is unaffected and works fine on the hosted version.
+
 ## Local Development
 
 ```bash
