@@ -47,7 +47,7 @@
             aiTutorialSeen:   'yte_aiTutorialSeen'
         };
 
-        const DEFAULT_API_BASE_URL = 'https://subdesk-api.vercel.app';
+        const DEFAULT_API_BASE_URL = 'https://subdesk-jy-projects12.vercel.app';
         const configuredApiBase = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
         const _hn = window.location.hostname;
         const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(_hn)
