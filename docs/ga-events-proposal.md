@@ -1,8 +1,5 @@
 # GA 自訂事件評估方案
 
-> **狀態：等待確認，尚未實作任何程式碼。**
-> 確認要加入哪些事件後，再統一實作進 `app.js`。
-
 ---
 
 ## 目前狀況
@@ -23,7 +20,7 @@
 
 | 事件名稱 | 參數 | 說明 |
 |---------|------|------|
-| `fetch_subtitles_success` | `subtitle_count`: 數字 | API 成功拿回字幕，附條數 |
+| `fetch_subtitles_success` | `subtitle_count`: 數字 | API 成功拿回字幕，附條數。 |
 | `fetch_subtitles_fail` | — | API 失敗或無字幕 |
 | `upload_subtitle` | `format`: `srt` \| `vtt` | 使用者手動上傳字幕檔 |
 
