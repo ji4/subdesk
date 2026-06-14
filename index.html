@@ -58,18 +58,26 @@
     <script src="config.js" onerror="void 0"></script>
     <!-- i18n must load before app.js -->
     <script src="src/i18n.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TJNXR7NCT4"></script>
     <script>
         (function() {
             var _hn = window.location.hostname;
             var _isLocal = ['localhost', '127.0.0.1', '::1'].includes(_hn)
                 || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_hn);
-            if (_isLocal) window['ga-disable-G-TJNXR7NCT4'] = true;
+            var _params = new URLSearchParams(window.location.search);
+            var _noGa = _params.has('no_ga') || _params.get('ga') === 'off';
+            if (_isLocal || _noGa) window['ga-disable-G-TJNXR7NCT4'] = true;
+            window.SUBDESK_GA_DISABLED = _isLocal || _noGa;
         })();
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-TJNXR7NCT4');
+        if (!window.SUBDESK_GA_DISABLED) {
+            var gtagScript = document.createElement('script');
+            gtagScript.async = true;
+            gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-TJNXR7NCT4';
+            document.head.appendChild(gtagScript);
+            gtag('js', new Date());
+            gtag('config', 'G-TJNXR7NCT4');
+        }
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </head>

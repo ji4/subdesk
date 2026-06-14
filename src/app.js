@@ -47,11 +47,12 @@
             aiTutorialSeen:   'yte_aiTutorialSeen'
         };
 
+        const DEFAULT_API_BASE_URL = 'https://subdesk-api.vercel.app';
         const configuredApiBase = (window.SUBDESK_API_BASE || '').replace(/\/$/, '');
         const _hn = window.location.hostname;
         const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(_hn)
             || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_hn);
-        const API_BASE_URL = isLocalHost ? '' : configuredApiBase;
+        const API_BASE_URL = isLocalHost ? '' : (configuredApiBase || DEFAULT_API_BASE_URL);
 
         function apiUrl(path) {
             return `${API_BASE_URL}${path}`;
@@ -820,7 +821,6 @@
                 return youtubeSubtitles;
             } catch (error) {
                 console.error('獲取字幕失敗:', error);
-                showDeleteNotification(t('msg.noYTSubtitles'), 'error');
                 gaEvent('fetch_subtitles_fail');
                 youtubeSubtitles = [];
                 updateYouTubeSubtitlesDisplay();
