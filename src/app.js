@@ -45,7 +45,8 @@
             cwHeight:         'yte_cwHeight',
             keyBindings:      'yte_keyBindings',
             aiTutorialSeen:   'yte_aiTutorialSeen',
-            currentSubIdx:    'yte_currentSubIdx'
+            currentSubIdx:    'yte_currentSubIdx',
+            currentTime:      'yte_currentTime'
         };
 
         const DEFAULT_API_BASE_URL = 'https://subdesk-jy-projects12.vercel.app';
@@ -66,6 +67,27 @@
         }
 
         let _isRestoringState = false;
+
+        function getCurrentPlaybackTime() {
+            if (isLocalVideo && localVideo && Number.isFinite(localVideo.currentTime)) {
+                return localVideo.currentTime;
+            }
+            if (!isLocalVideo && player && typeof player.getCurrentTime === 'function') {
+                try {
+                    const playerTime = player.getCurrentTime();
+                    if (Number.isFinite(playerTime)) return playerTime;
+                } catch (e) {}
+            }
+            return Number.isFinite(currentTime) ? currentTime : null;
+        }
+
+        function persistCurrentPlaybackTime(time = getCurrentPlaybackTime()) {
+            const timeNumber = Number(time);
+            if (Number.isFinite(timeNumber) && timeNumber >= 0) {
+                localStorage.setItem(LS_KEYS.currentTime, String(timeNumber));
+            }
+        }
+
         function saveState() {
             // 還原過程中（字幕尚未載回）禁止寫入，避免誤清已儲存的字幕
             if (_isRestoringState) return;
@@ -89,6 +111,7 @@
                 localStorage.setItem(LS_KEYS.isLocalVideo, String(isLocalVideo));
                 localStorage.setItem(LS_KEYS.fileName, currentFileName);
                 localStorage.setItem(LS_KEYS.outputFormat, currentOutputFormat);
+                persistCurrentPlaybackTime();
                 if (currentHighlightedYouTube >= 0) {
                     localStorage.setItem(LS_KEYS.currentSubIdx, String(currentHighlightedYouTube));
                 } else {
@@ -121,6 +144,7 @@
                 const savedShowOnlyModified = localStorage.getItem(LS_KEYS.showOnlyModified);
                 const savedShowComparison   = localStorage.getItem(LS_KEYS.showComparison);
                 const savedDividerCols      = localStorage.getItem(LS_KEYS.dividerCols);
+                const savedCurrentTime      = parseFloat(localStorage.getItem(LS_KEYS.currentTime));
 
                 const hasLocalFile = savedIsLocal === 'true' && !!savedFileName;
                 if (!savedSubtitles && !savedUrl && !hasLocalFile) return;
@@ -139,6 +163,10 @@
                 }
                 if (savedFileName) {
                     currentFileName = savedFileName;
+                }
+                if (Number.isFinite(savedCurrentTime) && savedCurrentTime >= 0) {
+                    currentTime = savedCurrentTime;
+                    updateTimeDisplay();
                 }
                 if (savedFormat) {
                     switchOutputFormat(savedFormat);
@@ -635,9 +663,22 @@
             syncSpeedSlider(getCurrentPlaybackRate());
             // 還原上次播放位置
             try {
+                const savedTime = parseFloat(localStorage.getItem(LS_KEYS.currentTime));
                 const savedIdx = parseInt(localStorage.getItem(LS_KEYS.currentSubIdx), 10);
-                if (!isNaN(savedIdx) && savedIdx >= 0 && youtubeSubtitles && youtubeSubtitles[savedIdx]) {
-                    seekToTime(youtubeSubtitles[savedIdx].start);
+                let restoreTime = Number.isFinite(savedTime) && savedTime > 0 ? savedTime : null;
+                if (restoreTime === null && !isNaN(savedIdx) && savedIdx >= 0 && youtubeSubtitles && youtubeSubtitles[savedIdx]) {
+                    restoreTime = youtubeSubtitles[savedIdx].start;
+                }
+                if (restoreTime !== null) {
+                    const timeToRestore = restoreTime;
+                    setTimeout(() => {
+                        if (!player || typeof player.seekTo !== 'function') return;
+                        currentTime = timeToRestore;
+                        updateTimeDisplay();
+                        player.seekTo(timeToRestore, true);
+                        highlightCurrentSubtitles(timeToRestore);
+                        persistCurrentPlaybackTime(timeToRestore);
+                    }, 500);
                 }
             } catch (e) {}
             showDeleteNotification(t('msg.playerReady'), 'success');
@@ -2154,6 +2195,7 @@
         }
         
         let subtitleSyncInterval = null;
+        let subtitleSyncSaveTicks = 0;
         
         function startSubtitleSync() {
             console.log('開始字幕同步...');
@@ -2191,6 +2233,15 @@
                     console.log('當前播放時間:', currentPlayerTime);
                     updateCurrentTime(currentPlayerTime);
                     highlightCurrentSubtitles(currentPlayerTime);
+                    subtitleSyncSaveTicks++;
+                    if (subtitleSyncSaveTicks >= 10) {
+                        subtitleSyncSaveTicks = 0;
+                        try {
+                            persistCurrentPlaybackTime(currentPlayerTime);
+                        } catch (e) {
+                            console.warn('localStorage 播放時間儲存失敗:', e);
+                        }
+                    }
                 }
             }, 500); // 每500毫秒檢查一次
         }
