@@ -1587,6 +1587,7 @@
                 idx = Math.min(Math.max(idx + dir, 0), youtubeSubtitles.length - 1);
             }
             seekToTime(youtubeSubtitles[idx].start);
+            return idx;
         }
 
         function startTimeTracking() {
@@ -2536,15 +2537,25 @@
                 const editable = item.querySelector('.youtube-subtitle-text');
                 if (!editable) return;
 
-                editable.focus();
-                // 游標移到文字末端
-                const range = document.createRange();
-                range.selectNodeContents(editable);
-                range.collapse(false);
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
+                focusSubtitleEditable(editable);
             });
+        }
+
+        function focusSubtitleEditable(editable) {
+            editable.focus();
+            // 游標移到文字末端
+            const range = document.createRange();
+            range.selectNodeContents(editable);
+            range.collapse(false);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        function focusSubtitleEditableByIndex(index) {
+            const item = document.querySelector(`.youtube-subtitle-item[data-index="${index}"]`);
+            const editable = item?.querySelector('.youtube-subtitle-text');
+            if (editable) focusSubtitleEditable(editable);
         }
 
         // ===== 可自訂快捷鍵 =====
@@ -2573,7 +2584,14 @@
         }
 
         function getFixedNavigationAction(e) {
-            if (e.code === 'Tab') return () => jumpToSubtitle(e.shiftKey ? -1 : 1);
+            if (e.code === 'Tab') {
+                return () => {
+                    const index = jumpToSubtitle(e.shiftKey ? -1 : 1);
+                    if (Number.isInteger(index)) {
+                        requestAnimationFrame(() => focusSubtitleEditableByIndex(index));
+                    }
+                };
+            }
             if (e.code === 'ArrowUp') return () => jumpToSubtitle(-1);
             if (e.code === 'ArrowDown') return () => jumpToSubtitle(1);
             return null;
