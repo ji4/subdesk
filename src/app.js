@@ -261,7 +261,7 @@
         let currentFileName = ''; // 下載時的檔名（YouTube 標題或本機檔名）
         let isEditingCurrentTime = false;
         let currentTimeEditTimer = null;
-        // 可自訂快捷鍵（以 e.code 儲存）；Space／方向鍵為固定鍵不可自訂
+        // 可自訂快捷鍵（以 e.code 儲存）；Space／方向鍵與 Tab 為固定鍵不可自訂
         const DEFAULT_KEY_BINDINGS = {
             prevSub: 'KeyA',
             nextSub: 'KeyD',
@@ -2572,6 +2572,23 @@
             return null;
         }
 
+        function getFixedNavigationAction(e) {
+            if (e.code === 'Tab') return () => jumpToSubtitle(e.shiftKey ? -1 : 1);
+            if (e.code === 'ArrowUp') return () => jumpToSubtitle(-1);
+            if (e.code === 'ArrowDown') return () => jumpToSubtitle(1);
+            return null;
+        }
+
+        function isTextEditingTarget(el) {
+            return el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT'
+                || el.closest?.('[contenteditable="true"]'));
+        }
+
+        function isSubtitleEditingTarget(el) {
+            return el && el.closest?.('[contenteditable="true"]')
+                && el.closest?.('#subtitleDisplayPanel, .subtitle-display-panel');
+        }
+
         // e.code → 顯示用符號
         function codeToLabel(code) {
             const special = {
@@ -2591,8 +2608,8 @@
             const prefix = hintEditingMode && !directKeysWhileEditing ? 'Alt + ' : '';
             const jumpKbds = document.querySelectorAll('#jumpHint kbd');
             if (jumpKbds.length >= 2) {
-                jumpKbds[0].textContent = prefix + codeToLabel(keyBindings.prevSub);
-                jumpKbds[1].textContent = prefix + codeToLabel(keyBindings.nextSub);
+                jumpKbds[0].textContent = codeToLabel('ArrowUp');
+                jumpKbds[1].textContent = codeToLabel('ArrowDown');
             }
             const speedKbds = document.querySelectorAll('#speedHint kbd');
             if (speedKbds.length >= 2) {
@@ -2634,15 +2651,6 @@
 
         // 焦點在文字編輯處時，提示改顯示 Alt 組合
         function initShortcutHintModeSwitch() {
-            function isEditingTarget(el) {
-                return el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT'
-                    || el.closest?.('[contenteditable="true"]'));
-            }
-            // 只有字幕列表內的 contenteditable（非 URL input / textarea）才切換 Alt 提示
-            function isSubtitleEditingTarget(el) {
-                return el && el.closest?.('[contenteditable="true"]')
-                    && el.closest?.('#subtitleDisplayPanel, .subtitle-display-panel');
-            }
             document.addEventListener('focusin', e => {
                 if (isSubtitleEditingTarget(e.target)) { hintEditingMode = true; refreshShortcutHints(); }
             });
@@ -2787,11 +2795,17 @@
                     }
                 }
 
+                const fixedNavigationAction = getFixedNavigationAction(e);
+                const isEditingText = isTextEditingTarget(e.target);
+                if (fixedNavigationAction && !e.ctrlKey && !e.metaKey && !e.altKey
+                    && (!isEditingText || isSubtitleEditingTarget(e.target))) {
+                    e.preventDefault();
+                    fixedNavigationAction();
+                    return;
+                }
+
                 // 如果正在輸入文字，不處理鍵盤控制
-                if (e.target.tagName === 'TEXTAREA' ||
-                    e.target.tagName === 'INPUT' ||
-                    e.target.contentEditable === 'true' ||
-                    e.target.closest('[contenteditable="true"]')) {
+                if (isEditingText) {
                     // 使用者啟用「編輯時不需 Alt」：直接觸發功能且不輸入字元
                     if (directKeysWhileEditing && !e.ctrlKey && !e.metaKey) {
                         const directAction = getBindingAction(e.code);
@@ -2814,14 +2828,6 @@
                     case ' ': // 空格鍵
                         e.preventDefault();
                         controlVideo('toggle');
-                        break;
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        jumpToSubtitle(-1);
-                        break;
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        jumpToSubtitle(1);
                         break;
                     case 'ArrowLeft': // 左方向鍵
                         e.preventDefault();
