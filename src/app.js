@@ -1654,6 +1654,12 @@
             } else if (event.key === 'Escape') {
                 event.preventDefault();
                 element.blur();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                jumpToSubtitle(-1);
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                jumpToSubtitle(1);
             }
         }
         
