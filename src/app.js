@@ -44,7 +44,8 @@
             outputHeight:     'yte_outputHeight',
             cwHeight:         'yte_cwHeight',
             keyBindings:      'yte_keyBindings',
-            aiTutorialSeen:   'yte_aiTutorialSeen'
+            aiTutorialSeen:   'yte_aiTutorialSeen',
+            currentSubIdx:    'yte_currentSubIdx'
         };
 
         const DEFAULT_API_BASE_URL = 'https://subdesk-jy-projects12.vercel.app';
@@ -88,6 +89,11 @@
                 localStorage.setItem(LS_KEYS.isLocalVideo, String(isLocalVideo));
                 localStorage.setItem(LS_KEYS.fileName, currentFileName);
                 localStorage.setItem(LS_KEYS.outputFormat, currentOutputFormat);
+                if (currentHighlightedYouTube >= 0) {
+                    localStorage.setItem(LS_KEYS.currentSubIdx, String(currentHighlightedYouTube));
+                } else {
+                    localStorage.removeItem(LS_KEYS.currentSubIdx);
+                }
                 localStorage.setItem(LS_KEYS.panelFilter, subtitlePanelFilter);
                 localStorage.setItem(LS_KEYS.showOnlyModified, String(showOnlyModified));
                 localStorage.setItem(LS_KEYS.showComparison, String(showComparison));
@@ -188,6 +194,8 @@
                 _pendingAutoLoad = false;
                 loadVideo(_autoLoadSkipSubtitles);
             }
+            // 離開/重整前確保目前播放位置存檔
+            window.addEventListener('beforeunload', saveState);
         }
 
         function resetPage() {
@@ -625,6 +633,13 @@
             startSubtitleSync();
             updateYouTubeSubtitlesDisplay();
             syncSpeedSlider(getCurrentPlaybackRate());
+            // 還原上次播放位置
+            try {
+                const savedIdx = parseInt(localStorage.getItem(LS_KEYS.currentSubIdx), 10);
+                if (!isNaN(savedIdx) && savedIdx >= 0 && youtubeSubtitles && youtubeSubtitles[savedIdx]) {
+                    seekToTime(youtubeSubtitles[savedIdx].start);
+                }
+            } catch (e) {}
             showDeleteNotification(t('msg.playerReady'), 'success');
             // 主動觸發 captions 模組載入，讓 onApiChange 盡快觸發
             if (player && typeof player.loadModule === 'function') {
@@ -1654,12 +1669,6 @@
             } else if (event.key === 'Escape') {
                 event.preventDefault();
                 element.blur();
-            } else if (event.key === 'ArrowUp') {
-                event.preventDefault();
-                jumpToSubtitle(-1);
-            } else if (event.key === 'ArrowDown') {
-                event.preventDefault();
-                jumpToSubtitle(1);
             }
         }
         
@@ -2754,6 +2763,14 @@
                     case ' ': // 空格鍵
                         e.preventDefault();
                         controlVideo('toggle');
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        jumpToSubtitle(-1);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        jumpToSubtitle(1);
                         break;
                     case 'ArrowLeft': // 左方向鍵
                         e.preventDefault();
