@@ -410,7 +410,7 @@
                     isVideoLoaded = false;
                     player = new YT.Player('youtubeIframe', {
                         videoId: videoId,
-                        playerVars: { rel: 0, modestbranding: 1 },
+                        playerVars: { rel: 0, modestbranding: 1, disablekb: 1 },
                         events: {
                             'onReady': onPlayerReady,
                             'onStateChange': onPlayerStateChange,
@@ -2440,7 +2440,11 @@
 
             panel.addEventListener('click', function(e) {
                 if (e.target.closest('.subtitle-seek-zone')) return;
-                if (e.target.closest('[contenteditable="true"]')) return;
+                const ce = e.target.closest('[contenteditable="true"]');
+                if (ce) {
+                    if (document.activeElement !== ce) ce.focus();
+                    return;
+                }
 
                 // 拖曳選取文字後放開也會觸發 click，這時不可把游標移走，否則選取會被清掉
                 const currentSelection = window.getSelection();
@@ -2652,6 +2656,15 @@
                 }
             });
         }
+
+        // 點擊 YouTube iframe 後，鍵盤焦點會被 iframe 吃掉；
+        // 偵測到 window blur 且 activeElement 是 iframe 時，立即把焦點還給 window，
+        // 讓自訂快捷鍵（上下句、速率）持續可用。
+        window.addEventListener('blur', function() {
+            if (document.activeElement === document.getElementById('youtubeIframe')) {
+                requestAnimationFrame(function() { window.focus(); });
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化影片載入選擇器
