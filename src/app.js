@@ -1651,6 +1651,9 @@
             if (event.key === 'Enter' && !event.isComposing) {
                 event.preventDefault();
                 element.blur();
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                element.blur();
             }
         }
         
@@ -2442,7 +2445,11 @@
                 if (e.target.closest('.subtitle-seek-zone')) return;
                 const ce = e.target.closest('[contenteditable="true"]');
                 if (ce) {
-                    if (document.activeElement !== ce) ce.focus();
+                    const sel = window.getSelection();
+                    // 有未清除的選取範圍（拖曳選文）時不呼叫 focus()，避免重置選取
+                    if (document.activeElement !== ce && !(sel && !sel.isCollapsed)) {
+                        ce.focus();
+                    }
                     return;
                 }
 
@@ -2658,10 +2665,16 @@
         }
 
         // 點擊 YouTube iframe 後，鍵盤焦點會被 iframe 吃掉；
-        // 偵測到 window blur 且 activeElement 是 iframe 時，立即把焦點還給 window，
+        // 偵測到 window blur 且 activeElement 是 iframe 時，把焦點還給 window，
         // 讓自訂快捷鍵（上下句、速率）持續可用。
+        // 但若使用者正在按住滑鼠（可能正在拖曳選文），不介入以免中斷選取。
+        let _docMouseDown = false;
+        document.addEventListener('mousedown', function() { _docMouseDown = true; });
+        document.addEventListener('mouseup', function() { _docMouseDown = false; });
+        document.addEventListener('pointercancel', function() { _docMouseDown = false; });
+
         window.addEventListener('blur', function() {
-            if (document.activeElement === document.getElementById('youtubeIframe')) {
+            if (!_docMouseDown && document.activeElement === document.getElementById('youtubeIframe')) {
                 requestAnimationFrame(function() { window.focus(); });
             }
         });
