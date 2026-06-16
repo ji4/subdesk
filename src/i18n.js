@@ -35,6 +35,7 @@
     },
     'keys.prevSub':   { 'zh-TW': '上一句', 'en': 'Previous line' },
     'keys.nextSub':   { 'zh-TW': '下一句', 'en': 'Next line' },
+    'keys.tabNote':   { 'zh-TW': 'Tab / Shift+Tab 也可切換上 / 下一句（固定快捷鍵，不可更改）', 'en': 'Tab / Shift+Tab also navigates prev / next line (fixed, non-customizable)' },
     'keys.speedDown': { 'zh-TW': '降低速率', 'en': 'Slow down' },
     'keys.speedUp':   { 'zh-TW': '提高速率', 'en': 'Speed up' },
     'keys.pressKey':  { 'zh-TW': '請按新按鍵', 'en': 'Press new key' },
