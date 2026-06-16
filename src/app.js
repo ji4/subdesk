@@ -2856,14 +2856,25 @@
             const contactBtn = document.querySelector('.footer-btn-contact');
             if (contactBtn) contactBtn.addEventListener('click', () => gaEvent('contact_click'));
             
-            // 用於攔截 IME 提交字元（beforeinput 才能可靠阻止 IME 插入）
+            // macOS IME 會繞過 beforeinput，透過 OS 文字輸入服務直接寫入字元。
+            // 需在 input 事件發生後用 execCommand('undo') 撤回已插入的字元。
             let _preventNextInput = false;
-            document.addEventListener('beforeinput', function(e) {
-                if (_preventNextInput) {
-                    _preventNextInput = false;
-                    e.preventDefault();
+            document.addEventListener('input', function(e) {
+                if (!_preventNextInput) return;
+                _preventNextInput = false;
+                if (e.target && e.target.isContentEditable) {
+                    document.execCommand('undo');
+                } else if (e.target && 'value' in e.target && e.target._savedValue !== undefined) {
+                    const saved = e.target._savedValue;
+                    const selStart = e.target._savedSelStart;
+                    const selEnd = e.target._savedSelEnd;
+                    delete e.target._savedValue;
+                    delete e.target._savedSelStart;
+                    delete e.target._savedSelEnd;
+                    e.target.value = saved;
+                    e.target.setSelectionRange(selStart, selEnd);
                 }
-            });
+            }, true);
 
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
@@ -2895,6 +2906,11 @@
                     if (directKeysWhileEditing && !e.ctrlKey && !e.metaKey) {
                         const directAction = getBindingActionForEvent(e);
                         if (directAction) {
+                            if (!e.target.isContentEditable && 'value' in e.target) {
+                                e.target._savedValue = e.target.value;
+                                e.target._savedSelStart = e.target.selectionStart;
+                                e.target._savedSelEnd = e.target.selectionEnd;
+                            }
                             _preventNextInput = true;
                             e.preventDefault();
                             directAction();
@@ -2903,7 +2919,16 @@
                                && (e.key === '「' || e.key === '」')) {
                         // 中文輸入法直接映射的括號（「/」）也能觸發速率調整
                         const cnAction = getBindingActionForEvent(e);
-                        if (cnAction) { _preventNextInput = true; e.preventDefault(); cnAction(); }
+                        if (cnAction) {
+                            if (!e.target.isContentEditable && 'value' in e.target) {
+                                e.target._savedValue = e.target.value;
+                                e.target._savedSelStart = e.target.selectionStart;
+                                e.target._savedSelEnd = e.target.selectionEnd;
+                            }
+                            _preventNextInput = true;
+                            e.preventDefault();
+                            cnAction();
+                        }
                     }
                     return;
                 }
