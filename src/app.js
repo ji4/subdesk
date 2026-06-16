@@ -2902,6 +2902,11 @@
 
                 // 如果正在輸入文字，不處理鍵盤控制
                 if (isEditingText) {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.target.blur();
+                        return;
+                    }
                     // 使用者啟用「編輯時不需 Alt」：直接觸發功能且不輸入字元
                     if (directKeysWhileEditing && !e.ctrlKey && !e.metaKey) {
                         const directAction = getBindingActionForEvent(e);
