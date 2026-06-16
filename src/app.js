@@ -2856,6 +2856,15 @@
             const contactBtn = document.querySelector('.footer-btn-contact');
             if (contactBtn) contactBtn.addEventListener('click', () => gaEvent('contact_click'));
             
+            // 用於攔截 IME 提交字元（beforeinput 才能可靠阻止 IME 插入）
+            let _preventNextInput = false;
+            document.addEventListener('beforeinput', function(e) {
+                if (_preventNextInput) {
+                    _preventNextInput = false;
+                    e.preventDefault();
+                }
+            });
+
             // 添加鍵盤控制
             document.addEventListener('keydown', function(e) {
                 // 自訂快捷鍵擷取模式優先
@@ -2886,6 +2895,7 @@
                     if (directKeysWhileEditing && !e.ctrlKey && !e.metaKey) {
                         const directAction = getBindingActionForEvent(e);
                         if (directAction) {
+                            _preventNextInput = true;
                             e.preventDefault();
                             directAction();
                         }
@@ -2893,7 +2903,7 @@
                                && (e.key === '「' || e.key === '」')) {
                         // 中文輸入法直接映射的括號（「/」）也能觸發速率調整
                         const cnAction = getBindingActionForEvent(e);
-                        if (cnAction) { e.preventDefault(); cnAction(); }
+                        if (cnAction) { _preventNextInput = true; e.preventDefault(); cnAction(); }
                     }
                     return;
                 }
