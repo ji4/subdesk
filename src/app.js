@@ -2893,11 +2893,18 @@
 
                 const fixedNavigationAction = getFixedNavigationAction(e);
                 const isEditingText = isTextEditingTarget(e.target);
-                if (fixedNavigationAction && !e.ctrlKey && !e.metaKey && !e.altKey
-                    && (!isEditingText || isSubtitleEditingTarget(e.target))) {
-                    e.preventDefault();
-                    fixedNavigationAction();
-                    return;
+                if (fixedNavigationAction && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    const isSubtitleFocused = isSubtitleEditingTarget(e.target);
+                    // Tab: 只有已在 subtitle focus 模式時才跳句（保持 focus）
+                    // ArrowUp/Down: 維持原有行為（非編輯 or subtitle 編輯時皆可）
+                    const shouldHandle = e.code === 'Tab'
+                        ? isSubtitleFocused
+                        : !isEditingText || isSubtitleFocused;
+                    if (shouldHandle) {
+                        e.preventDefault();
+                        fixedNavigationAction();
+                        return;
+                    }
                 }
 
                 // 如果正在輸入文字，不處理鍵盤控制
@@ -2958,6 +2965,15 @@
                         e.preventDefault();
                         controlVideo('forward');
                         break;
+                    case 't':
+                    case 'T': { // T 鍵：進入當前字幕的 focus 編輯模式
+                        const baseIdx = getSubtitleNavigationBaseIndex();
+                        if (Number.isInteger(baseIdx)) {
+                            e.preventDefault();
+                            focusSubtitleEditableByIndex(baseIdx);
+                        }
+                        break;
+                    }
                 }
             });
             
