@@ -263,12 +263,23 @@
         let currentTimeEditTimer = null;
         // 可自訂快捷鍵（以 e.code 儲存）；Space／方向鍵與 Tab 為固定鍵不可自訂
         const DEFAULT_KEY_BINDINGS = {
-            prevSub: 'KeyA',
-            nextSub: 'KeyD',
+            prevSub: 'ArrowUp',
+            nextSub: 'ArrowDown',
             speedDown: 'BracketLeft',
             speedUp: 'BracketRight'
         };
-        const RESERVED_KEY_CODES = ['Space', 'ArrowLeft', 'ArrowRight', 'Escape', 'Enter', 'Tab'];
+        const LEGACY_DEFAULT_KEY_BINDINGS = {
+            prevSub: 'KeyA',
+            nextSub: 'KeyD'
+        };
+        const KEY_INPUT_ALIASES = {
+            BracketLeft: ['[', '「'],
+            BracketRight: [']', '」']
+        };
+        const RESERVED_KEY_CODES = [
+            'Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+            'Escape', 'Enter', 'Tab'
+        ];
         let keyBindings = { ...DEFAULT_KEY_BINDINGS };
         let capturingBinding = null;
         let hintEditingMode = false;
@@ -1570,24 +1581,57 @@
 
         function jumpToSubtitle(dir) {
             if (!youtubeSubtitles || youtubeSubtitles.length === 0) return;
-            const t = currentTime;
-            let idx = -1;
-            for (let i = 0; i < youtubeSubtitles.length; i++) {
-                const start = youtubeSubtitles[i].start;
-                const end = youtubeSubtitles[i + 1] ? youtubeSubtitles[i + 1].start : start + 5;
-                if (t >= start && t < end) { idx = i; break; }
-            }
-            if (idx === -1) {
-                idx = dir === -1
-                    ? youtubeSubtitles.reduce((b, s, i) => s.start <= t ? i : b, 0)
-                    : youtubeSubtitles.findIndex(s => s.start > t);
-                if (idx < 0) idx = 0;
-                if (idx >= youtubeSubtitles.length) idx = youtubeSubtitles.length - 1;
-            } else {
-                idx = Math.min(Math.max(idx + dir, 0), youtubeSubtitles.length - 1);
-            }
-            seekToTime(youtubeSubtitles[idx].start);
+            const baseIndex = getSubtitleNavigationBaseIndex();
+            const idx = Math.min(Math.max(baseIndex + dir, 0), youtubeSubtitles.length - 1);
+            seekToTime(getSubtitleNavigationTime(idx));
             return idx;
+        }
+
+        function getSubtitleNavigationBaseIndex() {
+            const highlighted = document.querySelector('.youtube-subtitle-item.current-playing');
+            const highlightedIndex = Number(highlighted?.dataset.index);
+            if (Number.isInteger(highlightedIndex) && highlightedIndex >= 0 && highlightedIndex < youtubeSubtitles.length) {
+                return highlightedIndex;
+            }
+
+            const activeIndex = findActiveSubtitleIndex(youtubeSubtitles, currentTime, 'start', 5);
+            if (activeIndex !== -1) return activeIndex;
+
+            const fallbackIndex = youtubeSubtitles.findIndex(subtitle => subtitle.start > currentTime);
+            if (fallbackIndex === -1) return youtubeSubtitles.length - 1;
+            return Math.max(0, fallbackIndex - 1);
+        }
+
+        function getSubtitleNavigationTime(index) {
+            const subtitle = youtubeSubtitles[index];
+            if (!subtitle) return currentTime;
+
+            const EPS = 0.001;
+            const startTime = Number(subtitle.start);
+            if (!Number.isFinite(startTime)) return currentTime;
+
+            let groupStart = index;
+            while (groupStart > 0 && Math.abs(Number(youtubeSubtitles[groupStart - 1].start) - startTime) <= EPS) {
+                groupStart--;
+            }
+
+            let groupEnd = index;
+            while (groupEnd + 1 < youtubeSubtitles.length
+                && Math.abs(Number(youtubeSubtitles[groupEnd + 1].start) - startTime) <= EPS) {
+                groupEnd++;
+            }
+
+            const groupSize = groupEnd - groupStart + 1;
+            if (groupSize === 1) return startTime;
+
+            const nextStart = groupEnd + 1 < youtubeSubtitles.length
+                ? Number(youtubeSubtitles[groupEnd + 1].start)
+                : NaN;
+            const endTime = Number.isFinite(nextStart) && nextStart > startTime
+                ? nextStart
+                : startTime + 5;
+            const slice = Math.max((endTime - startTime) / groupSize, 0.25);
+            return startTime + slice * (index - groupStart) + Math.min(slice / 2, 0.25);
         }
 
         function startTimeTracking() {
@@ -2566,6 +2610,11 @@
                 Object.keys(DEFAULT_KEY_BINDINGS).forEach(name => {
                     if (typeof saved[name] === 'string' && saved[name]) keyBindings[name] = saved[name];
                 });
+                if (saved.prevSub === LEGACY_DEFAULT_KEY_BINDINGS.prevSub
+                    && saved.nextSub === LEGACY_DEFAULT_KEY_BINDINGS.nextSub) {
+                    keyBindings.prevSub = DEFAULT_KEY_BINDINGS.prevSub;
+                    keyBindings.nextSub = DEFAULT_KEY_BINDINGS.nextSub;
+                }
                 directKeysWhileEditing = saved.directEditing === true;
             } catch (e) {}
         }
@@ -2581,6 +2630,15 @@
             if (code === keyBindings.prevSub) return () => jumpToSubtitle(-1);
             if (code === keyBindings.nextSub) return () => jumpToSubtitle(1);
             return null;
+        }
+
+        function getBindingActionForEvent(e) {
+            const action = getBindingAction(e.code);
+            if (action) return action;
+
+            const matchingCode = Object.keys(KEY_INPUT_ALIASES)
+                .find(code => KEY_INPUT_ALIASES[code].includes(e.key));
+            return matchingCode ? getBindingAction(matchingCode) : null;
         }
 
         function getFixedNavigationAction(e) {
@@ -2626,8 +2684,8 @@
             const prefix = hintEditingMode && !directKeysWhileEditing ? 'Alt + ' : '';
             const jumpKbds = document.querySelectorAll('#jumpHint kbd');
             if (jumpKbds.length >= 2) {
-                jumpKbds[0].textContent = codeToLabel('ArrowUp');
-                jumpKbds[1].textContent = codeToLabel('ArrowDown');
+                jumpKbds[0].textContent = prefix + codeToLabel(keyBindings.prevSub);
+                jumpKbds[1].textContent = prefix + codeToLabel(keyBindings.nextSub);
             }
             const speedKbds = document.querySelectorAll('#speedHint kbd');
             if (speedKbds.length >= 2) {
@@ -2805,7 +2863,7 @@
 
                 // Alt+綁定鍵：編輯文字時也能操作且不輸入字元
                 if (e.altKey && !e.ctrlKey && !e.metaKey) {
-                    const altAction = getBindingAction(e.code);
+                    const altAction = getBindingActionForEvent(e);
                     if (altAction) {
                         e.preventDefault();
                         altAction();
@@ -2826,16 +2884,21 @@
                 if (isEditingText) {
                     // 使用者啟用「編輯時不需 Alt」：直接觸發功能且不輸入字元
                     if (directKeysWhileEditing && !e.ctrlKey && !e.metaKey) {
-                        const directAction = getBindingAction(e.code);
+                        const directAction = getBindingActionForEvent(e);
                         if (directAction) {
                             e.preventDefault();
                             directAction();
                         }
+                    } else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing
+                               && (e.key === '「' || e.key === '」')) {
+                        // 中文輸入法直接映射的括號（「/」）也能觸發速率調整
+                        const cnAction = getBindingActionForEvent(e);
+                        if (cnAction) { e.preventDefault(); cnAction(); }
                     }
                     return;
                 }
 
-                const action = getBindingAction(e.code);
+                const action = getBindingActionForEvent(e);
                 if (action) {
                     e.preventDefault();
                     action();

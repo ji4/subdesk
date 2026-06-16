@@ -30,8 +30,8 @@
     'keys.settingsTitle': { 'zh-TW': '自訂快捷鍵', 'en': 'Customize shortcuts' },
     'keys.title':         { 'zh-TW': '自訂快捷鍵', 'en': 'Customize Shortcuts' },
     'keys.desc': {
-      'zh-TW': '預設按鍵若與你的輸入法或瀏覽器快捷鍵衝突，可在此改鍵。編輯文字時請搭配 Alt 使用；設定只儲存在這個瀏覽器。',
-      'en': 'Rebind these keys if the defaults conflict with your input method or browser shortcuts. Combine with Alt while editing text. Saved in this browser only.'
+      'zh-TW': '預設按鍵若與你的輸入法或瀏覽器快捷鍵衝突，可在此改鍵。速率調整鍵 [ / ] 同時支援中文括號 「 / 」。編輯文字時請搭配 Alt 使用；設定只儲存在這個瀏覽器。',
+      'en': 'Rebind these keys if the defaults conflict with your input method or browser shortcuts. Speed keys [ / ] also respond to Chinese brackets 「 / 」. Combine with Alt while editing text. Saved in this browser only.'
     },
     'keys.prevSub':   { 'zh-TW': '上一句', 'en': 'Previous line' },
     'keys.nextSub':   { 'zh-TW': '下一句', 'en': 'Next line' },
