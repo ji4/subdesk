@@ -2785,11 +2785,10 @@
         function maybeShowDirectEditingPrompt() {
             const overlay = document.getElementById('directEditingPromptOverlay');
             if (!overlay || overlay.classList.contains('open')) return;
-            // 同步顯示目前設定的快捷鍵
-            const keyDown = document.getElementById('dePromptKeyDown');
-            const keyUp   = document.getElementById('dePromptKeyUp');
-            if (keyDown) keyDown.textContent = codeToLabel(keyBindings.speedDown);
-            if (keyUp)   keyUp.textContent   = codeToLabel(keyBindings.speedUp);
+            const downLabel = codeToLabel(keyBindings.speedDown);
+            const upLabel   = codeToLabel(keyBindings.speedUp);
+            overlay.querySelectorAll('.de-prompt-key-down').forEach(el => { el.textContent = downLabel; });
+            overlay.querySelectorAll('.de-prompt-key-up').forEach(el => { el.textContent = upLabel; });
             overlay.classList.add('open');
         }
 

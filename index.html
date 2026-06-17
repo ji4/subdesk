@@ -428,21 +428,36 @@
 
     <!-- 速率調整功能引導 dialog -->
     <div class="de-prompt-overlay" id="directEditingPromptOverlay">
-        <div class="de-prompt-modal" role="dialog" aria-modal="true" data-i18n-aria="dePrompt.title" aria-label="啟用速率快捷鍵">
-            <div class="de-prompt-keys hint-item" aria-hidden="true">
-                <kbd id="dePromptKeyDown">[</kbd>
-                <kbd id="dePromptKeyUp">]</kbd>
-                <span data-i18n="dePrompt.keysLabel">降 / 升速率</span>
+        <div class="de-prompt-modal" role="dialog" aria-modal="true" aria-label="啟用速率快捷鍵">
+            <div class="de-prompt-keys" aria-hidden="true">
+                <span data-i18n="dePrompt.detected">已偵測</span>
+                <kbd class="de-prompt-key-down">[</kbd>
+                <kbd class="de-prompt-key-up">]</kbd>
+                <span data-i18n="dePrompt.keysLabel">升降速率觸發</span>
             </div>
-            <h4 class="de-prompt-title" data-i18n="dePrompt.title">在字幕欄位要讓這組快捷鍵直接調速嗎？</h4>
-            <p class="de-prompt-desc" data-i18n="dePrompt.desc">啟用後，在字幕欄位裡按這兩個鍵會直接調整播放速率，不會再打字。</p>
+            <h4 class="de-prompt-title">
+                <span data-i18n="dePrompt.titlePre">是否啟用快捷鍵調整速率，並停用</span>
+                <kbd class="de-prompt-key-down">[</kbd>
+                <kbd class="de-prompt-key-up">]</kbd>
+                <span data-i18n="dePrompt.titlePost">字元輸入？</span>
+            </h4>
             <p class="de-prompt-hint">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span data-i18n="dePrompt.hint">右上角快捷鍵設定可隨時更改。</span>
             </p>
             <div class="de-prompt-actions">
-                <button class="de-prompt-btn de-prompt-btn--enable" onclick="confirmDirectEditing('enable')" data-i18n="dePrompt.enable">啟用速率快捷鍵</button>
-                <button class="de-prompt-btn de-prompt-btn--disable" onclick="confirmDirectEditing('disable')" data-i18n="dePrompt.disable">先不要</button>
+                <button class="de-prompt-btn de-prompt-btn--enable" onclick="confirmDirectEditing('enable')">
+                    <span data-i18n="dePrompt.enablePre">啟用</span>
+                    <kbd class="de-prompt-key-down">[</kbd>
+                    <kbd class="de-prompt-key-up">]</kbd>
+                    <span data-i18n="dePrompt.enablePost">變速，停止字元輸入</span>
+                </button>
+                <button class="de-prompt-btn de-prompt-btn--disable" onclick="confirmDirectEditing('disable')">
+                    <span data-i18n="dePrompt.disablePre">維持</span>
+                    <kbd class="de-prompt-key-down">[</kbd>
+                    <kbd class="de-prompt-key-up">]</kbd>
+                    <span data-i18n="dePrompt.disablePost">字元輸入</span>
+                </button>
                 <button class="de-prompt-btn de-prompt-btn--later" onclick="confirmDirectEditing('later')" data-i18n="dePrompt.later">我再想一下</button>
             </div>
         </div>

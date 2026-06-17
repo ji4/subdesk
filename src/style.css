@@ -2275,7 +2275,8 @@ body {
   color: var(--text-muted);
 }
 
-.de-prompt-keys kbd {
+/* 所有 dialog 內的 kbd 共用 header 同款樣式 */
+.de-prompt-modal kbd {
   display: inline-block;
   padding: 1px 6px;
   background: rgba(255, 255, 255, 0.10);
@@ -2286,21 +2287,29 @@ body {
   font-size: 12px;
   color: var(--text);
   font-weight: 600;
+  vertical-align: middle;
 }
+
+/* enable 按鈕（teal 背景）內的 kbd 用深色版本 */
+.de-prompt-btn--enable kbd {
+  background: rgba(0, 0, 0, 0.18);
+  border-color: rgba(0, 0, 0, 0.25);
+  border-bottom-color: rgba(0, 0, 0, 0.35);
+  color: #000;
+}
+
 
 .de-prompt-title {
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 10px;
-  line-height: 1.4;
-}
-
-.de-prompt-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 12px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .de-prompt-hint {
@@ -2328,6 +2337,10 @@ body {
   cursor: pointer;
   border: none;
   transition: background var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .de-prompt-btn--enable {
