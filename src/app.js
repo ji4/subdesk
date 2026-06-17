@@ -2782,11 +2782,25 @@
         }
 
         // 速率調整功能引導 dialog
-        function maybeShowDirectEditingPrompt() {
+        // BracketLeft/Right 在中文輸入法下對應的字元
+        const CHINESE_BRACKET_MAP = { BracketLeft: '「', BracketRight: '」' };
+
+        function maybeShowDirectEditingPrompt(triggeredKey) {
             const overlay = document.getElementById('directEditingPromptOverlay');
             if (!overlay || overlay.classList.contains('open')) return;
-            const downLabel = codeToLabel(keyBindings.speedDown);
-            const upLabel   = codeToLabel(keyBindings.speedUp);
+
+            // 若觸發字元是 CJK 或中文括號，推斷目前為中文輸入環境
+            const isChineseInput = /[　-鿿＀-￯]/.test(triggeredKey)
+                || triggeredKey === '「' || triggeredKey === '」';
+
+            function speedLabel(code) {
+                return (isChineseInput && CHINESE_BRACKET_MAP[code])
+                    ? CHINESE_BRACKET_MAP[code]
+                    : codeToLabel(code);
+            }
+
+            const downLabel = speedLabel(keyBindings.speedDown);
+            const upLabel   = speedLabel(keyBindings.speedUp);
             overlay.querySelectorAll('.de-prompt-key-down').forEach(el => { el.textContent = downLabel; });
             overlay.querySelectorAll('.de-prompt-key-up').forEach(el => { el.textContent = upLabel; });
             overlay.classList.add('open');
@@ -3034,7 +3048,7 @@
                         && !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
                         _preventNextInput = true;
                         e.preventDefault();
-                        maybeShowDirectEditingPrompt();
+                        maybeShowDirectEditingPrompt(e.key);
                     }
                     return;
                 }

@@ -439,7 +439,7 @@
                 <span data-i18n="dePrompt.titlePre">是否啟用快捷鍵調整速率，並停用</span>
                 <kbd class="de-prompt-key-down">[</kbd>
                 <kbd class="de-prompt-key-up">]</kbd>
-                <span data-i18n="dePrompt.titlePost">字元輸入？</span>
+                <span data-i18n="dePrompt.titlePost">輸入？</span>
             </h4>
             <p class="de-prompt-hint">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -450,13 +450,16 @@
                     <span data-i18n="dePrompt.enablePre">啟用</span>
                     <kbd class="de-prompt-key-down">[</kbd>
                     <kbd class="de-prompt-key-up">]</kbd>
-                    <span data-i18n="dePrompt.enablePost">變速，停止字元輸入</span>
+                    <span data-i18n="dePrompt.enableMid">變速，停止</span>
+                    <kbd class="de-prompt-key-down">[</kbd>
+                    <kbd class="de-prompt-key-up">]</kbd>
+                    <span data-i18n="dePrompt.enablePost">輸入。</span>
                 </button>
                 <button class="de-prompt-btn de-prompt-btn--disable" onclick="confirmDirectEditing('disable')">
                     <span data-i18n="dePrompt.disablePre">維持</span>
                     <kbd class="de-prompt-key-down">[</kbd>
                     <kbd class="de-prompt-key-up">]</kbd>
-                    <span data-i18n="dePrompt.disablePost">字元輸入</span>
+                    <span data-i18n="dePrompt.disablePost">輸入</span>
                 </button>
                 <button class="de-prompt-btn de-prompt-btn--later" onclick="confirmDirectEditing('later')" data-i18n="dePrompt.later">我再想一下</button>
             </div>
