@@ -2298,12 +2298,11 @@ body {
   color: #000;
 }
 
-/* 字元輸入標示：markdown inline code 風格（扁平、較淺） */
+/* 字元輸入標示：markdown inline code 風格（純背景、無邊框） */
 .de-prompt-modal code {
   display: inline-block;
   padding: 1px 5px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.10);
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 13px;
@@ -2313,9 +2312,8 @@ body {
 }
 
 .de-prompt-btn--enable code {
-  background: rgba(0, 0, 0, 0.10);
-  border-color: rgba(0, 0, 0, 0.18);
-  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 

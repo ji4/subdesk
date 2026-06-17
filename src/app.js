@@ -2782,13 +2782,20 @@
         }
 
         // 速率調整功能引導 dialog
-        function maybeShowDirectEditingPrompt() {
+        function maybeShowDirectEditingPrompt(triggeredKey) {
             const overlay = document.getElementById('directEditingPromptOverlay');
             if (!overlay || overlay.classList.contains('open')) return;
 
-            // 速率快捷鍵標籤（依目前綁定動態更新）
+            // 速率快捷鍵：固定顯示實際按鍵名稱
             overlay.querySelectorAll('.de-prompt-key-down').forEach(el => { el.textContent = codeToLabel(keyBindings.speedDown); });
             overlay.querySelectorAll('.de-prompt-key-up').forEach(el => { el.textContent = codeToLabel(keyBindings.speedUp); });
+
+            // 字元輸入顯示：依觸發字元推斷輸入法，中文顯示「」，否則顯示 [ ]
+            const isCJK = /[　-鿿＀-￯]/.test(triggeredKey)
+                || triggeredKey === '「' || triggeredKey === '」';
+            overlay.querySelectorAll('.de-prompt-char').forEach((el, i) => {
+                el.textContent = isCJK ? (i % 2 === 0 ? '「' : '」') : (i % 2 === 0 ? '[' : ']');
+            });
             overlay.classList.add('open');
         }
 
@@ -3034,7 +3041,7 @@
                         && !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
                         _preventNextInput = true;
                         e.preventDefault();
-                        maybeShowDirectEditingPrompt();
+                        maybeShowDirectEditingPrompt(e.key);
                     }
                     return;
                 }
