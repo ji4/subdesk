@@ -44,9 +44,10 @@
             outputHeight:     'yte_outputHeight',
             cwHeight:         'yte_cwHeight',
             keyBindings:      'yte_keyBindings',
-            aiTutorialSeen:   'yte_aiTutorialSeen',
-            currentSubIdx:    'yte_currentSubIdx',
-            currentTime:      'yte_currentTime'
+            aiTutorialSeen:        'yte_aiTutorialSeen',
+            directEditingDecided:  'yte_directEditingDecided',
+            currentSubIdx:         'yte_currentSubIdx',
+            currentTime:           'yte_currentTime'
         };
 
         const DEFAULT_API_BASE_URL = 'https://subdesk-jy-projects12.vercel.app';
@@ -2780,6 +2781,38 @@
             }
         }
 
+        // 速率調整功能引導 dialog
+        function maybeShowDirectEditingPrompt() {
+            const overlay = document.getElementById('directEditingPromptOverlay');
+            if (!overlay || overlay.classList.contains('open')) return;
+            overlay.classList.add('open');
+        }
+
+        function closeDirectEditingPrompt() {
+            const overlay = document.getElementById('directEditingPromptOverlay');
+            if (overlay) overlay.classList.remove('open');
+        }
+
+        function confirmDirectEditing(choice) {
+            // choice: 'enable' | 'disable' | 'later'
+            if (choice === 'enable') {
+                directKeysWhileEditing = true;
+                saveKeyBindings();
+                updateDirectEditingUI();
+                try { localStorage.setItem(LS_KEYS.directEditingDecided, 'enable'); } catch (e) {}
+            } else if (choice === 'disable') {
+                try { localStorage.setItem(LS_KEYS.directEditingDecided, 'disable'); } catch (e) {}
+            }
+            // 'later' → 不寫 localStorage，下次再詢問
+            closeDirectEditingPrompt();
+        }
+
+        function confirmDirectEditingAndOpenSettings() {
+            closeDirectEditingPrompt();
+            const wrap = document.getElementById('keySettings');
+            if (wrap && !wrap.classList.contains('open')) toggleKeySettings();
+        }
+
         // 焦點在文字編輯處時，提示改顯示 Alt 組合
         function initShortcutHintModeSwitch() {
             document.addEventListener('focusin', e => {
@@ -2993,6 +3026,14 @@
                             e.preventDefault();
                             cnAction();
                         }
+                    }
+                    // 首次字元輸入時提示是否啟用速率調整功能
+                    if (!directKeysWhileEditing
+                        && !localStorage.getItem(LS_KEYS.directEditingDecided)
+                        && isSubtitleEditingTarget(e.target)
+                        && e.key.length === 1
+                        && !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
+                        maybeShowDirectEditingPrompt();
                     }
                     return;
                 }

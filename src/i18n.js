@@ -58,6 +58,20 @@
       'en':    function (k) { return '"' + k + '" is already assigned to another shortcut'; }
     },
 
+    // ----- 速率調整功能引導 dialog -----
+    'dePrompt.title':        { 'zh-TW': '要啟用速率調整功能嗎？', 'en': 'Enable Speed Adjustment?' },
+    'dePrompt.desc': {
+      'zh-TW': '啟用後，在字幕欄位輸入文字時，可直接按快捷鍵（預設 [ / ]）調整播放速率，而不會輸入字元。',
+      'en':    'When enabled, pressing speed keys (default [ / ]) while editing a subtitle will adjust playback speed instead of typing a character.'
+    },
+    'dePrompt.hintPrefix':   { 'zh-TW': '未來可在', 'en': 'You can change this in the' },
+    'dePrompt.settingsName': { 'zh-TW': '快捷鍵設定', 'en': 'Shortcuts settings' },
+    'dePrompt.hintSuffix':   { 'zh-TW': '隨時更改。', 'en': 'panel at any time.' },
+    'dePrompt.openSettings': { 'zh-TW': '開啟快捷鍵設定', 'en': 'Open shortcut settings' },
+    'dePrompt.enable':       { 'zh-TW': '啟用', 'en': 'Enable' },
+    'dePrompt.disable':      { 'zh-TW': '先不要', 'en': 'Not now' },
+    'dePrompt.later':        { 'zh-TW': '我再想一下', 'en': 'Decide later' },
+
     'narrow.label':    { 'zh-TW': '影片字幕校正工具', 'en': 'Video Subtitle Editor' },
     'narrow.title':    { 'zh-TW': '建議在電腦上開啟', 'en': 'Best Viewed on Desktop' },
     'narrow.desc':     { 'zh-TW': '本工具專為寬螢幕桌面環境設計<br>在小螢幕裝置上操作會較為擁擠。', 'en': 'This tool is designed for widescreen desktop environments.<br>It may feel cramped on smaller screens.' },

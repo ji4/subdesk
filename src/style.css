@@ -2239,6 +2239,125 @@ body {
 
 .ai-tutorial-gotit:hover { background: var(--primary-dk); }
 
+/* --- 速率調整功能引導 dialog --- */
+.de-prompt-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.55);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.de-prompt-overlay.open { display: flex; }
+
+.de-prompt-modal {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px 22px;
+  animation: ai-modal-in var(--dur-slow) var(--ease);
+  text-align: center;
+}
+
+.de-prompt-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.de-prompt-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.de-prompt-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.de-prompt-desc kbd {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 1px 5px;
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: var(--text);
+}
+
+.de-prompt-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.de-prompt-settings-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.de-prompt-settings-link:hover { color: var(--primary-dk); }
+
+.de-prompt-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.de-prompt-btn {
+  width: 100%;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+}
+
+.de-prompt-btn--enable {
+  background: var(--primary);
+  color: #000;
+}
+.de-prompt-btn--enable:hover { background: var(--primary-dk); }
+
+.de-prompt-btn--disable {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.de-prompt-btn--disable:hover { background: rgba(255,255,255,0.08); }
+
+.de-prompt-btn--later {
+  background: transparent;
+  color: var(--text-muted);
+}
+.de-prompt-btn--later:hover { color: var(--text); background: var(--surface-2); }
+
 /* --- 比對模式：無法對應的行（常駐警告面板） --- */
 .unmatched-panel {
   margin-bottom: 10px;
