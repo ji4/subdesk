@@ -60,7 +60,7 @@
 
     // ----- 速率調整功能引導 dialog -----
     'dePrompt.detected':    { 'zh-TW': '已偵測',     'en': 'Detected' },
-    'dePrompt.keysLabel':   { 'zh-TW': '升降速率觸發', 'en': 'speed keys' },
+    'dePrompt.keysLabel':   { 'zh-TW': '升降速率快捷鍵觸發', 'en': 'speed shortcut keys triggered' },
     'dePrompt.titlePre':    { 'zh-TW': '是否啟用快捷鍵調整速率，並停用', 'en': 'Enable speed keys and stop typing' },
     'dePrompt.titlePost':   { 'zh-TW': '字元輸入？',    'en': 'input while editing?' },
     'dePrompt.hint':        { 'zh-TW': '右上角快捷鍵設定可隨時更改。', 'en': 'Change this anytime in Shortcuts settings.' },
