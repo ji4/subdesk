@@ -1665,6 +1665,51 @@
             }
         }
         
+        let _playOnceEndTime = null;
+        let _playOnceInterval = null;
+
+        function clearPlayOnce() {
+            _playOnceEndTime = null;
+            if (_playOnceInterval) { clearInterval(_playOnceInterval); _playOnceInterval = null; }
+        }
+
+        function getSubtitleEnd(idx) {
+            const sub = youtubeSubtitles[idx];
+            if (!sub) return 0;
+            return sub.duration
+                ? sub.start + sub.duration
+                : (youtubeSubtitles[idx + 1] ? youtubeSubtitles[idx + 1].start : sub.start + 3);
+        }
+
+        function playSubtitleOnce(start, end) {
+            clearPlayOnce();
+            _playOnceEndTime = end;
+            seekToTime(start);
+
+            if (isLocalVideo) {
+                function checkEnd() {
+                    if (!_playOnceEndTime || localVideo.paused) {
+                        localVideo.removeEventListener('timeupdate', checkEnd);
+                        _playOnceEndTime = null;
+                        return;
+                    }
+                    if (localVideo.currentTime >= _playOnceEndTime) {
+                        localVideo.removeEventListener('timeupdate', checkEnd);
+                        _playOnceEndTime = null;
+                        controlVideo('pause');
+                    }
+                }
+                localVideo.addEventListener('timeupdate', checkEnd);
+            } else {
+                _playOnceInterval = setInterval(() => {
+                    if (!isPlaying || currentTime >= _playOnceEndTime) {
+                        clearPlayOnce();
+                        if (isPlaying) controlVideo('pause');
+                    }
+                }, 100);
+            }
+        }
+
         function seekToTime(seconds, useYouTubeTime = false) {
             console.log('嘗試跳轉時間:', { 
                 seconds, 
@@ -2561,8 +2606,9 @@
                     if (document.activeElement !== ce && !(sel && !sel.isCollapsed)) {
                         ce.focus();
                         if (isPlaying) {
-                            const sub = youtubeSubtitles[Number(ce.dataset.index)];
-                            if (sub) seekToTime(sub.start);
+                            const idx = Number(ce.dataset.index);
+                            const sub = youtubeSubtitles[idx];
+                            if (sub) playSubtitleOnce(sub.start, getSubtitleEnd(idx));
                         }
                     }
                     return;
@@ -2587,8 +2633,9 @@
 
                 focusSubtitleEditable(editable);
                 if (isPlaying) {
-                    const sub = youtubeSubtitles[Number(item.dataset.index)];
-                    if (sub) seekToTime(sub.start);
+                    const idx = Number(item.dataset.index);
+                    const sub = youtubeSubtitles[idx];
+                    if (sub) playSubtitleOnce(sub.start, getSubtitleEnd(idx));
                 }
             });
         }
