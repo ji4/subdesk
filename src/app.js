@@ -2738,11 +2738,7 @@
         // 依目前綁定與編輯模式，更新 header 提示與設定面板按鈕文字
         function refreshShortcutHints() {
             const prefix = hintEditingMode && !directKeysWhileEditing ? 'Alt + ' : '';
-            const jumpKbds = document.querySelectorAll('#jumpHint kbd');
-            if (jumpKbds.length >= 2) {
-                jumpKbds[0].textContent = prefix + codeToLabel(keyBindings.prevSub);
-                jumpKbds[1].textContent = prefix + codeToLabel(keyBindings.nextSub);
-            }
+            // jumpHint 固定顯示 Shift+Tab / Tab，不隨可自訂鍵更新
             const speedKbds = document.querySelectorAll('#speedHint kbd');
             if (speedKbds.length >= 2) {
                 speedKbds[0].textContent = prefix + codeToLabel(keyBindings.speedDown);
