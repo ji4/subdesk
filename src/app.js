@@ -3014,20 +3014,6 @@
                             e.preventDefault();
                             directAction();
                         }
-                    } else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing
-                               && (e.key === '「' || e.key === '」')) {
-                        // 中文輸入法直接映射的括號（「/」）也能觸發速率調整
-                        const cnAction = getBindingActionForEvent(e);
-                        if (cnAction) {
-                            if (!e.target.isContentEditable && 'value' in e.target) {
-                                e.target._savedValue = e.target.value;
-                                e.target._savedSelStart = e.target.selectionStart;
-                                e.target._savedSelEnd = e.target.selectionEnd;
-                            }
-                            _preventNextInput = true;
-                            e.preventDefault();
-                            cnAction();
-                        }
                     }
                     // 首次字元輸入時提示是否啟用速率調整功能，並阻止這次字元輸入
                     if (!directKeysWhileEditing
