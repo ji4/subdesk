@@ -2785,6 +2785,11 @@
         function maybeShowDirectEditingPrompt() {
             const overlay = document.getElementById('directEditingPromptOverlay');
             if (!overlay || overlay.classList.contains('open')) return;
+            // 同步顯示目前設定的快捷鍵
+            const keyDown = document.getElementById('dePromptKeyDown');
+            const keyUp   = document.getElementById('dePromptKeyUp');
+            if (keyDown) keyDown.textContent = codeToLabel(keyBindings.speedDown);
+            if (keyUp)   keyUp.textContent   = codeToLabel(keyBindings.speedUp);
             overlay.classList.add('open');
         }
 
@@ -2807,11 +2812,6 @@
             closeDirectEditingPrompt();
         }
 
-        function confirmDirectEditingAndOpenSettings() {
-            closeDirectEditingPrompt();
-            const wrap = document.getElementById('keySettings');
-            if (wrap && !wrap.classList.contains('open')) toggleKeySettings();
-        }
 
         // 焦點在文字編輯處時，提示改顯示 Alt 組合
         function initShortcutHintModeSwitch() {
@@ -3027,12 +3027,14 @@
                             cnAction();
                         }
                     }
-                    // 首次字元輸入時提示是否啟用速率調整功能
+                    // 首次字元輸入時提示是否啟用速率調整功能，並阻止這次字元輸入
                     if (!directKeysWhileEditing
                         && !localStorage.getItem(LS_KEYS.directEditingDecided)
                         && isSubtitleEditingTarget(e.target)
                         && e.key.length === 1
                         && !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) {
+                        _preventNextInput = true;
+                        e.preventDefault();
                         maybeShowDirectEditingPrompt();
                     }
                     return;

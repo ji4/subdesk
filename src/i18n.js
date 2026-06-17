@@ -59,18 +59,19 @@
     },
 
     // ----- 速率調整功能引導 dialog -----
-    'dePrompt.title':        { 'zh-TW': '要啟用速率調整功能嗎？', 'en': 'Enable Speed Adjustment?' },
-    'dePrompt.desc': {
-      'zh-TW': '啟用後，在字幕欄位輸入文字時，可直接按快捷鍵（預設 [ / ]）調整播放速率，而不會輸入字元。',
-      'en':    'When enabled, pressing speed keys (default [ / ]) while editing a subtitle will adjust playback speed instead of typing a character.'
+    'dePrompt.keysLabel': { 'zh-TW': '降 / 升速率', 'en': 'Speed –/+' },
+    'dePrompt.title': {
+      'zh-TW': '在字幕欄位要讓這組快捷鍵直接調速嗎？',
+      'en':    'Use these keys to adjust speed while editing?'
     },
-    'dePrompt.hintPrefix':   { 'zh-TW': '未來可在', 'en': 'You can change this in the' },
-    'dePrompt.settingsName': { 'zh-TW': '快捷鍵設定', 'en': 'Shortcuts settings' },
-    'dePrompt.hintSuffix':   { 'zh-TW': '隨時更改。', 'en': 'panel at any time.' },
-    'dePrompt.openSettings': { 'zh-TW': '開啟快捷鍵設定', 'en': 'Open shortcut settings' },
-    'dePrompt.enable':       { 'zh-TW': '啟用', 'en': 'Enable' },
-    'dePrompt.disable':      { 'zh-TW': '先不要', 'en': 'Not now' },
-    'dePrompt.later':        { 'zh-TW': '我再想一下', 'en': 'Decide later' },
+    'dePrompt.desc': {
+      'zh-TW': '啟用後，在字幕欄位裡按這兩個鍵會直接調整播放速率，不會再打字。',
+      'en':    'When enabled, pressing these keys while editing a subtitle adjusts playback speed instead of typing.'
+    },
+    'dePrompt.hint':    { 'zh-TW': '右上角快捷鍵設定可隨時更改。', 'en': 'You can change this in Shortcuts settings anytime.' },
+    'dePrompt.enable':  { 'zh-TW': '啟用速率快捷鍵', 'en': 'Enable Speed Keys' },
+    'dePrompt.disable': { 'zh-TW': '先不要', 'en': 'Not now' },
+    'dePrompt.later':   { 'zh-TW': '我再想一下', 'en': 'Decide later' },
 
     'narrow.label':    { 'zh-TW': '影片字幕校正工具', 'en': 'Video Subtitle Editor' },
     'narrow.title':    { 'zh-TW': '建議在電腦上開啟', 'en': 'Best Viewed on Desktop' },
