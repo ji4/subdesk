@@ -2950,6 +2950,10 @@
                 }
 
                 switch(e.key) {
+                    case 'Escape': // ESC：暫停影片
+                        e.preventDefault();
+                        controlVideo('pause');
+                        break;
                     case ' ': // 空格鍵
                         e.preventDefault();
                         controlVideo('toggle');
