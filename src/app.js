@@ -2895,11 +2895,8 @@
                 const isEditingText = isTextEditingTarget(e.target);
                 if (fixedNavigationAction && !e.ctrlKey && !e.metaKey && !e.altKey) {
                     const isSubtitleFocused = isSubtitleEditingTarget(e.target);
-                    // Tab: 只有已在 subtitle focus 模式時才跳句（保持 focus）
-                    // ArrowUp/Down: 維持原有行為（非編輯 or subtitle 編輯時皆可）
-                    const shouldHandle = e.code === 'Tab'
-                        ? isSubtitleFocused
-                        : !isEditingText || isSubtitleFocused;
+                    // Tab/ArrowUp/Down: 非文字編輯狀態或字幕 focus 狀態時皆可觸發
+                    const shouldHandle = !isEditingText || isSubtitleFocused;
                     if (shouldHandle) {
                         e.preventDefault();
                         fixedNavigationAction();
