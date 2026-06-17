@@ -2786,11 +2786,13 @@
             overlay.querySelectorAll('.de-prompt-key-down').forEach(el => { el.textContent = codeToLabel(keyBindings.speedDown); });
             overlay.querySelectorAll('.de-prompt-key-up').forEach(el => { el.textContent = codeToLabel(keyBindings.speedUp); });
 
-            // 字元輸入顯示：依觸發字元推斷輸入法，中文顯示「」，否則顯示 [ ]
+            // 字元輸入顯示：CJK 輸入法顯示「」，其他顯示實際按鍵字元
             const isCJK = /[　-鿿＀-￯]/.test(triggeredKey)
                 || triggeredKey === '「' || triggeredKey === '」';
+            const downChar = isCJK ? '「' : codeToLabel(keyBindings.speedDown);
+            const upChar   = isCJK ? '」' : codeToLabel(keyBindings.speedUp);
             overlay.querySelectorAll('.de-prompt-char').forEach((el, i) => {
-                el.textContent = isCJK ? (i % 2 === 0 ? '「' : '」') : (i % 2 === 0 ? '[' : ']');
+                el.textContent = i % 2 === 0 ? downChar : upChar;
             });
             overlay.classList.add('open');
         }
@@ -2970,6 +2972,16 @@
             document.addEventListener('keydown', function(e) {
                 // 自訂快捷鍵擷取模式優先
                 if (handleKeyCapture(e)) return;
+
+                // ESC 關閉速率引導 dialog
+                if (e.key === 'Escape') {
+                    const overlay = document.getElementById('directEditingPromptOverlay');
+                    if (overlay && overlay.classList.contains('open')) {
+                        e.preventDefault();
+                        closeDirectEditingPrompt();
+                        return;
+                    }
+                }
 
                 // Alt+綁定鍵：編輯文字時也能操作且不輸入字元
                 if (e.altKey && !e.ctrlKey && !e.metaKey) {
