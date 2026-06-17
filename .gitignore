@@ -4,6 +4,12 @@ __pycache__/
 待驗收清單.md
 notes/THREADS_POST.md
 notes/prompt.md
+notes/threads-cards.html
+notes/threads-video.html
+notes/render-video.cjs
+notes/threads-video.mp4
+notes/.frames/
+notes/_check/
 node_modules/
 .claude/
 .vscode/
