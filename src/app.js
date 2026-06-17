@@ -2560,6 +2560,10 @@
                     // 有未清除的選取範圍（拖曳選文）時不呼叫 focus()，避免重置選取
                     if (document.activeElement !== ce && !(sel && !sel.isCollapsed)) {
                         ce.focus();
+                        if (isPlaying) {
+                            const sub = youtubeSubtitles[Number(ce.dataset.index)];
+                            if (sub) seekToTime(sub.start);
+                        }
                     }
                     return;
                 }
@@ -2582,6 +2586,10 @@
                 if (!editable) return;
 
                 focusSubtitleEditable(editable);
+                if (isPlaying) {
+                    const sub = youtubeSubtitles[Number(item.dataset.index)];
+                    if (sub) seekToTime(sub.start);
+                }
             });
         }
 
