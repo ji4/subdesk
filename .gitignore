@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 待驗收清單.md
+notes/THREADS_POST.md
+notes/prompt.md
 node_modules/
 .claude/
 .vscode/
