@@ -7,7 +7,7 @@
 
 SubDesk puts **AI-assisted typo hunting** and **human verification** on a single screen, so you stop bouncing between your AI chat window, your video editor, and a separate player while fixing subtitles.
 
-<video src="public/Demo-en.mp4" autoplay loop muted playsinline style="max-width:360px"></video>
+<video src="public/demo-en.mp4" autoplay loop muted playsinline style="max-width:360px"></video>
 
 ## The Problem
 
