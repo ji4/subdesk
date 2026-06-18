@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="night">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影片字幕校正工具</title>
+    <meta name="description" content="把 AI 修正過的字幕貼進來，自動標記修改處，點擊時間戳跳轉播放、逐句核對。支援 YouTube 與本機影片、.srt / .vtt，免費免註冊。">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ji4.github.io/subdesk/app/">
+    <meta property="og:title" content="SubDesk — A frictionless Subtitle Proofreading Tool for Video">
+    <meta property="og:description" content="Paste your AI's subtitle fixes, see every change marked, then click to jump and verify. YouTube or local files, .srt / .vtt. Free, no sign-up.">
+    <meta property="og:image" content="https://ji4.github.io/subdesk/public/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="SubDesk subtitle proofreading tool interface">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="zh_TW">
+    <meta property="og:site_name" content="SubDesk">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SubDesk — A frictionless Subtitle Proofreading Tool for Video">
+    <meta name="twitter:description" content="Paste your AI's subtitle fixes, see every change marked, then click to jump and verify. YouTube or local files, .srt / .vtt. Free, no sign-up.">
+    <meta name="twitter:image" content="https://ji4.github.io/subdesk/public/images/og-image.png">
+
+    <!-- hreflang for bilingual SEO -->
+    <link rel="alternate" id="hreflang-zh" hreflang="zh-TW" href="https://ji4.github.io/subdesk/app/?lang=zh-TW">
+    <link rel="alternate" id="hreflang-en" hreflang="en" href="https://ji4.github.io/subdesk/app/?lang=en">
+    <link rel="alternate" id="hreflang-default" hreflang="x-default" href="https://ji4.github.io/subdesk/app/">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SubDesk",
+      "url": "https://ji4.github.io/subdesk/app/",
+      "alternateName": "影片字幕校正工具",
+      "description": "Paste your AI's subtitle fixes, see every change marked, then click to jump and verify. YouTube or local files, .srt / .vtt. Free, no sign-up.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "inLanguage": ["zh-TW", "en"],
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/png" href="../public/images/Icon.png">
+    <link rel="stylesheet" href="../src/style.css">
+    <!-- 後端 API 位址設定（config.js 不進版控，請參考 config.example.js） -->
+    <script src="../config.js" onerror="void 0"></script>
+    <!-- i18n must load before app.js -->
+    <script src="../src/i18n.js"></script>
+    <script>
+        (function() {
+            var _hn = window.location.hostname;
+            var _isLocal = ['localhost', '127.0.0.1', '::1'].includes(_hn)
+                || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(_hn);
+            var _params = new URLSearchParams(window.location.search);
+            var _noGa = _params.has('notrack');
+            if (_isLocal || _noGa) window['ga-disable-G-TJNXR7NCT4'] = true;
+            window.SUBDESK_GA_DISABLED = _isLocal || _noGa;
+        })();
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (!window.SUBDESK_GA_DISABLED) {
+            var gtagScript = document.createElement('script');
+            gtagScript.async = true;
+            gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-TJNXR7NCT4';
+            document.head.appendChild(gtagScript);
+            gtag('js', new Date());
+            gtag('config', 'G-TJNXR7NCT4');
+        }
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+    <!-- 小螢幕警告介面 -->
+    <div class="narrow-screen-gate" id="narrowScreenGate">
+        <div class="narrow-screen-inner">
+            <img src="../public/images/Logo.png" alt="SubDesk" class="narrow-screen-logo">
+            <p class="narrow-screen-label" data-i18n="narrow.label">影片字幕校正工具</p>
+            <h1 class="narrow-screen-title" data-i18n="narrow.title">建議在電腦上開啟</h1>
+            <p class="narrow-screen-desc" data-i18n="narrow.desc">本工具專為寬螢幕桌面環境設計<br>在小螢幕裝置上操作會較為擁擠。</p>
+            <button class="narrow-screen-btn-primary" onclick="dismissNarrowScreenGate()" data-i18n="narrow.continue">繼續使用</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-brand">
+                <div class="header-brand-main">
+                    <img src="../public/images/Logo.png" alt="SubDesk" class="header-logo">
+                    <h1 data-i18n="page.title">影片字幕校正工具</h1>
+                </div>
+                <p data-i18n="page.tagline">The Smoothest Way to Refine Subtitles</p>
+            </div>
+            <button class="header-reset-btn reset-btn-header" onclick="resetPage()"
+                data-i18n="header.reset"
+                data-i18n-title="header.resetTitle"
+                title="清除所有資料並重置頁面">清除資料</button>
+            <div class="header-shortcuts">
+                <span class="hint-item"><kbd>Space</kbd> <span data-i18n="shortcuts.playPause">播放 / 暫停</span></span>
+                <span class="hint-item"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="shortcuts.skip5s">跳 5 秒</span></span>
+                <span class="hint-item" id="jumpHint"><kbd>Shift+Tab</kbd><kbd>Tab</kbd> <span data-i18n="shortcuts.prevNext">上 / 下一句</span></span>
+                <span class="hint-item" id="speedHint"><kbd>[</kbd><kbd>]</kbd> <span data-i18n="shortcuts.speed">降 / 升速率</span></span>
+                <div class="key-settings" id="keySettings">
+                    <button class="key-settings-btn" id="keySettingsBtn" onclick="toggleKeySettings()"
+                        data-i18n-title="keys.settingsTitle" title="自訂快捷鍵" aria-haspopup="dialog">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                    <div class="key-settings-panel" id="keySettingsPanel" role="dialog" data-i18n-aria="keys.title" aria-label="自訂快捷鍵">
+                        <h4 data-i18n="keys.title">自訂快捷鍵</h4>
+                        <p class="key-settings-desc" data-i18n="keys.desc">某些按鍵在編輯字幕文字時會直接輸入字元，或可能與你的輸入法、瀏覽器快捷鍵衝突，因此可改成自己順手的按鍵。編輯文字時請搭配 Alt 使用。設定會儲存在這個瀏覽器中。</p>
+                        <div class="key-binding-row"><span data-i18n="keys.prevSub">上一句</span><div class="key-binding-controls"><button class="key-undo-btn" id="undoPrevSub" onclick="resetKeyBinding('prevSub')" data-i18n-title="keys.undoTitle" title="回復預設按鍵"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button><button class="key-bind-btn" id="bindPrevSub" onclick="startKeyCapture('prevSub')">A</button></div></div>
+                        <div class="key-binding-row"><span data-i18n="keys.nextSub">下一句</span><div class="key-binding-controls"><button class="key-undo-btn" id="undoNextSub" onclick="resetKeyBinding('nextSub')" data-i18n-title="keys.undoTitle" title="回復預設按鍵"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button><button class="key-bind-btn" id="bindNextSub" onclick="startKeyCapture('nextSub')">D</button></div></div>
+                        <p class="key-direct-note" data-i18n="keys.tabNote">Tab / Shift+Tab 也可切換上 / 下一句（固定快捷鍵）</p>
+                        <div class="key-binding-row"><span data-i18n="keys.speedDown">降低速率</span><div class="key-binding-controls"><button class="key-undo-btn" id="undoSpeedDown" onclick="resetKeyBinding('speedDown')" data-i18n-title="keys.undoTitle" title="回復預設按鍵"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button><button class="key-bind-btn" id="bindSpeedDown" onclick="startKeyCapture('speedDown')">[</button></div></div>
+                        <div class="key-binding-row"><span data-i18n="keys.speedUp">提高速率</span><div class="key-binding-controls"><button class="key-undo-btn" id="undoSpeedUp" onclick="resetKeyBinding('speedUp')" data-i18n-title="keys.undoTitle" title="回復預設按鍵"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button><button class="key-bind-btn" id="bindSpeedUp" onclick="startKeyCapture('speedUp')">]</button></div></div>
+                        <label class="key-direct-toggle">
+                            <input type="checkbox" id="directEditingToggle" onchange="toggleDirectEditing(this.checked)">
+                            <span data-i18n="keys.directEditing">編輯文字時不需 Alt</span>
+                        </label>
+                        <p class="key-direct-note" id="directEditingNote"></p>
+                        <p class="key-settings-msg" id="keySettingsMsg"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="lang-selector" id="langSelector">
+              <button class="lang-selector-btn" id="langToggleBtn" onclick="toggleLangDropdown()" aria-haspopup="listbox">
+                <span id="langCurrentLabel">繁體中文</span>
+                <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="lang-dropdown" id="langDropdown" role="listbox">
+                <button class="lang-option" data-lang="zh-TW" role="option" onclick="selectLang('zh-TW')">中文</button>
+                <button class="lang-option" data-lang="en" role="option" onclick="selectLang('en')">EN</button>
+              </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper" id="contentWrapper">
+            <!-- 影片區域 -->
+            <div class="video-section" id="videoSection">
+                <div class="video-load-selector">
+                    <button class="active" id="youtubeBtn">YouTube</button>
+                    <button id="localVideoBtn" data-i18n="video.localVideo">本機影片</button>
+                    <button class="header-reset-btn reset-btn-inline" onclick="resetPage()"
+                        data-i18n="header.reset"
+                        data-i18n-title="header.resetTitle"
+                        title="清除所有資料並重置頁面">清除資料</button>
+                </div>
+
+                <div class="youtube-input" id="youtubeInput">
+                    <input type="text" id="youtubeUrl"
+                        data-i18n-placeholder="video.urlPlaceholder"
+                        placeholder="請輸入YouTube影片網址 (如: https://www.youtube.com/watch?v=VIDEO_ID)">
+                    <button id="loadVideoBtn" onclick="loadVideo()" data-i18n="video.loadBtn">載入影片</button>
+                </div>
+
+                <div class="local-video-input" id="localVideoInput" style="display: none;">
+                    <label class="file-drop-zone" id="fileDropZone" for="localVideoFile">
+                        <span id="fileNameDisplay" data-i18n="video.fileDropZone">選擇或拖曳影片至此</span>
+                    </label>
+                    <input type="file" id="localVideoFile" accept="video/*,audio/*" style="display:none">
+                    <button id="loadLocalVideoBtn" onclick="loadLocalVideo()" data-i18n="video.loadBtn">載入影片</button>
+                </div>
+
+                <div id="statusInfo" class="status-info"></div>
+
+                <div id="progressContainer" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text"></div>
+                </div>
+
+                <div id="videoContainer" class="video-container" style="display: none;">
+                    <!-- 佔位元素：YT IFrame API 建立播放器時會以同 id 的 iframe 取代 -->
+                    <div id="youtubeIframe"></div>
+                    <video id="localVideo" controls preload="metadata" style="display: none;">
+                        <span data-i18n="video.notSupported">您的瀏覽器不支援影片播放。</span>
+                    </video>
+                    <div id="subtitleOverlay" class="subtitle-overlay">
+                        <div id="subtitleOverlayText" class="subtitle-overlay-text"></div>
+                    </div>
+                    <div id="videoClickOverlay" class="video-click-overlay" onclick="handleVideoContainerClick()"></div>
+                </div>
+
+                <div class="video-controls" id="videoControls" style="display: none;">
+                    <button id="playToggleBtn" onclick="controlVideo('toggle')" data-i18n-title="controls.play" title="播放"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+                    <button id="backBtn" onclick="controlVideo('back')" data-i18n-title="controls.backTitle" title="後退5秒">-5s</button>
+                    <button id="forwardBtn" onclick="controlVideo('forward')" data-i18n-title="controls.forwardTitle" title="前進5秒">+5s</button>
+                    <div class="speed-control" id="speedControl">
+                        <button class="speed-btn" id="speedBtn" onclick="toggleSpeedPopover()" data-i18n-title="aria.speedSlider" title="播放速率" aria-haspopup="true">1×</button>
+                        <div class="speed-popover" id="speedPopover">
+                            <div class="speed-slider-wrap">
+                                <div class="speed-slider-dots" id="speedSliderDots"></div>
+                                <input type="range" id="speedSlider" min="0" max="7" step="1" value="3" data-i18n-aria="aria.speedSlider" aria-label="播放速率">
+                            </div>
+                            <span class="speed-value" id="speedValue">1×</span>
+                        </div>
+                    </div>
+                    <div class="current-time" id="currentTime" data-i18n-aria="aria.currentTime" aria-label="目前播放時間，可輸入時間跳轉">
+                        <input class="time-digit" id="timeDigit0" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour1" aria-label="小時十位" value="0">
+                        <input class="time-digit" id="timeDigit1" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeHour2" aria-label="小時個位" value="0">
+                        <span class="time-separator">:</span>
+                        <input class="time-digit" id="timeDigit2" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeMin1" aria-label="分鐘十位" value="0">
+                        <input class="time-digit" id="timeDigit3" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeMin2" aria-label="分鐘個位" value="0">
+                        <span class="time-separator">:</span>
+                        <input class="time-digit" id="timeDigit4" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeSec1" aria-label="秒數十位" value="0">
+                        <input class="time-digit" id="timeDigit5" inputmode="numeric" maxlength="1" data-i18n-aria="aria.timeSec2" aria-label="秒數個位" value="0">
+                    </div>
+                </div>
+
+                <div id="messages" class="messages"></div>
+            </div>
+
+            <!-- 可拖曳分隔線 -->
+            <div class="panel-divider" id="panelDivider"></div>
+
+            <!-- 字幕顯示區 -->
+            <div class="subtitle-display-panel" id="subtitleDisplayPanel">
+                <div class="subtitle-controls">
+                    <h3 data-i18n="subtitle.title">字幕列表</h3>
+                    <div class="subtitle-control-buttons"></div>
+                </div>
+                <div class="subtitle-display-container" id="subtitleDisplayContainer">
+                    <div class="youtube-subtitles-section" id="youtubeSubtitlesSection">
+                        <div class="subtitle-upload-controls">
+                            <input type="file" id="subtitleFileInput" accept=".srt,.vtt" style="display: none;">
+                            <button class="view-mode-toggle subtitle-upload-btn" onclick="document.getElementById('subtitleFileInput').click()" data-i18n="subtitle.uploadBtn">上傳字幕檔</button>
+                            <span data-i18n="subtitle.formats">支援 .srt, .vtt 格式</span>
+                            <div class="subtitle-filter-btns">
+                                <button class="filter-btn active" id="filterAll" onclick="filterSubtitlePanel('all')" data-i18n="subtitle.filterAll">全部</button>
+                                <button class="filter-btn" id="filterModified" onclick="filterSubtitlePanel('modified')" data-i18n="subtitle.filterModified">已修改</button>
+                            </div>
+                        </div>
+                        <div id="youtubeSubtitlesPanel" class="youtube-subtitles-panel">
+                            <div style="text-align: center; color: var(--text-muted); padding: 40px; font-size: 16px; line-height: 2;" data-i18n="subtitle.emptyDefault">
+                                請先載入影片<br>
+                                再點擊「上傳字幕檔」按鈕<br>或直接拖曳 .srt / .vtt 字幕檔至此
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 上下可拖曳分隔線 -->
+        <div class="vertical-divider" id="verticalDivider"></div>
+
+        <!-- 輸出區域 -->
+        <div class="subtitle-section" id="subtitleOutputSection">
+            <div class="subtitle-input-panel">
+                <div class="output-header">
+                    <h3 data-i18n="output.title">校正後字幕輸出</h3>
+                    <div class="output-format-btns">
+                        <button class="view-mode-toggle" id="outputFormatSrt" onclick="switchOutputFormat('srt')" style="background: rgba(34,197,94,0.15); color: var(--success); border-color: rgba(34,197,94,0.3);">SRT</button>
+                        <button class="view-mode-toggle" id="outputFormatVtt" onclick="switchOutputFormat('vtt')">VTT</button>
+                        <button class="view-mode-toggle" id="outputFormatTxt" onclick="switchOutputFormat('txt')">TXT</button>
+                    </div>
+                    <div class="output-action-btns">
+                        <button class="copy-btn" id="copyOutputBtn" onclick="copyOutput()" data-i18n="output.copyBtn">複製</button>
+                        <button class="copy-btn" onclick="downloadOutput()" data-i18n="output.downloadBtn">下載整份</button>
+                    </div>
+                </div>
+                <div class="output-options">
+                    <label>
+                        <input type="checkbox" id="chkOnlyModified" onchange="toggleShowOnlyModified()">
+                        <span data-i18n="output.onlyModified">僅顯示已修改字幕</span>
+                    </label>
+                    <label id="chkComparisonLabel" style="display: none; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="chkComparison" onchange="toggleShowComparison()">
+                        <span data-i18n="output.showComparison">顯示校正前後對比</span>
+                    </label>
+                    <button class="ai-tutorial-btn" id="aiTutorialBtn" onclick="openAiTutorial()" aria-haspopup="dialog" data-i18n="ai.btn">🤖 搭配 AI 使用教學</button>
+                </div>
+                <div class="unmatched-panel" id="unmatchedPanel" style="display: none;">
+                    <button class="unmatched-panel-header" onclick="toggleUnmatchedPanel()" aria-expanded="true">
+                        <span class="unmatched-panel-title" id="unmatchedPanelTitle"></span>
+                        <svg class="unmatched-panel-chevron" width="12" height="8" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="unmatched-panel-lines" id="unmatchedPanelLines"></div>
+                </div>
+                <textarea id="subtitleOutput"
+                    data-i18n-placeholder="output.placeholder"
+                    placeholder="載入影片後，這裡會自動產生整份校正後的字幕輸出。"
+                    oninput="onOutputInput()"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 校正教學 Modal -->
+    <div class="ai-tutorial-overlay" id="aiTutorialOverlay" onclick="closeAiTutorial(event)">
+        <div class="ai-tutorial-modal" role="dialog" aria-modal="true" data-i18n-aria="ai.title" aria-label="用 AI 加速字幕校正">
+            <button class="ai-tutorial-close" onclick="closeAiTutorial()" data-i18n-title="ai.closeTitle" title="關閉教學" aria-label="Close">&times;</button>
+            <h3 class="ai-tutorial-title" data-i18n="ai.title">搭配 AI 加速字幕校正</h3>
+            <p class="ai-tutorial-intro" data-i18n="ai.intro">本工具不內建 AI，但可以搭配 ChatGPT、Claude 等外部 AI 使用：先讓 AI 幫你抓出錯字，再回到這裡逐條跳轉播放、核對是否真的需要修改。四個步驟：</p>
+
+            <!-- 操作流程動畫示意（JS 三幕輪播：全局 app 縮小畫面 + 聚光燈，hover 暫停，指示點可點擊） -->
+            <div class="ai-demo" id="aiDemo">
+                <div class="ai-demo-scene ai-demo-scene1">
+                    <div class="ai-demo-app spotlight-output">
+                        <div class="ai-demo-app-main">
+                            <div class="ai-demo-app-video"><span class="ai-demo-play">▶</span></div>
+                            <div class="ai-demo-app-list">
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width: 58%"></span></div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width: 44%"></span></div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 66%"></span></div>
+                            </div>
+                        </div>
+                        <div class="ai-demo-app-output">
+                            <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
+                            <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
+                            <span class="ai-demo-line">#41 00:15:30 | 程式馬 | 程式碼</span>
+                        </div>
+                    </div>
+                    <p class="ai-demo-caption" data-i18n="ai.demo1">① 把 AI 回覆的對比清單貼到輸出區</p>
+                </div>
+                <div class="ai-demo-scene ai-demo-scene2">
+                    <div class="ai-demo-app spotlight-list">
+                        <div class="ai-demo-app-main">
+                            <div class="ai-demo-app-video"><span class="ai-demo-play">▶</span></div>
+                            <div class="ai-demo-app-list">
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width: 58%"></span></div>
+                                <div class="ai-demo-row ai-demo-row-modified">
+                                    <span class="ai-demo-timestamp">00:03:45</span>
+                                    <span class="ai-demo-bar" style="width: 36%"></span>
+                                    <span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span>
+                                </div>
+                                <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 66%"></span></div>
+                            </div>
+                        </div>
+                        <div class="ai-demo-app-output ai-demo-output-static">
+                            <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
+                            <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
+                        </div>
+                    </div>
+                    <p class="ai-demo-caption" data-i18n="ai.demo2">② 工具自動標記已修改的字幕</p>
+                </div>
+                <div class="ai-demo-scene ai-demo-scene3">
+                    <div class="ai-demo-app spotlight-video">
+                        <div class="ai-demo-app-main">
+                            <div class="ai-demo-app-video">
+                                <span class="ai-demo-play">▶</span>
+                                <span class="ai-demo-progress"><span class="ai-demo-progress-fill"></span></span>
+                            </div>
+                            <div class="ai-demo-app-list">
+                                <div class="ai-demo-tabs">
+                                    <span class="ai-demo-tab" data-i18n="subtitle.filterAll">全部</span>
+                                    <span class="ai-demo-tab active" data-i18n="subtitle.filterModified">已修改</span>
+                                </div>
+                                <div class="ai-demo-row ai-demo-row-modified ai-demo-click-target"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width: 36%"></span><span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span></div>
+                                <svg class="ai-demo-cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 0 0-.85.36z" fill="#F1F5F9" stroke="#111214" stroke-width="1.2"/></svg>
+                                <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width: 28%"></span><span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span></div>
+                                <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:15:30</span><span class="ai-demo-bar" style="width: 42%"></span><span class="ai-demo-badge" data-i18n="subtitle.filterModified">已修改</span></div>
+                            </div>
+                        </div>
+                        <div class="ai-demo-app-output ai-demo-output-static">
+                            <span class="ai-demo-line">#12 00:03:45 | 涵數 | 函數</span>
+                            <span class="ai-demo-line">#27 00:08:12 | 的職 | 的值</span>
+                        </div>
+                    </div>
+                    <p class="ai-demo-caption" data-i18n="ai.demo3">③ 點擊時間戳跳轉播放、核對修改</p>
+                </div>
+                <div class="ai-demo-dots">
+                    <button class="ai-demo-dot" onclick="aiDemoGoTo(0)" aria-label="1"></button>
+                    <button class="ai-demo-dot" onclick="aiDemoGoTo(1)" aria-label="2"></button>
+                    <button class="ai-demo-dot" onclick="aiDemoGoTo(2)" aria-label="3"></button>
+                </div>
+            </div>
+
+            <ol class="ai-tutorial-steps">
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">1</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step1Title">載入影片與字幕</h4>
+                        <p data-i18n="ai.step1Desc">左側載入 YouTube 或本機影片，右側上傳 .srt / .vtt 字幕檔。</p>
+                    </div>
+                </li>
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">2</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step2Title">把字幕交給 AI 校正</h4>
+                        <p data-i18n="ai.step2Desc">點下方輸出區的「複製」取得整份字幕，連同下面的提示詞範本一起貼給 ChatGPT、Claude 等 AI。</p>
+                        <div class="ai-prompt-box">
+                            <div class="ai-prompt-header">
+                                <span data-i18n="ai.promptTitle">提示詞範本（貼給 AI 用）</span>
+                                <button class="copy-btn" id="aiPromptCopyBtn" onclick="copyAiPrompt()" data-i18n="ai.promptCopy">複製範本</button>
+                            </div>
+                            <pre class="ai-prompt-text" id="aiPromptText" data-i18n="ai.promptTemplate"></pre>
+                        </div>
+                    </div>
+                </li>
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">3</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step3Title">貼回 AI 的校正結果</h4>
+                        <p data-i18n="ai.step3Desc">勾選「僅顯示已修改字幕」，再勾選「顯示校正前後對比」，然後把 AI 回覆的對比清單貼進下方輸出區——工具會自動比對，並在字幕列表標記修改處。</p>
+                        <code class="ai-step-example" data-i18n="ai.step3Example">#12 00:03:45 | 我們來看這個涵數 | 我們來看這個函數
+#27 00:08:12 | 這個變數的職 | 這個變數的值
+#41 00:15:30 | 程式馬會報錯 | 程式碼會報錯</code>
+                    </div>
+                </li>
+                <li class="ai-tutorial-step">
+                    <span class="ai-step-num">4</span>
+                    <div class="ai-step-body">
+                        <h4 data-i18n="ai.step4Title">跳轉播放、逐條核對</h4>
+                        <p data-i18n="ai.step4Desc">將「字幕列表」切換到「已修改」Tab，點擊時間戳即可跳轉播放、核對 AI 改得對不對。確認完成後即可複製或下載整份校正後字幕。</p>
+                    </div>
+                </li>
+            </ol>
+            <button class="ai-tutorial-gotit" onclick="closeAiTutorial()" data-i18n="ai.gotIt">我知道了，開始使用。</button>
+        </div>
+    </div>
+
+    <!-- 速率調整功能引導 dialog -->
+    <div class="de-prompt-overlay" id="directEditingPromptOverlay">
+        <div class="de-prompt-modal" role="dialog" aria-modal="true" aria-label="啟用速率快捷鍵">
+            <div class="de-prompt-keys" aria-hidden="true">
+                <span data-i18n="dePrompt.detected">已偵測</span>
+                <kbd class="de-prompt-key-down">[</kbd>
+                <kbd class="de-prompt-key-up">]</kbd>
+                <span data-i18n="dePrompt.keysLabel">升降速率快捷鍵觸發</span>
+            </div>
+            <h4 class="de-prompt-title">
+                <span data-i18n="dePrompt.titlePre">是否啟用快捷鍵調整速率，並停用</span>
+                <code class="de-prompt-char">「</code>
+                <code class="de-prompt-char">」</code>
+                <span data-i18n="dePrompt.titlePost">輸入？</span>
+            </h4>
+            <p class="de-prompt-hint">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span data-i18n="dePrompt.hint">右上角快捷鍵設定可隨時更改。</span>
+            </p>
+            <div class="de-prompt-actions">
+                <button class="de-prompt-btn de-prompt-btn--enable" onclick="confirmDirectEditing('enable')">
+                    <span data-i18n="dePrompt.enablePre">啟用</span>
+                    <kbd class="de-prompt-key-down">[</kbd>
+                    <kbd class="de-prompt-key-up">]</kbd>
+                    <span data-i18n="dePrompt.enableMid">變速，停止</span>
+                    <code class="de-prompt-char">「</code>
+                    <code class="de-prompt-char">」</code>
+                    <span data-i18n="dePrompt.enablePost">輸入。</span>
+                </button>
+                <button class="de-prompt-btn de-prompt-btn--disable" onclick="confirmDirectEditing('disable')">
+                    <span data-i18n="dePrompt.disablePre">維持</span>
+                    <code class="de-prompt-char">「</code>
+                    <code class="de-prompt-char">」</code>
+                    <span data-i18n="dePrompt.disablePost">輸入</span>
+                </button>
+                <button class="de-prompt-btn de-prompt-btn--later" onclick="confirmDirectEditing('later')" data-i18n="dePrompt.later">我再想一下</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 刪除通知 -->
+    <div class="delete-notification" id="deleteNotification"></div>
+
+    <!-- 拖曳覆蓋層 -->
+    <div id="dragOverlay">
+        <div class="drag-overlay-inner" data-i18n="drag.overlay">拖曳影片、音訊或字幕檔（.srt .vtt）至此</div>
+    </div>
+
+    <!-- 頁尾：贊助與聯絡 -->
+    <footer class="site-footer">
+        <div class="footer-card sponsor-card">
+            <h4 data-i18n="footer.sponsorTitle">☕ 覺得這個工具好用嗎？</h4>
+            <p data-i18n="footer.sponsorDesc">如果它幫你省下了不少時間，歡迎請站主喝杯咖啡，讓這個工具持續免費、持續進步。</p>
+            <a class="footer-btn footer-btn-sponsor" href="https://p.ecpay.com.tw/4931F0A" target="_blank" rel="noopener noreferrer" data-i18n="footer.sponsorBtn">贊助支持</a>
+        </div>
+        <div class="footer-contact">
+            <span data-i18n="footer.contactDesc">使用上有任何問題、建議或想法？</span>
+            <a class="footer-btn footer-btn-contact" href="mailto:contactdevlpr@gmail.com" data-i18n="footer.contactBtn">寄信給站主</a>
+        </div>
+    </footer>
+
+    <script src="../src/app.js"></script>
+</body>
+</html>

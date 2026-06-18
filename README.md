@@ -7,6 +7,8 @@
 
 SubDesk puts **AI-assisted typo hunting** and **human verification** on a single screen, so you stop bouncing between your AI chat window, your video editor, and a separate player while fixing subtitles.
 
+<video src="public/Demo-en.mp4" autoplay loop muted playsinline style="max-width:360px"></video>
+
 ## The Problem
 
 Video editors can auto-transcribe subtitles with AI now — but the output still contains typos, so you verify by hand. You may then paste the subtitles into another AI (ChatGPT, Claude, …) to flag likely typos. The painful part is what comes next: for every flagged line you have to find its timestamp, switch to a player, seek to that moment, listen, then switch back to fix the text. One window per step, dozens of switches per video.
