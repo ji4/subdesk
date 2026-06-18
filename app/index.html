@@ -492,5 +492,42 @@
     </footer>
 
     <script src="../src/app.js"></script>
+    <script>
+    (function() {
+      if (!window.dataLayer) return;
+      function _t(el, ev, p) { if (el) el.addEventListener('click', function() { gtag('event', ev, p || {}); }); }
+      function _tAll(sel, ev, p) { document.querySelectorAll(sel).forEach(function(el) { _t(el, ev, p); }); }
+      // 轉換
+      _t(document.querySelector('a.footer-btn-sponsor'), 'donate_click');
+      _t(document.querySelector('a.footer-btn-contact'), 'contact_click');
+      _t(document.getElementById('loadVideoBtn'), 'load_video', {type: 'youtube'});
+      _t(document.getElementById('loadLocalVideoBtn'), 'load_video', {type: 'local'});
+      _t(document.querySelector('[data-i18n="subtitle.uploadBtn"]'), 'upload_subtitle');
+      _t(document.getElementById('copyOutputBtn'), 'copy_output');
+      _t(document.querySelector('[data-i18n="output.downloadBtn"]'), 'download_output');
+      _t(document.getElementById('aiTutorialBtn'), 'tutorial_open');
+      _t(document.getElementById('aiPromptCopyBtn'), 'copy_ai_prompt');
+      _tAll('[onclick="resetPage()"]', 'reset_page');
+      // 操作習慣
+      _t(document.getElementById('playToggleBtn'), 'player_control', {action: 'toggle'});
+      _t(document.getElementById('backBtn'), 'player_control', {action: 'back'});
+      _t(document.getElementById('forwardBtn'), 'player_control', {action: 'forward'});
+      _t(document.getElementById('speedBtn'), 'speed_popover');
+      var sl = document.getElementById('speedSlider');
+      if (sl) sl.addEventListener('change', function() { gtag('event', 'speed_change', {speed: sl.value}); });
+      _t(document.getElementById('filterAll'), 'filter_change', {filter: 'all'});
+      _t(document.getElementById('filterModified'), 'filter_change', {filter: 'modified'});
+      _t(document.getElementById('outputFormatSrt'), 'output_format', {format: 'srt'});
+      _t(document.getElementById('outputFormatVtt'), 'output_format', {format: 'vtt'});
+      _t(document.getElementById('outputFormatTxt'), 'output_format', {format: 'txt'});
+      _t(document.querySelector('[data-lang="zh-TW"]'), 'lang_switch', {lang: 'zh-TW'});
+      _t(document.querySelector('[data-lang="en"]'), 'lang_switch', {lang: 'en'});
+      _t(document.getElementById('keySettingsBtn'), 'key_settings_open');
+      ['enable', 'disable', 'later'].forEach(function(c) {
+        var el = document.querySelector('[onclick="confirmDirectEditing(\'' + c + '\')"]');
+        _t(el, 'direct_edit', {choice: c});
+      });
+    })();
+    </script>
 </body>
 </html>
