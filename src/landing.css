@@ -14,18 +14,6 @@ body{background:#0C0D0F;color:#F1F5F9;font-family:'Plus Jakarta Sans','PingFang 
 @keyframes sd-tflash{0%,38%{transform:scale(1)}48%{transform:scale(1.18)}62%,100%{transform:scale(1)}}
 @keyframes sd-cursor2{0%,16%{transform:translate(150px,28px);opacity:0}22%{opacity:1}40%,54%{transform:translate(30px,96px);opacity:1}60%{transform:translate(30px,96px) scale(0.85)}66%{transform:translate(30px,96px) scale(1)}90%,100%{transform:translate(30px,96px);opacity:0}}
 
-/* demo carousel keyframes */
-@keyframes sd-type1{0%,10%{opacity:0;transform:translateY(3px)}20%,100%{opacity:1;transform:none}}
-@keyframes sd-type2{0%,30%{opacity:0;transform:translateY(3px)}40%,100%{opacity:1;transform:none}}
-@keyframes sd-type3{0%,50%{opacity:0;transform:translateY(3px)}60%,100%{opacity:1;transform:none}}
-@keyframes sd-badge-pop{0%,40%{opacity:0;transform:scale(0.7)}55%,100%{opacity:1;transform:scale(1)}}
-@keyframes sd-badge-pop2{0%,60%{opacity:0;transform:scale(0.7)}75%,100%{opacity:1;transform:scale(1)}}
-@keyframes sd-row-hl{0%,40%{background:transparent}55%,100%{background:rgba(20,184,166,0.14)}}
-@keyframes sd-row-hl2{0%,60%{background:transparent}75%,100%{background:rgba(20,184,166,0.14)}}
-@keyframes sd-scene-fade{from{opacity:0}to{opacity:1}}
-
-.sd-demo-scene{display:none}
-.sd-demo-scene.is-active{display:block;animation:sd-scene-fade 0.45s ease}
 
 .sd-link{color:#B4BEC9;text-decoration:none;transition:color 150ms ease}
 .sd-link:hover{color:#5EEAD4}

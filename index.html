@@ -55,6 +55,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="src/landing.css">
+  <link rel="stylesheet" href="src/ai-demo.css">
 </head>
 <body>
 
@@ -258,128 +259,83 @@
           <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4"><span style="width:7px;height:7px;border-radius:50%;background:#14B8A6;animation:sd-pulse 2s ease-in-out infinite"></span><span data-en="live demo">即時示範</span></span>
         </div>
 
-        <!-- Scene 1: Paste AI output -->
-        <div class="sd-demo-scene is-active">
-          <div style="padding:20px;min-height:280px;display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;background:#1A1C1F;border:1px solid rgba(255,255,255,0.07)">
-              <span style="font-size:13px;font-weight:600;color:#F1F5F9" data-en="AI-corrected output">校正後字幕輸出</span>
-              <div style="display:flex;gap:6px">
-                <span style="font-size:11px;padding:3px 9px;border-radius:5px;background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.25);font-family:'JetBrains Mono',monospace">SRT</span>
-                <span style="font-size:11px;padding:3px 9px;border-radius:5px;color:#64748B;font-family:'JetBrains Mono',monospace">VTT</span>
-                <span style="font-size:11px;padding:3px 9px;border-radius:5px;color:#64748B;font-family:'JetBrains Mono',monospace">TXT</span>
-              </div>
-            </div>
-            <div style="flex:1;border-radius:8px;background:#0E0F12;border:1px solid rgba(255,255,255,0.07);padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;min-height:160px">
-              <div style="animation:sd-type1 3.5s ease forwards"><span style="color:#64748B">#12</span> <span style="color:#5EEAD4">00:03:45</span> | <span style="color:#EF4444;text-decoration:line-through" data-en="its knot always">字母辨識常常出錯</span> | <span style="color:#22C55E" data-en="it's not always">字幕辨識常常出錯</span></div>
-              <div style="animation:sd-type2 3.5s ease forwards"><span style="color:#64748B">#27</span> <span style="color:#5EEAD4">00:08:12</span> | <span style="color:#EF4444;text-decoration:line-through" data-en="the职">的職</span> | <span style="color:#22C55E" data-en="the value">的值</span></div>
-              <div style="animation:sd-type3 3.5s ease forwards"><span style="color:#64748B">#41</span> <span style="color:#5EEAD4">00:15:30</span> | <span style="color:#EF4444;text-decoration:line-through" data-en="codema">程式馬</span> | <span style="color:#22C55E" data-en="code">程式碼</span></div>
-              <span style="display:inline-block;width:1px;height:14px;background:#14B8A6;margin-left:2px;animation:sd-pulse 0.9s ease-in-out infinite;vertical-align:middle"></span>
-            </div>
-          </div>
-          <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.07);background:#0E0F12;text-align:center">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#5EEAD4" data-en="① Paste the AI's correction list into the output box">① 把 AI 的校正清單貼進輸出區</span>
-          </div>
-        </div>
-
-        <!-- Scene 2: Auto-mark changes -->
-        <div class="sd-demo-scene">
-          <div class="sd-mock" style="display:grid;grid-template-columns:1.3fr 1fr;min-height:280px">
-            <div class="sd-mock-main" style="padding:20px;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:14px">
-              <div style="position:relative;aspect-ratio:16/9;border-radius:10px;background:linear-gradient(135deg,#1f2329,#15171b);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center">
-                <div style="width:48px;height:48px;border-radius:50%;background:rgba(20,184,166,0.16);border:1px solid rgba(20,184,166,0.4);display:flex;align-items:center;justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="#14B8A6"><path d="M8 5v14l11-7z"/></svg></div>
-              </div>
-              <div style="display:flex;align-items:center;gap:7px">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:#252830;color:#B4BEC9"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#B4BEC9;padding:4px 8px;border-radius:5px;background:#252830">-5s</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#B4BEC9;padding:4px 8px;border-radius:5px;background:#252830">+5s</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;padding:4px 8px;border-radius:5px;background:rgba(20,184,166,0.12)">1×</span>
-              </div>
-            </div>
-            <div style="padding:14px 16px;display:flex;flex-direction:column">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <span style="font-size:13px;font-weight:600;color:#F1F5F9" data-en="Subtitles">字幕列表</span>
-                <span style="display:flex;gap:4px"><span style="font-size:11px;padding:3px 9px;border-radius:5px;background:#14B8A6;color:#06201D;font-weight:600" data-en="All">全部</span><span style="font-size:11px;padding:3px 9px;border-radius:5px;color:#64748B" data-en="Modified">已修改</span></span>
-              </div>
-              <div style="display:flex;gap:9px;padding:8px;border-bottom:1px solid rgba(255,255,255,0.05)">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748B;padding-top:1px">00:01:12</span>
-                <span style="font-size:12.5px;color:#CBD5E1" data-en="Let's talk editing workflow">今天我們來聊聊剪輯工作流</span>
-              </div>
-              <div style="display:flex;gap:9px;padding:8px;border-radius:7px;border-left:3px solid #14B8A6;margin:2px 0;align-items:flex-start;animation:sd-row-hl 3.5s ease forwards">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;padding-top:1px;font-weight:600;flex-shrink:0">00:03:45</span>
-                <span style="font-size:12px;color:#CBD5E1;flex:1" data-en="…always right">字幕辨識常常出錯</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#14B8A6;color:#06201D;font-weight:700;white-space:nowrap;flex-shrink:0;animation:sd-badge-pop 3.5s ease forwards" data-en="Modified">已修改</span>
-              </div>
-              <div style="display:flex;gap:9px;padding:8px;border-radius:7px;border-left:3px solid #14B8A6;margin:2px 0;align-items:flex-start;animation:sd-row-hl2 3.5s ease forwards">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;padding-top:1px;font-weight:600;flex-shrink:0">00:08:12</span>
-                <span style="font-size:12px;color:#CBD5E1;flex:1" data-en="the value">的值</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#14B8A6;color:#06201D;font-weight:700;white-space:nowrap;flex-shrink:0;animation:sd-badge-pop2 3.5s ease forwards" data-en="Modified">已修改</span>
-              </div>
-              <div style="display:flex;gap:9px;padding:8px">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748B;padding-top:1px">00:15:30</span>
-                <span style="font-size:12.5px;color:#CBD5E1" data-en="That's what SubDesk fixes">這就是 SubDesk 要解決的事</span>
-              </div>
-            </div>
-          </div>
-          <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.07);background:#0E0F12;text-align:center">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#5EEAD4" data-en="② SubDesk auto-marks every changed line">② 工具自動標記已修改的字幕</span>
-          </div>
-        </div>
-
-        <!-- Scene 3: Click timestamp, video jumps -->
-        <div class="sd-demo-scene">
-          <div class="sd-mock" style="display:grid;grid-template-columns:1.3fr 1fr;min-height:280px">
-            <div class="sd-mock-main" style="padding:20px;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:14px">
-              <div style="position:relative;aspect-ratio:16/9;border-radius:10px;background:linear-gradient(135deg,#1f2329,#15171b);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden">
-                <div style="width:48px;height:48px;border-radius:50%;background:rgba(20,184,166,0.16);border:1px solid rgba(20,184,166,0.4);display:flex;align-items:center;justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="#14B8A6"><path d="M8 5v14l11-7z"/></svg></div>
-                <div style="position:absolute;left:14px;right:14px;bottom:12px;height:4px;border-radius:2px;background:rgba(255,255,255,0.12);overflow:hidden">
-                  <div style="position:absolute;top:0;bottom:0;left:62%;width:2px;background:rgba(20,184,166,0.6)"></div>
-                  <div style="position:absolute;top:0;bottom:0;width:9px;border-radius:2px;background:#14B8A6;animation:sd-jump 5s ease-in-out infinite"></div>
+        <!-- ai-demo: shared component with app's ai-tutorial modal -->
+        <div class="ai-demo ai-demo--chromeless" id="landingDemo">
+          <!-- Scene 1: Paste AI output -->
+          <div class="ai-demo-scene ai-demo-scene1 active">
+            <div class="ai-demo-app spotlight-output">
+              <div class="ai-demo-app-main">
+                <div class="ai-demo-app-video"><span class="ai-demo-play">▶</span></div>
+                <div class="ai-demo-app-list">
+                  <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width:58%"></span></div>
+                  <div class="ai-demo-row"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width:44%"></span></div>
+                  <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width:66%"></span></div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:7px">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:#252830;color:#B4BEC9"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#B4BEC9;padding:4px 8px;border-radius:5px;background:#252830">-5s</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#B4BEC9;padding:4px 8px;border-radius:5px;background:#252830">+5s</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;padding:4px 8px;border-radius:5px;background:rgba(20,184,166,0.12)">1×</span>
-                <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:#14B8A6;font-weight:700;animation:sd-tflash 5s ease-in-out infinite">00:03:45</span>
+              <div class="ai-demo-app-output">
+                <span class="ai-demo-line">#12 00:03:45 | <span data-en="wrong subtitle">字幕辨識出錯</span> | <span data-en="correct subtitle">字幕辨識常常出錯</span></span>
+                <span class="ai-demo-line">#27 00:08:12 | <span data-en="the職">的職</span> | <span data-en="the value">的值</span></span>
+                <span class="ai-demo-line">#41 00:15:30 | <span data-en="codema">程式馬</span> | <span data-en="code">程式碼</span></span>
               </div>
             </div>
-            <div style="position:relative;padding:14px 16px;display:flex;flex-direction:column;overflow:hidden">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <span style="font-size:13px;font-weight:600;color:#F1F5F9" data-en="Subtitles">字幕列表</span>
-                <span style="display:flex;gap:4px"><span style="font-size:11px;padding:3px 9px;border-radius:5px;color:#64748B" data-en="All">全部</span><span style="font-size:11px;padding:3px 9px;border-radius:5px;background:#14B8A6;color:#06201D;font-weight:600" data-en="Modified">已修改</span></span>
-              </div>
-              <div aria-hidden="true" style="position:absolute;z-index:4;left:0;top:0;animation:sd-cursor2 5s ease-in-out infinite">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="#5EEAD4" stroke="#06201D" stroke-width="1"><path d="M5 3l15 9-6.5 1.8L10 21z"/></svg>
-              </div>
-              <div style="position:relative;display:flex;gap:9px;padding:8px;border-radius:7px;background:rgba(20,184,166,0.14);border-left:3px solid #14B8A6;margin:2px 0;align-items:flex-start">
-                <span aria-hidden="true" style="position:absolute;left:32px;top:17px;width:28px;height:28px;border-radius:50%;border:2px solid #14B8A6;transform:translate(-50%,-50%) scale(0.3);opacity:0;animation:sd-ripple 5s ease-out infinite;pointer-events:none"></span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;padding-top:1px;font-weight:600;flex-shrink:0">00:03:45</span>
-                <span style="font-size:12px;color:#CBD5E1;flex:1" data-en="…always right">字幕辨識常常出錯</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#14B8A6;color:#06201D;font-weight:700;white-space:nowrap;flex-shrink:0" data-en="Modified">已修改</span>
-              </div>
-              <div style="display:flex;gap:9px;padding:8px;border-radius:7px;background:rgba(20,184,166,0.07);border-left:3px solid rgba(20,184,166,0.4);margin:2px 0;align-items:flex-start">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;padding-top:1px;font-weight:600;flex-shrink:0">00:08:12</span>
-                <span style="font-size:12px;color:#CBD5E1;flex:1" data-en="the value">的值</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(20,184,166,0.3);color:#5EEAD4;font-weight:700;white-space:nowrap;flex-shrink:0" data-en="Modified">已修改</span>
-              </div>
-              <div style="display:flex;gap:9px;padding:8px;align-items:flex-start">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748B;padding-top:1px;flex-shrink:0">00:15:30</span>
-                <span style="font-size:12px;color:#CBD5E1;flex:1" data-en="That's what SubDesk fixes">這就是 SubDesk 要解決的事</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(20,184,166,0.3);color:#5EEAD4;font-weight:700;white-space:nowrap;flex-shrink:0" data-en="Modified">已修改</span>
-              </div>
-            </div>
+            <p class="ai-demo-caption" data-en="① Paste the AI's correction list into the output box">① 把 AI 的校正清單貼進輸出區</p>
           </div>
-          <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.07);background:#0E0F12;text-align:center">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#5EEAD4" data-en="③ Click a timestamp → video jumps → hear and fix">③ 點時間戳跳轉 → 邊聽邊確認</span>
-          </div>
-        </div>
 
-        <!-- Carousel dots -->
-        <div style="display:flex;gap:8px;justify-content:center;padding:13px 0;background:#141518;border-top:1px solid rgba(255,255,255,0.05)">
-          <button class="sd-demo-dot" aria-label="場景 1" style="width:8px;height:8px;border-radius:50%;background:#14B8A6;border:none;cursor:pointer;padding:0;transition:background 200ms ease"></button>
-          <button class="sd-demo-dot" aria-label="場景 2" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;cursor:pointer;padding:0;transition:background 200ms ease"></button>
-          <button class="sd-demo-dot" aria-label="場景 3" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;cursor:pointer;padding:0;transition:background 200ms ease"></button>
+          <!-- Scene 2: Auto-mark changes -->
+          <div class="ai-demo-scene ai-demo-scene2">
+            <div class="ai-demo-app spotlight-list">
+              <div class="ai-demo-app-main">
+                <div class="ai-demo-app-video"><span class="ai-demo-play">▶</span></div>
+                <div class="ai-demo-app-list">
+                  <div class="ai-demo-row"><span class="ai-demo-timestamp">00:01:12</span><span class="ai-demo-bar" style="width:58%"></span></div>
+                  <div class="ai-demo-row ai-demo-row-modified">
+                    <span class="ai-demo-timestamp">00:03:45</span>
+                    <span class="ai-demo-bar" style="width:36%"></span>
+                    <span class="ai-demo-badge" data-en="Modified">已修改</span>
+                  </div>
+                  <div class="ai-demo-row"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width:66%"></span></div>
+                </div>
+              </div>
+              <div class="ai-demo-app-output">
+                <span class="ai-demo-line">#12 00:03:45 | <span data-en="wrong">字幕辨識出錯</span> | <span data-en="correct">字幕辨識常常出錯</span></span>
+                <span class="ai-demo-line">#27 00:08:12 | <span data-en="the職">的職</span> | <span data-en="the value">的值</span></span>
+              </div>
+            </div>
+            <p class="ai-demo-caption" data-en="② SubDesk auto-marks every changed line">② 工具自動標記已修改的字幕</p>
+          </div>
+
+          <!-- Scene 3: Click timestamp, video jumps -->
+          <div class="ai-demo-scene ai-demo-scene3">
+            <div class="ai-demo-app spotlight-video">
+              <div class="ai-demo-app-main">
+                <div class="ai-demo-app-video">
+                  <span class="ai-demo-play">▶</span>
+                  <span class="ai-demo-progress"><span class="ai-demo-progress-fill"></span></span>
+                </div>
+                <div class="ai-demo-app-list">
+                  <div class="ai-demo-tabs">
+                    <span class="ai-demo-tab" data-en="All">全部</span>
+                    <span class="ai-demo-tab active" data-en="Modified">已修改</span>
+                  </div>
+                  <div class="ai-demo-row ai-demo-row-modified ai-demo-click-target"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width:36%"></span><span class="ai-demo-badge" data-en="Modified">已修改</span></div>
+                  <svg class="ai-demo-cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 0 0-.85.36z" fill="#F1F5F9" stroke="#111214" stroke-width="1.2"/></svg>
+                  <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width:28%"></span><span class="ai-demo-badge" data-en="Modified">已修改</span></div>
+                </div>
+              </div>
+              <div class="ai-demo-app-output">
+                <span class="ai-demo-line">#12 00:03:45 | <span data-en="wrong">字幕辨識出錯</span> | <span data-en="correct">字幕辨識常常出錯</span></span>
+                <span class="ai-demo-line">#27 00:08:12 | <span data-en="the職">的職</span> | <span data-en="the value">的值</span></span>
+              </div>
+            </div>
+            <p class="ai-demo-caption" data-en="③ Click a timestamp — video jumps there instantly">③ 點時間戳跳轉 → 邊聽邊確認</p>
+          </div>
+
+          <!-- Carousel dots -->
+          <div class="ai-demo-dots">
+            <button class="ai-demo-dot active" aria-label="場景 1"></button>
+            <button class="ai-demo-dot" aria-label="場景 2"></button>
+            <button class="ai-demo-dot" aria-label="場景 3"></button>
+          </div>
         </div>
       </div>
     </div>
@@ -649,15 +605,17 @@
     rev.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  // demo carousel
+  // demo carousel (same logic as app's aiDemo)
   (function() {
-    var scenes = root.querySelectorAll('.sd-demo-scene');
-    var dots = root.querySelectorAll('.sd-demo-dot');
+    var demo = document.getElementById('landingDemo');
+    if (!demo) return;
+    var scenes = demo.querySelectorAll('.ai-demo-scene');
+    var dots = demo.querySelectorAll('.ai-demo-dot');
     var cur = 0;
     var timer;
     function show(i) {
-      scenes.forEach(function(el, j) { el.classList.toggle('is-active', j === i); });
-      dots.forEach(function(el, j) { el.style.background = j === i ? '#14B8A6' : 'rgba(255,255,255,0.2)'; });
+      scenes.forEach(function(el, j) { el.classList.toggle('active', j === i); });
+      dots.forEach(function(el, j) { el.classList.toggle('active', j === i); });
       cur = i;
     }
     dots.forEach(function(el, i) {
@@ -666,6 +624,10 @@
         show(i);
         timer = setInterval(function() { show((cur + 1) % scenes.length); }, 4000);
       });
+    });
+    demo.addEventListener('mouseenter', function() { clearInterval(timer); timer = null; });
+    demo.addEventListener('mouseleave', function() {
+      timer = setInterval(function() { show((cur + 1) % scenes.length); }, 4000);
     });
     timer = setInterval(function() { show((cur + 1) % scenes.length); }, 4000);
   })();
