@@ -320,6 +320,7 @@
                   <div class="ai-demo-row ai-demo-row-modified ai-demo-click-target"><span class="ai-demo-timestamp">00:03:45</span><span class="ai-demo-bar" style="width:36%"></span><span class="ai-demo-badge" data-en="Modified">已修改</span></div>
                   <svg class="ai-demo-cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 0 0-.85.36z" fill="#F1F5F9" stroke="#111214" stroke-width="1.2"/></svg>
                   <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:08:12</span><span class="ai-demo-bar" style="width:28%"></span><span class="ai-demo-badge" data-en="Modified">已修改</span></div>
+                  <div class="ai-demo-row ai-demo-row-modified"><span class="ai-demo-timestamp">00:15:30</span><span class="ai-demo-bar" style="width:42%"></span><span class="ai-demo-badge" data-en="Modified">已修改</span></div>
                 </div>
               </div>
               <div class="ai-demo-app-output">
@@ -622,14 +623,14 @@
       el.addEventListener('click', function() {
         clearInterval(timer);
         show(i);
-        timer = setInterval(function() { show((cur + 1) % scenes.length); }, 4000);
+        timer = setInterval(function() { show((cur + 1) % scenes.length); }, 5500);
       });
     });
     demo.addEventListener('mouseenter', function() { clearInterval(timer); timer = null; });
     demo.addEventListener('mouseleave', function() {
-      timer = setInterval(function() { show((cur + 1) % scenes.length); }, 4000);
+      timer = setInterval(function() { show((cur + 1) % scenes.length); }, 5500);
     });
-    timer = setInterval(function() { show((cur + 1) % scenes.length); }, 4000);
+    timer = setInterval(function() { show((cur + 1) % scenes.length); }, 5500);
   })();
 })();
 </script>
