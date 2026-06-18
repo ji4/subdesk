@@ -632,6 +632,24 @@
     });
     timer = setInterval(function() { show((cur + 1) % scenes.length); }, 5500);
   })();
+
+  // GA click tracking
+  (function() {
+    if (!window.dataLayer) return;
+    document.querySelectorAll('a.sd-cta').forEach(function(a) {
+      a.addEventListener('click', function() {
+        var label = (new URL(a.href, location.href)).searchParams.get('utm_content') || 'cta';
+        gtag('event', 'cta_click', {event_label: label});
+      });
+    });
+    document.querySelectorAll('a.sd-donate').forEach(function(a) {
+      a.addEventListener('click', function() { gtag('event', 'donate_click'); });
+    });
+    var btnZh = document.getElementById('btnZh');
+    var btnEn = document.getElementById('btnEn');
+    if (btnZh) btnZh.addEventListener('click', function() { gtag('event', 'lang_switch', {lang: 'zh-TW'}); });
+    if (btnEn) btnEn.addEventListener('click', function() { gtag('event', 'lang_switch', {lang: 'en'}); });
+  })();
 })();
 </script>
 
