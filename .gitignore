@@ -7,12 +7,16 @@ notes/prompt.md
 notes/threads-cards.html
 notes/threads-video.html
 notes/threads-video-9x16.html
+notes/threads-video-9x16-en.html
 notes/render-video.cjs
 notes/render-9x16.cjs
+notes/render-9x16-en.cjs
 notes/threads-video.mp4
 notes/threads-video-9x16.mp4
+notes/threads-video-9x16-en.mp4
 notes/.frames/
 notes/.frames9/
+notes/.frames9en/
 notes/_check/
 notes/_check9/
 node_modules/
