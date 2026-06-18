@@ -82,6 +82,9 @@
             gtag('js', new Date());
             gtag('config', 'G-TJNXR7NCT4');
         }
+        if (history.replaceState && /[?&]utm_/.test(location.search)) {
+            history.replaceState(null, '', location.pathname);
+        }
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </head>
