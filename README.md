@@ -9,7 +9,7 @@ SubDesk puts **AI-assisted typo hunting** and **human verification** on a single
 
 ## Demo
 
-[![SubDesk demo preview](public/demo-en.gif)](public/demo-en.mp4)
+<video src="https://github.com/user-attachments/assets/c6ec897c-7be2-4f3d-8fcd-f73e5ac96b72" width="360" controls></video>
 
 ## The Problem
 
