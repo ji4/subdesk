@@ -7,7 +7,12 @@
 
 SubDesk 把「**AI 挑錯字**」和「**人工核對**」放進同一個畫面，校字幕時不用再於 AI 對話視窗、剪輯軟體、播放器之間切來切去。
 
-<video src="public/demo.mp4" autoplay loop muted playsinline style="max-width:360px"></video>
+## Demo
+
+<video controls muted playsinline width="360">
+  <source src="public/demo.mp4" type="video/mp4">
+  你的瀏覽器不支援影片標籤。<a href="public/demo.mp4">觀看示範影片</a>。
+</video>
 
 ## 要解決的問題
 
