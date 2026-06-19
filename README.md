@@ -9,10 +9,7 @@ SubDesk puts **AI-assisted typo hunting** and **human verification** on a single
 
 ## Demo
 
-<video controls muted playsinline width="360">
-  <source src="public/demo-en.mp4" type="video/mp4">
-  Your browser does not support the video tag. <a href="public/demo-en.mp4">Watch the demo</a>.
-</video>
+[![SubDesk demo preview](public/demo-en.gif)](public/demo-en.mp4)
 
 ## The Problem
 
