@@ -467,7 +467,7 @@
         <h2 style="font-size:clamp(21px,2.8vw,28px);font-weight:800;letter-spacing:-0.02em;line-height:1.25;margin-bottom:10px;text-wrap:balance" data-en="Find it useful? Buy me a coffee.">覺得好用嗎？請我喝杯咖啡。</h2>
         <p style="font-size:15px;color:#B4BEC9;line-height:1.65;max-width:440px" data-en="SubDesk is free and open source. If it saved you time, a small tip keeps it maintained — or just say hi.">SubDesk 完全免費且開源。如果它幫你省下不少時間，一點點贊助就能讓它繼續維護下去，或單純跟站主打聲招呼也好。</p>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0">
+      <div class="sd-support-actions" style="display:flex;gap:10px;flex-shrink:0">
         <a href="https://p.ecpay.com.tw/4931F0A" target="_blank" class="sd-donate" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:11px;background:linear-gradient(135deg,#FDBA74,#F97316 52%,#EA6A0C);color:#2A1404;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 7px 20px -7px rgba(249,115,22,0.55),inset 0 1px 0 rgba(255,255,255,0.45)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <span data-en="Sponsor the project">贊助支持</span>
@@ -502,7 +502,7 @@
       </div>
     </div>
     <div style="max-width:1080px;margin:28px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
-      <span style="font-size:12.5px;color:#64748B" data-en="© 2025 SubDesk. Open source.">© 2025 SubDesk. 開源</span>
+      <span id="sdCopyright" style="font-size:12.5px;color:#64748B" data-zh-template="© {year} SubDesk. 開源" data-en-template="© {year} SubDesk. Open source.">© 2025 SubDesk. 開源</span>
       <a href="https://github.com/ji4/subdesk" target="_blank" class="sd-link" aria-label="GitHub" style="display:inline-flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.7c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.3 5 18.3 5.3 18.3 5.3c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg></a>
     </div>
   </footer>
@@ -560,10 +560,19 @@
       Object.assign(a.style, on);
       Object.assign(b.style, off);
     }
+    updateCopyrightYear(l);
   }
 
   if (btnZh) btnZh.addEventListener('click', function () { lang = 'zh-TW'; try { localStorage.setItem(KEY, lang); } catch (e) {} apply(lang); });
   if (btnEn) btnEn.addEventListener('click', function () { lang = 'en'; try { localStorage.setItem(KEY, lang); } catch (e) {} apply(lang); });
+
+  function updateCopyrightYear(l) {
+    var el = document.getElementById('sdCopyright');
+    if (!el) return;
+    var template = l === 'en' ? el.getAttribute('data-en-template') : el.getAttribute('data-zh-template');
+    el.textContent = template.replace('{year}', String(new Date().getFullYear()));
+  }
+
   apply(lang);
 
   // notrack propagation
