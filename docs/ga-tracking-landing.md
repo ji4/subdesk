@@ -20,7 +20,7 @@
 
 ## 手動排除設定
 
-網址加上 `?notrack` 會停用首頁 GA。此參數會在點擊 CTA 時自動帶入工具頁 URL，使工具頁 GA 也一併停用。
+網址加上 `?notrack` 會停用首頁 GA，並記在這個瀏覽器（localStorage `notrack=1`），之後每次造訪都排除；`?notrack=off` 取消。此參數會在點擊 CTA 時自動帶入工具頁 URL，使工具頁 GA 也一併停用。
 
 ## UTM 參數規格（首頁 → 工具頁 CTA）
 
